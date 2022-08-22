@@ -6,7 +6,7 @@ all: $(TARGETS)
 	clang $< ../src/main/c/lib.o ../build/bdwgc/libgc.a ../src/main/c/main.o -o $@
 
 %.bc: %.mlsp
-	../ll-mini-ilisp-kotlin-llvm/bin/ll-mini-ilisp-kotlin-llvm $<
+	../build/dist/bin/al-ml $<
 
 #	opt -O3 $@ > tmp
 #	mv tmp $@
