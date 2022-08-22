@@ -14,11 +14,14 @@ build_c_runtime () {
 build_parser () {
     echo "---| build parser"
 
-    deno run --allow-read --allow-write --allow-net \
-      "https://raw.githubusercontent.com/littlelanguages/parspiler-cli/main/mod.ts" kotlin \
-      --verbose \
-      --directory=src/main/kotlin --package=io.littlelanguages.mil.static \
-      "$PROJECT_HOME"/src/main/kotlin/io/littlelanguages/mil/static/Grammar.llgd || exit 1
+    (
+      cd "$PROJECT_HOME" || exit 1
+      deno run --allow-read --allow-write --allow-net \
+        "https://raw.githubusercontent.com/littlelanguages/parspiler-cli/main/mod.ts" kotlin \
+        --verbose \
+        --directory=src/main/kotlin --package=io.littlelanguages.mil.static \
+        ./src/main/kotlin/io/littlelanguages/mil/static/Grammar.llgd || exit 1
+    )
 }
 
 build_kotlin () {
@@ -75,12 +78,15 @@ case "$1" in
         echo "===| Lint"
         "$PROJECT_HOME"/tasks/lint || exit 1
 
+        echo "===| Build"
         build_parser
         build_c_runtime
         build_kotlin
 
+        echo "===| Distribution"
         distribution
 
+        echo "===| Samples"
         build_samples
         ;;
 
