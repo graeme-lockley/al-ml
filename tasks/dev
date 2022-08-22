@@ -20,7 +20,7 @@ build_parser () {
         "https://raw.githubusercontent.com/littlelanguages/parspiler-cli/main/mod.ts" kotlin \
         --verbose \
         --directory=src/main/kotlin --package=io.littlelanguages.alml.static \
-        ./src/main/kotlin/io/littlelanguages/mil/static/Grammar.llgd || exit 1
+        ./src/main/kotlin/io/littlelanguages/alml/static/Grammar.llgd || exit 1
     )
 }
 
