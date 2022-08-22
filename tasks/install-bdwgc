@@ -1,5 +1,7 @@
 #!/bin/bash
 
+PROJECT_HOME=$( "$( dirname "$0" )/../.tasks/project-home" ) || exit 1
+
 UNAME=$(uname)
 
 if [[ "$UNAME" == "Darwin" || "$UNAME" == "Linux" ]]; then
@@ -9,14 +11,16 @@ if [[ "$UNAME" == "Darwin" || "$UNAME" == "Linux" ]]; then
     echo Using brew to install autoconf and automake
     brew install autoconf automake
   fi
+  (
+    cd "$PROJECT_HOME" || exit 1
 
-  if [ -d "./build/bdwgc" ]; then
-    echo "Warning: ./build/bdwgc exists and is a directory - assuming all is order"
-    echo "         and doing nothing.  If you need to redo then delete this directory"
-    echo "         and rerun"
-  else
-    echo "Info: Getting bdwgc and building"
-    (
+    if [ -d "./build/bdwgc" ]; then
+      echo "Warning: ./build/bdwgc exists and is a directory - assuming all is order"
+      echo "         and doing nothing.  If you need to redo then delete this directory"
+      echo "         and rerun"
+    else
+      echo "Info: Getting bdwgc and building"
+
       mkdir -p build || exit 1
       cd ./build || exit 1
       git clone https://github.com/ivmai/bdwgc.git || exit 1
@@ -27,8 +31,8 @@ if [[ "$UNAME" == "Darwin" || "$UNAME" == "Linux" ]]; then
       make -j || exit 1
       make check || exit 1
       make -f Makefile.direct || exit 1
-    )
-  fi
+    fi
+  )
 else
   echo "Error: uname == $UNAME: Unable to setup"
   exit 1
