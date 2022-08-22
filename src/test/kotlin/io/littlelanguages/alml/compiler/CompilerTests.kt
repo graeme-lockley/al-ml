@@ -1,4 +1,4 @@
-package io.littlelanguages.mil.compiler
+package io.littlelanguages.alml.compiler
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.scopes.FunSpecContainerContext
@@ -6,14 +6,14 @@ import io.kotest.matchers.shouldBe
 import io.littlelanguages.data.Either
 import io.littlelanguages.data.Left
 import io.littlelanguages.data.Right
-import io.littlelanguages.mil.Errors
-import io.littlelanguages.mil.compiler.llvm.Context
-import io.littlelanguages.mil.compiler.llvm.Module
-import io.littlelanguages.mil.compiler.llvm.targetTriple
-import io.littlelanguages.mil.dynamic.Binding
-import io.littlelanguages.mil.dynamic.translate
-import io.littlelanguages.mil.static.Scanner
-import io.littlelanguages.mil.static.parse
+import io.littlelanguages.alml.Errors
+import io.littlelanguages.alml.compiler.llvm.Context
+import io.littlelanguages.alml.compiler.llvm.Module
+import io.littlelanguages.alml.compiler.llvm.targetTriple
+import io.littlelanguages.alml.dynamic.Binding
+import io.littlelanguages.alml.dynamic.translate
+import io.littlelanguages.alml.static.Scanner
+import io.littlelanguages.alml.static.parse
 import org.bytedeco.llvm.LLVM.LLVMValueRef
 import org.yaml.snakeyaml.Yaml
 import java.io.*
@@ -24,7 +24,7 @@ private val yaml = Yaml()
 class CompilerTests : FunSpec({
     context("Conformance Tests") {
         val context = Context(targetTriple())
-        val content = File("./src/test/kotlin/io/littlelanguages/mil/compiler/compiler.yaml").readText()
+        val content = File("./src/test/kotlin/io/littlelanguages/alml/compiler/compiler.yaml").readText()
 
         val scenarios: Any = /*emptyList<String>() */ yaml.load(content)
 

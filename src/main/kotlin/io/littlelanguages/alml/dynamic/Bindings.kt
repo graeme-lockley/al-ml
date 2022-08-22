@@ -1,11 +1,11 @@
-package io.littlelanguages.mil.dynamic
+package io.littlelanguages.alml.dynamic
 
 import io.littlelanguages.data.NestedMap
 import io.littlelanguages.data.Yamlable
-import io.littlelanguages.mil.ArgumentMismatchError
-import io.littlelanguages.mil.Errors
-import io.littlelanguages.mil.dynamic.tst.Expressionss
-import io.littlelanguages.mil.static.ast.SExpression
+import io.littlelanguages.alml.ArgumentMismatchError
+import io.littlelanguages.alml.Errors
+import io.littlelanguages.alml.dynamic.tst.Expressionss
+import io.littlelanguages.alml.static.ast.SExpression
 
 sealed interface Binding<S, T> : Yamlable {
     val name: String

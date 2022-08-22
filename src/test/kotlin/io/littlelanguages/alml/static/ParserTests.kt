@@ -1,12 +1,12 @@
-package io.littlelanguages.mil.static
+package io.littlelanguages.alml.static
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.scopes.FunSpecContainerContext
 import io.kotest.matchers.shouldBe
 import io.littlelanguages.data.Either
 import io.littlelanguages.data.Right
-import io.littlelanguages.mil.Errors
-import io.littlelanguages.mil.static.ast.Program
+import io.littlelanguages.alml.Errors
+import io.littlelanguages.alml.static.ast.Program
 import org.yaml.snakeyaml.Yaml
 import java.io.File
 import java.io.StringReader
@@ -16,7 +16,7 @@ private val yaml = Yaml()
 
 class ParserTests : FunSpec({
     context("Conformance Tests") {
-        val content = File("./src/test/kotlin/io/littlelanguages/mil/static/parser.yaml").readText()
+        val content = File("./src/test/kotlin/io/littlelanguages/alml/static/parser.yaml").readText()
 
         val scenarios: Any = yaml.load(content)
 

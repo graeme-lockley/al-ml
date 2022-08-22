@@ -1,15 +1,15 @@
-package io.littlelanguages.mil.compiler
+package io.littlelanguages.alml.compiler
 
 import io.littlelanguages.data.Either
 import io.littlelanguages.data.Right
-import io.littlelanguages.mil.CompilationError
-import io.littlelanguages.mil.Errors
-import io.littlelanguages.mil.compiler.llvm.Context
-import io.littlelanguages.mil.compiler.llvm.FunctionBuilder
-import io.littlelanguages.mil.compiler.llvm.Module
-import io.littlelanguages.mil.compiler.llvm.VerifyError
-import io.littlelanguages.mil.dynamic.*
-import io.littlelanguages.mil.dynamic.tst.*
+import io.littlelanguages.alml.CompilationError
+import io.littlelanguages.alml.Errors
+import io.littlelanguages.alml.compiler.llvm.Context
+import io.littlelanguages.alml.compiler.llvm.FunctionBuilder
+import io.littlelanguages.alml.compiler.llvm.Module
+import io.littlelanguages.alml.compiler.llvm.VerifyError
+import io.littlelanguages.alml.dynamic.*
+import io.littlelanguages.alml.dynamic.tst.*
 import org.bytedeco.javacpp.PointerPointer
 import org.bytedeco.llvm.LLVM.LLVMValueRef
 import org.bytedeco.llvm.global.LLVM
@@ -125,15 +125,12 @@ private class DeclareProcedures(private val module: Module) {
                 addFunctionsFromExpressions(e.es)
 
             is CallProcedureExpression ->
-                when (val procedure = e.procedure) {
+                when (e.procedure) {
                     is ExternalProcedureBinding ->
                         addFunctionsFromExpressionss(e.es)
 
                     is DeclaredProcedureBinding ->
                         addFunctionsFromExpressionss(e.es)
-
-                    else ->
-                        TODO(procedure.toString())
                 }
 
             is IfExpression -> {
@@ -235,9 +232,6 @@ private class CompileExpression(val compileState: CompileState) {
 
                         functionBuilder.buildCall(functionRef, fullArguments)
                     }
-
-                    else ->
-                        TODO(procedure.toString())
                 }
 
             is CallValueExpression -> {

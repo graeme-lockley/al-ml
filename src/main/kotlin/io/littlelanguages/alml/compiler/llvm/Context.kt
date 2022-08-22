@@ -1,4 +1,4 @@
-package io.littlelanguages.mil.compiler.llvm
+package io.littlelanguages.alml.compiler.llvm
 
 import org.bytedeco.javacpp.PointerPointer
 import org.bytedeco.llvm.LLVM.LLVMContextRef

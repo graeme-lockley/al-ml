@@ -1,10 +1,10 @@
-package io.littlelanguages.mil.bin
+package io.littlelanguages.alml.bin
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
-import io.littlelanguages.mil.*
-import io.littlelanguages.mil.static.TToken
-import io.littlelanguages.mil.static.Token
+import io.littlelanguages.alml.*
+import io.littlelanguages.alml.static.TToken
+import io.littlelanguages.alml.static.Token
 import io.littlelanguages.scanpiler.LocationCoordinate
 
 val L1 = LocationCoordinate(0, 10, 11)

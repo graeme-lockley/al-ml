@@ -6,7 +6,7 @@ plugins {
 //apply plugin: 'kotlin-kapt'
 
 application {
-    mainClass.set("io.littlelanguages.mil.bin.CLIKt")
+    mainClass.set("io.littlelanguages.alml.bin.CLIKt")
 }
 
 test {

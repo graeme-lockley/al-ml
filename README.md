@@ -18,7 +18,7 @@ This implementation is seeded from <https://github.com/littlelanguages/ll-mini-i
 
 This implementation will evolve as I have more fun with it.  Essentially though it'll go through the following phases:
 
-- [ ] Reshape the code base into something that is a little tighter
+- [X] Reshape the code base into something that is a little tighter
 - [ ] Transform the supported language from mini-ilisp to a small dialect Al-ML
 - [ ] Transform the runtime system so that it uses untagged values
 - [ ] Extend the small dialect of Al-ML to include the full Al-ML language

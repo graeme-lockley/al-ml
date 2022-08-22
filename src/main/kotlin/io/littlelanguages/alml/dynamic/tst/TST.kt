@@ -1,8 +1,8 @@
-package io.littlelanguages.mil.dynamic.tst
+package io.littlelanguages.alml.dynamic.tst
 
 import io.littlelanguages.data.Yamlable
-import io.littlelanguages.mil.dynamic.Binding
-import io.littlelanguages.mil.dynamic.ProcedureBinding
+import io.littlelanguages.alml.dynamic.Binding
+import io.littlelanguages.alml.dynamic.ProcedureBinding
 
 data class Program<S, T>(val values: List<String>, val declarations: List<Declaration<S, T>>) : Yamlable {
     override fun yaml(): Any =

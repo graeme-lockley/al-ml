@@ -1,11 +1,11 @@
-package io.littlelanguages.mil.static
+package io.littlelanguages.alml.static
 
 import io.littlelanguages.data.Either
 import io.littlelanguages.data.Left
 import io.littlelanguages.data.Right
-import io.littlelanguages.mil.Errors
-import io.littlelanguages.mil.ParseError
-import io.littlelanguages.mil.static.ast.*
+import io.littlelanguages.alml.Errors
+import io.littlelanguages.alml.ParseError
+import io.littlelanguages.alml.static.ast.*
 import io.littlelanguages.scanpiler.Location
 import io.littlelanguages.scanpiler.Locationable
 

@@ -1,4 +1,4 @@
-package io.littlelanguages.mil.static
+package io.littlelanguages.alml.static
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe

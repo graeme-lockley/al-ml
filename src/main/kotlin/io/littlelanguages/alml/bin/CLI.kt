@@ -1,20 +1,20 @@
-package io.littlelanguages.mil.bin
+package io.littlelanguages.alml.bin
 
 import io.littlelanguages.data.Either
 import io.littlelanguages.data.Left
 import io.littlelanguages.data.Right
-import io.littlelanguages.mil.*
-import io.littlelanguages.mil.compiler.CompileState
-import io.littlelanguages.mil.compiler.builtinBindings
-import io.littlelanguages.mil.compiler.llvm.Context
-import io.littlelanguages.mil.compiler.llvm.Module
-import io.littlelanguages.mil.compiler.llvm.targetTriple
-import io.littlelanguages.mil.dynamic.Binding
-import io.littlelanguages.mil.dynamic.translate
-import io.littlelanguages.mil.static.Scanner
-import io.littlelanguages.mil.static.TToken
-import io.littlelanguages.mil.static.Token
-import io.littlelanguages.mil.static.parse
+import io.littlelanguages.alml.*
+import io.littlelanguages.alml.compiler.CompileState
+import io.littlelanguages.alml.compiler.builtinBindings
+import io.littlelanguages.alml.compiler.llvm.Context
+import io.littlelanguages.alml.compiler.llvm.Module
+import io.littlelanguages.alml.compiler.llvm.targetTriple
+import io.littlelanguages.alml.dynamic.Binding
+import io.littlelanguages.alml.dynamic.translate
+import io.littlelanguages.alml.static.Scanner
+import io.littlelanguages.alml.static.TToken
+import io.littlelanguages.alml.static.Token
+import io.littlelanguages.alml.static.parse
 import io.littlelanguages.scanpiler.Location
 import io.littlelanguages.scanpiler.LocationCoordinate
 import io.littlelanguages.scanpiler.LocationRange
@@ -31,7 +31,7 @@ fun compile(builtinBindings: List<Binding<CompileState, LLVMValueRef>>, context:
     val reader = FileReader(input)
 
     val result = parse(Scanner(reader)) mapLeft { listOf(it) } andThen { translate(builtinBindings, it) } andThen {
-        io.littlelanguages.mil.compiler.compile(
+        io.littlelanguages.alml.compiler.compile(
             context,
             input.name,
             it

@@ -1,4 +1,4 @@
-package io.littlelanguages.mil.dynamic
+package io.littlelanguages.alml.dynamic
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.scopes.FunSpecContainerContext
@@ -6,11 +6,11 @@ import io.kotest.matchers.shouldBe
 import io.littlelanguages.data.Either
 import io.littlelanguages.data.Left
 import io.littlelanguages.data.Right
-import io.littlelanguages.mil.Errors
-import io.littlelanguages.mil.dynamic.tst.Expressionss
-import io.littlelanguages.mil.dynamic.tst.Program
-import io.littlelanguages.mil.static.Scanner
-import io.littlelanguages.mil.static.parse
+import io.littlelanguages.alml.Errors
+import io.littlelanguages.alml.dynamic.tst.Expressionss
+import io.littlelanguages.alml.dynamic.tst.Program
+import io.littlelanguages.alml.static.Scanner
+import io.littlelanguages.alml.static.parse
 import org.yaml.snakeyaml.Yaml
 import java.io.File
 import java.io.StringReader
@@ -22,7 +22,7 @@ typealias T = String
 
 class DynamicTests : FunSpec({
     context("Conformance Tests") {
-        val content = File("./src/test/kotlin/io/littlelanguages/mil/dynamic/dynamic.yaml").readText()
+        val content = File("./src/test/kotlin/io/littlelanguages/alml/dynamic/dynamic.yaml").readText()
 
         val scenarios: Any = yaml.load(content)
 

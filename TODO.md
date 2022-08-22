@@ -13,4 +13,4 @@ Move the code base into a style that is less cluttered and easier to work on.  T
 
 ## Reshape Source
 
-- [ ] Rename .mil. package to .alml. - this will be in both main and test
+- [X] Rename .mil. package to .alml. - this will be in both main and test

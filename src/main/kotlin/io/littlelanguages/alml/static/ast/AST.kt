@@ -1,4 +1,4 @@
-package io.littlelanguages.mil.static.ast
+package io.littlelanguages.alml.static.ast
 
 import io.littlelanguages.data.Yamlable
 import io.littlelanguages.scanpiler.Location

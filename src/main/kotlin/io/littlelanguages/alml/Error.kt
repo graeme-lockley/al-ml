@@ -1,8 +1,8 @@
-package io.littlelanguages.mil
+package io.littlelanguages.alml
 
 import io.littlelanguages.data.Yamlable
-import io.littlelanguages.mil.static.TToken
-import io.littlelanguages.mil.static.Token
+import io.littlelanguages.alml.static.TToken
+import io.littlelanguages.alml.static.Token
 import io.littlelanguages.scanpiler.Location
 
 sealed interface Errors : Yamlable
