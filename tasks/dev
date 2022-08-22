@@ -41,6 +41,13 @@ distribution () {
     )
 }
 
+build_samples () {
+    (
+      cd "$PROJECT_HOME"/src/samples || exit 1
+      make || exit 1
+    )
+}
+
 case "$1" in
     help)
         echo "Usage: $0 [<command>]"
@@ -55,6 +62,8 @@ case "$1" in
         echo "    Builds the parser from specs"
         echo "  distribution"
         echo "    Build the distribution in ~/build/dist"
+        echo "  samples"
+        echo "    Build the samples"
         echo "  run"
         echo "    Run all tasks"
         ;;
@@ -71,6 +80,8 @@ case "$1" in
         build_kotlin
 
         distribution
+
+        build_samples
         ;;
 
     "c-runtime")
@@ -87,6 +98,10 @@ case "$1" in
 
     parser)
         build_parser
+        ;;
+
+    samples)
+        build_samples
         ;;
 
     *)
