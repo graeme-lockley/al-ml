@@ -409,7 +409,7 @@ val builtinBindings = listOf(
     VariableArityExternalProcedure("-", "_minus_variable"),
     VariableArityExternalProcedure("*", "_multiply_variable"),
     VariableArityExternalPositionProcedure("/", "_divide_variable"),
-    FixedArityExternalProcedure("=", 2, "_equals"),
+    FixedArityExternalProcedure("==", 2, "_equals"),
     FixedArityExternalProcedure("<", 2, "_less_than"),
     FixedArityExternalProcedure("boolean?", 1, "_booleanp"),
     FixedArityExternalPositionProcedure("car", 1, "_pair_car"),

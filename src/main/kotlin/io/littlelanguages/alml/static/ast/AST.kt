@@ -75,7 +75,7 @@ data class ConstProcedure(
     override val position: Location,
     val symbol: Symbol,
     val parameters: List<Symbol>,
-    val expressions: List<Expression>
+    val expression: Expression
 ) : Expression(position) {
     override fun yaml(): Any =
         singletonMap(
@@ -83,7 +83,7 @@ data class ConstProcedure(
             mapOf(
                 Pair("symbol", symbol.yaml()),
                 Pair("parameters", parameters.map { it.yaml() }),
-                Pair("expressions", expressions.map { it.yaml() }),
+                Pair("expression", expression.yaml()),
                 Pair("position", position.yaml())
             )
         )

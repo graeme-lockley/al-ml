@@ -6,7 +6,7 @@ Piece by piece transform mini-iLisp into Al-ML.  The intention here is to re-use
 - [X] Introduce semicolons between expressions at a top-level
 - [X] Replace `(do ...)` form with `{ ... }`
 - [X] Change the structure so that `{ ... }` is an expression block rather than passing `Array<Expression>` around.
-- [ ] Replace `const` with `let` and move it into expression
+- [X] Replace `const` with `let` and move it into expression
 - [ ] Move `if` out of s-expression into Al-ML
 
 - [ ] Defect with comments - see euler-001 sample

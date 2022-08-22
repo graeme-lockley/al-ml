@@ -55,8 +55,9 @@ fun reportErrors(errors: List<Errors>) {
 fun formatTToken(token: TToken): String =
     when (token) {
         TToken.TProc -> "'proc'"
-        TToken.TConst -> "'const'"
         TToken.TIf -> "'if'"
+        TToken.TEqual -> "'='"
+        TToken.TLet -> "'let'"
         TToken.TLCurly -> "'{'"
         TToken.TLParen -> "'('"
         TToken.TLiteralInt -> "Literal Int"

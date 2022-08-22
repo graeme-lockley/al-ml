@@ -22,7 +22,7 @@
     tests:
       - name: Top-level constant
         input: |
-          (const x 10)
+          let x = 10
         output:
           program:
             values:
@@ -41,7 +41,7 @@
                           - 10
       - name: Top-level procedure
         input: |
-          (const (add a b) (+ a b))
+          let add a b = (+ a b)
         output:
           program:
             values: [ ]
@@ -75,17 +75,17 @@
                   es: [ ]
       - name: Procedure with duplicate parameter names
         input: |
-          (const (add a a) (+ a a))
+          let add a a = (+ a a)
         output:
           - DuplicateParameterNameError:
               name: a
-              location: "14:1:15"
+              location: "10:1:11"
       - name: Values within a procedure
         input: |
-          (const (double-sum a b)
-            (const sum (+ a b))
+          let double-sum a b = {
+            let sum = (+ a b);
             (+ sum sum)
-          )
+          }
         output:
           program:
             values: [ ]
@@ -139,17 +139,17 @@
                   es: [ ]
       - name: Nested procedures with free variables
         input: |
-          (const (f a b)
-              (const sum (+ a b))
+          let f a b = {
+              let sum = (+ a b);
 
-              (const (g x)
-                  (const sum2 (+ a b sum))
+              let g x = {
+                  let sum2 = (+ a b sum);
 
                   (+ sum2 x)
-              )
+              };
 
               (g sum)
-          );
+          };
 
           (println (f 1 2))
         output:
@@ -347,7 +347,7 @@
               location: 10:1:11-12:1:13
       - name: Top-level value
         input: |
-          (const x 10);
+          let x = 10;
 
           (println x)
         output:
@@ -374,8 +374,8 @@
                         line-number: 3
       - name: Multiple top-level values
         input: |
-          (const v1 1);
-          (const v2 "Hello world");
+          let v1 = 1;
+          let v2 = "Hello world";
 
           (println v1 v2)
         output:
@@ -409,7 +409,7 @@
                         line-number: 4
       - name: Top-level procedure
         input: |
-          (const (add a b) (+ a b));
+          let add a b = (+ a b);
 
           (println (add 1 2))
         output:
@@ -460,7 +460,7 @@
                         line-number: 3
       - name: Top-level procedure with incorrect number of arguments
         input: |
-          (const (add a b) (+ a b));
+          let add a b = (+ a b);
 
           (println (add));
           (println (add 1));
@@ -470,95 +470,93 @@
               name: add
               expected: 2
               actual: 0
-              location: 37:3:10-41:3:14
+              location: 33:3:10-37:3:14
           - ArgumentMismatchError:
               name: add
               expected: 2
               actual: 1
-              location: 54:4:10-60:4:16
+              location: 50:4:10-56:4:16
           - ArgumentMismatchError:
               name: add
               expected: 2
               actual: 3
-              location: 73:5:10-83:5:20
+              location: 69:5:10-79:5:20
       - name: Local forward declaration
         input: |
-          (const a 9);
+          let a = 9;
 
-          (const (f)
-              (const v1 a)
-              (const a 10)
-              (const v2 a)
+          let f = {
+              let v1 = a;
+              let a = 10;
+              let v2 = a;
               (+ v1 v2)
-          )
+          }
         output:
           program:
             values:
               - a
+              - f
             procedures:
               - procedure:
-                  name: f
+                  name: _main
                   parameters: [ ]
                   depth: 0
                   offsets: 3
                   es:
                     - assign:
                         symbol:
-                          procedure-value:
-                            name: v1
-                            depth: 0
-                            offset: 0
-                        es:
-                          - toplevel-value: a
-                    - assign:
-                        symbol:
-                          procedure-value:
-                            name: a
-                            depth: 0
-                            offset: 1
-                        es:
-                          - 10
-                    - assign:
-                        symbol:
-                          procedure-value:
-                            name: v2
-                            depth: 0
-                            offset: 2
-                        es:
-                          - procedure-value:
-                              name: a
-                              depth: 0
-                              offset: 1
-                    - call-procedure:
-                        procedure:
-                          external-procedure: +
-                        es:
-                          - - procedure-value:
-                                name: v1
-                                depth: 0
-                                offset: 0
-                          - - procedure-value:
-                                name: v2
-                                depth: 0
-                                offset: 2
-                        line-number: 7
-              - procedure:
-                  name: _main
-                  parameters: [ ]
-                  depth: 0
-                  offsets: 0
-                  es:
-                    - assign:
-                        symbol:
                           toplevel-value: a
                         es:
                           - 9
+                    - assign:
+                        symbol:
+                          toplevel-value: f
+                        es:
+                          - assign:
+                              symbol:
+                                procedure-value:
+                                  name: v1
+                                  depth: 0
+                                  offset: 0
+                              es:
+                                - toplevel-value: a
+                          - assign:
+                              symbol:
+                                procedure-value:
+                                  name: a
+                                  depth: 0
+                                  offset: 1
+                              es:
+                                - 10
+                          - assign:
+                              symbol:
+                                procedure-value:
+                                  name: v2
+                                  depth: 0
+                                  offset: 2
+                              es:
+                                - procedure-value:
+                                    name: a
+                                    depth: 0
+                                    offset: 1
+                          - call-procedure:
+                              procedure:
+                                external-procedure: "+"
+                              es:
+                                - - procedure-value:
+                                      name: v1
+                                      depth: 0
+                                      offset: 0
+                                - - procedure-value:
+                                      name: v2
+                                      depth: 0
+                                      offset: 2
+                              line-number: 7
       - name: Top-level declaration with embedded declaration
         input: |
-          (const a { (const b 1)
-                   ; (+ b 1)
-                   }
-          )
+          let a = { let b = 1
+                  ; (+ b 1)
+                  }
         output:
           program:
             values:
@@ -594,12 +592,11 @@
                               line-number: 2
       - name: Top-level declaration with embedded replacement declaration
         input: |
-          (const b 1);
-          (const a { (const b 10);
-                     (+ b 1)
-                   }
-          );
-          (const c b)
+          let b = 1;
+          let a = { let b = 10;
+                    (+ b 1)
+                  };
+          let c = b
         output:
           program:
             values:
@@ -707,9 +704,9 @@
                             depth: 0
       - name: try-catch with bindings
         input: |
-          (const (safe-divide a b)
+          let safe-divide a b = 
             (try
-              { (const a2 (+ a a));
+              { let a2 = (+ a a);
                 (/ a2 b)
               }
               (proc (c) 0)

@@ -7,6 +7,7 @@ Expressions: Expression {";" Expression};
 Expression
   : "(" [ExpressionBody] ")"
   | "{" Expression {";" Expression} "}"
+  | "let" Symbol {Symbol} "=" Expression
   | Symbol
   | LiteralInt
   | LiteralString
@@ -14,14 +15,8 @@ Expression
 
 ExpressionBody
   : "if" {Expression}
-  | "const" ConstBody
   | "proc" "(" {Symbol} ")" {Expression}
   | "try" Expression Expression
   | "signal" Expression
   | Expression {Expression}
-  ;
-
-ConstBody
-  : Symbol Expression
-  | "(" Symbol {Symbol} ")" {Expression}
   ;

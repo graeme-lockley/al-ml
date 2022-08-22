@@ -60,7 +60,7 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
                 expressionsToTST(e.expressions)
 
             is io.littlelanguages.alml.static.ast.ConstProcedure ->
-                listOf(procedureToTST(e.symbol.name, e.parameters, e.expressions).first)
+                listOf(procedureToTST(e.symbol.name, e.parameters, listOf(e.expression)).first)
 
             is io.littlelanguages.alml.static.ast.ConstValue -> {
                 val name = e.symbol.name
