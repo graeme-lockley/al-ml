@@ -362,24 +362,24 @@
     name: "Forms"
     tests:
       - scenario:
-          name: "do"
+          name: "block"
           tests:
             - name: if
               input: |
                 (if #t
-                  (do (println "Hello")
+                  { (println "Hello");
                       (println "World")
-                  )
+                  }
                 )
               output: |
                 Hello
                 World
             - name: declaration
               input: |
-                (do (const x 1)
-                    (do (const y 2)
-                    )
-                );
+                {  (const x 1);
+                    { (const y 2)
+                    }
+                };
 
                 (println x);
                 (println y)
@@ -528,17 +528,17 @@
           (const a 1);
           (const b (if (= a 1) 2 3));
           (const c
-            (do (const z 4)
-                (- z 1)
-            )
+            { (const z 4);
+              (- z 1)
+            }
           );
 
           (const d
-            (do (println c)
-                (const c (+ a b 1))
-                (println c)
-                c
-            )
+            { (println c);
+              (const c (+ a b 1));
+              (println c);
+               c
+            }
           );
 
           (println a);
@@ -829,9 +829,9 @@
         input: |
           (const (safe-divide a b)
             (try
-              (do (const a2 (+ a a))
-                  (/ a2 b)
-              )
+              { (const a2 (+ a a));
+                (/ a2 b)
+              }
               (proc (c)
                 (println c)
                 0

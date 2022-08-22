@@ -48,9 +48,9 @@ class FormatErrorTests : StringSpec({
         formatError(
             ParseError(
                 Token(TToken.TConst, L1, ""),
-                setOf(TToken.TDo, TToken.TIf)
+                setOf(TToken.TLCurly, TToken.TIf)
             )
-        ) shouldBe "Parse Error: (10, 11): Expected one of 'do', 'if' but found 'const'"
+        ) shouldBe "Parse Error: (10, 11): Expected one of '{', 'if' but found 'const'"
 
         formatError(
             ParseError(

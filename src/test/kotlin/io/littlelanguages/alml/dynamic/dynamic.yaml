@@ -555,9 +555,9 @@
                           - 9
       - name: Top-level declaration with embedded declaration
         input: |
-          (const a (do (const b 1)
-                       (+ b 1)
-                   )
+          (const a { (const b 1)
+                   ; (+ b 1)
+                   }
           )
         output:
           program:
@@ -595,9 +595,9 @@
       - name: Top-level declaration with embedded replacement declaration
         input: |
           (const b 1);
-          (const a (do (const b 10)
-                       (+ b 1)
-                   )
+          (const a { (const b 10);
+                     (+ b 1)
+                   }
           );
           (const c b)
         output:
@@ -709,9 +709,9 @@
         input: |
           (const (safe-divide a b)
             (try
-              (do (const a2 (+ a a))
-                  (/ a2 b)
-              )
+              { (const a2 (+ a a));
+                (/ a2 b)
+              }
               (proc (c) 0)
             )
           )

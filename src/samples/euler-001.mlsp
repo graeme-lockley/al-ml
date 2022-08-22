@@ -31,14 +31,14 @@
 (const (filter f lst)
     (if (null? lst)
             ()
-        (do (const first (car lst))
-            (const rest (filter f (cdr lst)))
+        { (const first (car lst))
+        ; (const rest (filter f (cdr lst)))
 
-            (if (f first)
-                    (pair first rest)
-                rest
-            )
-        )
+        ; (if (f first)
+              (pair first rest)
+            rest
+          )
+        }
     )
 );
 
