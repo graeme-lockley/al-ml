@@ -16,7 +16,6 @@ sealed class Expression(open val position: Location) : Yamlable, Locationable {
     override fun position(): Location = position
 }
 
-typealias Expressions = List<Expression>
 
 data class Symbol(
     override val position: Location,
@@ -42,17 +41,31 @@ data class SExpression(
         )
 }
 
+data class BlockExpression(
+    override val position: Location,
+    val expressions: List<Expression>
+) : Expression(position) {
+    override fun yaml(): Any =
+        singletonMap(
+            "Block",
+            mapOf(
+                Pair("expressions", expressions.map { it.yaml() }),
+                Pair("position", position.yaml())
+            )
+        )
+}
+
 data class ConstValue(
     override val position: Location,
     val symbol: Symbol,
-    val expressions: Expressions
+    val expression: Expression
 ) : Expression(position) {
     override fun yaml(): Any =
         singletonMap(
             "ConstValue",
             mapOf(
                 Pair("symbol", symbol.yaml()),
-                Pair("expressions", expressions.map { it.yaml() }),
+                Pair("expression", expression.yaml()),
                 Pair("position", position.yaml())
             )
         )
@@ -78,13 +91,13 @@ data class ConstProcedure(
 
 data class IfExpression(
     override val position: Location,
-    val expressions: List<List<Expression>>
+    val expressions: List<Expression>
 ) : Expression(position) {
     override fun yaml(): Any =
         singletonMap(
             "If",
             mapOf(
-                Pair("expressions", expressions.map { es -> es.map { it.yaml() } }),
+                Pair("expressions", expressions.map { it.yaml() }),
                 Pair("position", position.yaml())
             )
         )
@@ -108,13 +121,13 @@ data class ProcExpression(
 
 data class SignalExpression(
     override val position: Location,
-    val expression: List<Expression>
+    val expression: Expression
 ) : Expression(position) {
     override fun yaml(): Any =
         singletonMap(
             "Signal",
             mapOf(
-                Pair("expression", expression.map { it.yaml() }),
+                Pair("expression", expression.yaml()),
                 Pair("position", position.yaml())
             )
         )
@@ -122,15 +135,15 @@ data class SignalExpression(
 
 data class TryExpression(
     override val position: Location,
-    val body: List<Expression>,
-    val catch: List<Expression>
+    val body: Expression,
+    val catch: Expression
 ) : Expression(position) {
     override fun yaml(): Any =
         singletonMap(
             "Try",
             mapOf(
-                Pair("body", body.map { it.yaml() }),
-                Pair("catch", catch.map { it.yaml() }),
+                Pair("body", body.yaml()),
+                Pair("catch", catch.yaml()),
                 Pair("position", position.yaml())
             )
         )

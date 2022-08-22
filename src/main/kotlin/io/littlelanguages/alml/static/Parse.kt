@@ -16,64 +16,60 @@ fun parse(scanner: Scanner): Either<Errors, Program> = try {
     Left(ParseError(e.found, e.expected))
 }
 
-class ParseVisitor : Visitor<Program, List<List<Expression>>, List<Expression>, List<Expression>, Expression> {
-    override fun visitProgram(a: List<List<Expression>>): Program = Program(a.flatten())
+class ParseVisitor : Visitor<Program, List<Expression>, Expression, Expression, Expression> {
+    override fun visitProgram(a: List<Expression>): Program = Program(a)
 
-    override fun visitExpressions(a1: List<Expression>, a2: List<Tuple2<Token, List<Expression>>>): List<List<Expression>> =
+    override fun visitExpressions(a1: Expression, a2: List<Tuple2<Token, Expression>>): List<Expression> =
         listOf(a1) + a2.map { it.b }
 
-    override fun visitExpression1(a1: Token, a2: List<Expression>?, a3: Token): List<Expression> =
-        if (a2 == null) listOf(LiteralUnit(a1.location + a3.location))
-        else if (a2.size == 1) when (val e = a2[0]) {
-            is SExpression -> listOf(SExpression(a1.location + a3.location, e.expressions))
-
-            is IfExpression -> listOf(IfExpression(a1.location + a3.location, e.expressions))
-
+    override fun visitExpression1(a1: Token, a2: Expression?, a3: Token): Expression =
+        when (a2) {
+            null -> LiteralUnit(a1.location + a3.location)
+            is SExpression -> SExpression(a1.location + a3.location, a2.expressions)
             else -> a2
         }
-        else a2
 
-    override fun visitExpression2(a1: Token, a2: List<Expression>, a3: List<Tuple2<Token, List<Expression>>>, a4: Token): List<Expression> =
-        a2 + a3.map { it.b }.flatten()
+    override fun visitExpression2(a1: Token, a2: Expression, a3: List<Tuple2<Token, Expression>>, a4: Token): Expression =
+        if (a3.isEmpty()) a2 else BlockExpression(a1.location + a4.location, listOf(a2) + a3.map { it.b })
 
-    override fun visitExpression3(a: Token): List<Expression> = listOf(Symbol(a.location, a.lexeme))
+    override fun visitExpression3(a: Token): Expression =
+        Symbol(a.location, a.lexeme)
 
-    override fun visitExpression4(a: Token): List<Expression> = listOf(LiteralInt(a.location, a.lexeme))
+    override fun visitExpression4(a: Token): Expression =
+        LiteralInt(a.location, a.lexeme)
 
-    override fun visitExpression5(a: Token): List<Expression> = listOf(LiteralString(a.location, a.lexeme))
+    override fun visitExpression5(a: Token): Expression =
+        LiteralString(a.location, a.lexeme)
 
-    override fun visitExpressionBody1(a1: Token, a2: List<List<Expression>>): List<Expression> = listOf(
-        IfExpression(locationOfs(a1.location, a2), a2)
-    )
+    override fun visitExpressionBody1(a1: Token, a2: List<Expression>): Expression =
+        IfExpression(locationOf(a1.location, a2), a2)
 
-    override fun visitExpressionBody2(a1: Token, a2: Expression): List<Expression> = listOf(a2)
+    override fun visitExpressionBody2(a1: Token, a2: Expression): Expression = a2
 
-    override fun visitExpressionBody3(a1: Token, a2: Token, a3: List<Token>, a4: Token, a5: List<List<Expression>>): List<Expression> =
-        listOf(ProcExpression(locationOfs(a1.location + a4.location, a5), a3.map { Symbol(it.location, it.lexeme) }, a5.flatten()))
+    override fun visitExpressionBody3(a1: Token, a2: Token, a3: List<Token>, a4: Token, a5: List<Expression>): Expression =
+        ProcExpression(locationOf(a1.location + a4.location, a5), a3.map { Symbol(it.location, it.lexeme) }, a5)
 
-    override fun visitExpressionBody4(a1: Token, a2: List<Expression>, a3: List<Expression>): List<Expression> =
-        listOf(TryExpression(locationOf(a1.location, a3), a2, a3))
+    override fun visitExpressionBody4(a1: Token, a2: Expression, a3: Expression): Expression =
+        TryExpression(a1.location + a3.position(), a2, a3)
 
-    override fun visitExpressionBody5(a1: Token, a2: List<Expression>): List<Expression> = listOf(SignalExpression(locationOf(a1.location, a2), a2))
+    override fun visitExpressionBody5(a1: Token, a2: Expression): Expression =
+        SignalExpression(a1.location + a2.position(), a2)
 
-    override fun visitExpressionBody6(a1: List<Expression>, a2: List<List<Expression>>): List<Expression> {
-        val es = a1 + a2.flatten()
+    override fun visitExpressionBody6(a1: Expression, a2: List<Expression>): Expression {
+        val es = listOf(a1) + a2
 
-        return listOf(
-            SExpression(locationOf(es[0].position, es.drop(1)), es)
-        )
+        return SExpression(locationOf(es[0].position, es.drop(1)), es)
     }
 
-    override fun visitConstBody1(a1: Token, a2: List<Expression>): Expression =
-        ConstValue(locationOf(a1.location, a2), Symbol(a1.location, a1.lexeme), a2)
+    override fun visitConstBody1(a1: Token, a2: Expression): Expression =
+        ConstValue(a1.location + a2.position(), Symbol(a1.location, a1.lexeme), a2)
 
-    override fun visitConstBody2(a1: Token, a2: Token, a3: List<Token>, a4: Token, a5: List<List<Expression>>): Expression = ConstProcedure(
-        locationOfs(a1.location + a4.location, a5), Symbol(a2.location, a2.lexeme), a3.map { Symbol(it.location, it.lexeme) }, a5.flatten()
-    )
+    override fun visitConstBody2(a1: Token, a2: Token, a3: List<Token>, a4: Token, a5: List<Expression>): Expression =
+        ConstProcedure(
+            locationOf(a1.location + a4.location, a5), Symbol(a2.location, a2.lexeme), a3.map { Symbol(it.location, it.lexeme) }, a5
+        )
 
 }
 
 
 private fun locationOf(loc: Location, ls: List<Locationable>): Location = ls.fold(loc) { l1, l2 -> l1 + l2.position() }
-
-private fun locationOfs(loc: Location, ls: List<List<Locationable>>): Location = ls.fold(loc) { l1, l2 -> locationOf(l1, l2) }

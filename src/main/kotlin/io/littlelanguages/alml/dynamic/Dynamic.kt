@@ -1,10 +1,10 @@
 package io.littlelanguages.alml.dynamic
 
+import io.littlelanguages.alml.*
+import io.littlelanguages.alml.dynamic.tst.*
 import io.littlelanguages.data.Either
 import io.littlelanguages.data.Left
 import io.littlelanguages.data.Right
-import io.littlelanguages.alml.*
-import io.littlelanguages.alml.dynamic.tst.*
 import io.littlelanguages.scanpiler.Location
 import io.littlelanguages.scanpiler.LocationCoordinate
 import io.littlelanguages.scanpiler.LocationRange
@@ -56,12 +56,15 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
 
     private fun expressionToTST(e: io.littlelanguages.alml.static.ast.Expression, toplevelValue: Boolean = false): List<Expression<S, T>> =
         when (e) {
+            is io.littlelanguages.alml.static.ast.BlockExpression ->
+                expressionsToTST(e.expressions)
+
             is io.littlelanguages.alml.static.ast.ConstProcedure ->
                 listOf(procedureToTST(e.symbol.name, e.parameters, e.expressions).first)
 
             is io.littlelanguages.alml.static.ast.ConstValue -> {
                 val name = e.symbol.name
-                val expressions = e.expressions
+                val expression = e.expression
 
                 if (bindings.inCurrentNesting(name))
                     reportError(DuplicateNameError(name, e.symbol.position))
@@ -72,14 +75,14 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
                     }
 
                     bindings.add(name, binding)
-                    val rhs = expressionsToTST(expressions)
+                    val rhs = expressionToTST(expression)
 
                     listOf(AssignExpression(binding, rhs))
                 }
             }
 
             is io.littlelanguages.alml.static.ast.IfExpression ->
-                ifToTST(e.expressions.map { expressionsToTST(it) })
+                ifToTST(e.expressions.map { expressionToTST(it) })
 
             is io.littlelanguages.alml.static.ast.ProcExpression -> {
                 val tst = procedureToTST(nextName(), e.parameters, e.expressions)
@@ -135,14 +138,14 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
                 listOf(LiteralUnit())
 
             is io.littlelanguages.alml.static.ast.SignalExpression ->
-                listOf(SignalExpression(expressionsToTST(e.expression), lineNumber(e.position)))
+                listOf(SignalExpression(expressionToTST(e.expression), lineNumber(e.position)))
 
             is io.littlelanguages.alml.static.ast.TryExpression -> {
-                val body = procedureToTST(nextName(), emptyList(), e.body)
-                val catch = expressionsToTST(e.catch)
+                val body = procedureToTST(nextName(), emptyList(), listOf(e.body))
+                val catch = expressionToTST(e.catch)
 
                 if (!isProcedure(catch))
-                    reportError(ExpressionNotProcedureError(e.catch.drop(1).fold(e.catch[0].position) { a, b -> a + b.position }))
+                    reportError(ExpressionNotProcedureError(e.catch.position()))
                 else
                     listOf(body.first) + catch.dropLast(1) + listOf(
                         TryExpression(

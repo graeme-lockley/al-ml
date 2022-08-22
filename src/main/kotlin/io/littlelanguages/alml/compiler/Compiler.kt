@@ -366,7 +366,7 @@ private class CompileExpression(val compileState: CompileState) {
                 functionBuilder.buildExceptionSignal(
                     getFileName(functionBuilder),
                     e.lineNumber,
-                    compileScopedExpressionsForce(e.e)
+                    compileScopedExpressionsForce(e.es)
                 )
 
                 null

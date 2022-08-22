@@ -367,8 +367,8 @@
             - name: if
               input: |
                 (if #t
-                  { (println "Hello");
-                      (println "World")
+                  { (println "Hello")
+                  ; (println "World")
                   }
                 )
               output: |
@@ -376,16 +376,20 @@
                 World
             - name: declaration
               input: |
-                {  (const x 1);
-                    { (const y 2)
-                    }
+                {  (const x 1)
+                ;  { (const y 2)
+                   }
                 };
 
                 (println x);
                 (println y)
-              output: |
-                1
-                2
+              output:
+                - UnknownSymbolError:
+                    name: x
+                    location: "50:6:10"
+                - UnknownSymbolError:
+                    name: y
+                    location: "63:7:10"
 - scenario:
     name: "Declarations"
     tests:

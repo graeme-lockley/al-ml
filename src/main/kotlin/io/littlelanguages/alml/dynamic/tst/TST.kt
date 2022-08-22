@@ -1,8 +1,8 @@
 package io.littlelanguages.alml.dynamic.tst
 
-import io.littlelanguages.data.Yamlable
 import io.littlelanguages.alml.dynamic.Binding
 import io.littlelanguages.alml.dynamic.ProcedureBinding
+import io.littlelanguages.data.Yamlable
 
 data class Program<S, T>(val values: List<String>, val declarations: List<Declaration<S, T>>) : Yamlable {
     override fun yaml(): Any =
@@ -57,7 +57,7 @@ data class CallProcedureExpression<S, T>(val procedure: ProcedureBinding<S, T>, 
         )
 }
 
-data class CallValueExpression<S, T>(val operand: List<Expression<S, T>>, val es: Expressions<S, T>, val lineNumber: Int) : Expression<S, T> {
+data class CallValueExpression<S, T>(val operand: Expressions<S, T>, val es: Expressions<S, T>, val lineNumber: Int) : Expression<S, T> {
     override fun yaml(): Any =
         singletonMap(
             "call-value", mapOf(
@@ -67,7 +67,7 @@ data class CallValueExpression<S, T>(val operand: List<Expression<S, T>>, val es
         )
 }
 
-data class IfExpression<S, T>(val e1: List<Expression<S, T>>, val e2: List<Expression<S, T>>, val e3: List<Expression<S, T>>) : Expression<S, T> {
+data class IfExpression<S, T>(val e1: Expressions<S, T>, val e2: Expressions<S, T>, val e3: Expressions<S, T>) : Expression<S, T> {
     override fun yaml(): Any =
         singletonMap(
             "if", mapOf(
@@ -78,10 +78,10 @@ data class IfExpression<S, T>(val e1: List<Expression<S, T>>, val e2: List<Expre
         )
 }
 
-data class SignalExpression<S, T>(val e: List<Expression<S, T>>, val lineNumber: Int) : Expression<S, T> {
+data class SignalExpression<S, T>(val es: Expressions<S, T>, val lineNumber: Int) : Expression<S, T> {
     override fun yaml(): Any =
         singletonMap(
-            "signal", e.map { it.yaml() }
+            "signal", es.map { it.yaml() }
         )
 }
 
@@ -90,7 +90,8 @@ data class SymbolReferenceExpression<S, T>(val symbol: Binding<S, T>, val lineNu
         symbol.yaml()
 }
 
-data class TryExpression<S, T>(val body: SymbolReferenceExpression<S, T>, val catch: SymbolReferenceExpression<S, T>, val lineNumber: Int) : Expression<S, T> {
+data class TryExpression<S, T>(val body: SymbolReferenceExpression<S, T>, val catch: SymbolReferenceExpression<S, T>, val lineNumber: Int) :
+    Expression<S, T> {
     override fun yaml(): Any =
         singletonMap(
             "try", mapOf(

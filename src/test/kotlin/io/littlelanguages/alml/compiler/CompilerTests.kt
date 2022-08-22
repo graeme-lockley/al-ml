@@ -3,9 +3,6 @@ package io.littlelanguages.alml.compiler
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.scopes.FunSpecContainerContext
 import io.kotest.matchers.shouldBe
-import io.littlelanguages.data.Either
-import io.littlelanguages.data.Left
-import io.littlelanguages.data.Right
 import io.littlelanguages.alml.Errors
 import io.littlelanguages.alml.compiler.llvm.Context
 import io.littlelanguages.alml.compiler.llvm.Module
@@ -14,6 +11,9 @@ import io.littlelanguages.alml.dynamic.Binding
 import io.littlelanguages.alml.dynamic.translate
 import io.littlelanguages.alml.static.Scanner
 import io.littlelanguages.alml.static.parse
+import io.littlelanguages.data.Either
+import io.littlelanguages.data.Left
+import io.littlelanguages.data.Right
 import org.bytedeco.llvm.LLVM.LLVMValueRef
 import org.yaml.snakeyaml.Yaml
 import java.io.*
@@ -37,7 +37,13 @@ class CompilerTests : FunSpec({
 })
 
 fun compile(builtinBindings: List<Binding<CompileState, LLVMValueRef>>, context: Context, input: String): Either<List<Errors>, Module> =
-    parse(Scanner(StringReader(input))) mapLeft { listOf(it) } andThen { translate(builtinBindings, it) } andThen { compile(context, "./test.mlsp", it) }
+    parse(Scanner(StringReader(input))) mapLeft { listOf(it) } andThen { translate(builtinBindings, it) } andThen {
+        compile(
+            context,
+            "./test.mlsp",
+            it
+        )
+    }
 
 suspend fun parserConformanceTest(
     builtinBindings: List<Binding<CompileState, LLVMValueRef>>,
@@ -55,9 +61,10 @@ suspend fun parserConformanceTest(
             val output = s["output"]
 
             ctx.test(name) {
-                val lhs = when (val llvmState = compile(builtinBindings, context, input)) {
-                    is Left ->
-                        llvmState.left.joinToString("")
+                when (val llvmState = compile(builtinBindings, context, input)) {
+                    is Left -> {
+                        llvmState.left.map { it.yaml() }.toString() shouldBe output.toString()
+                    }
 
                     is Right -> {
                         val module = llvmState.right
@@ -70,14 +77,9 @@ suspend fun parserConformanceTest(
 
                         module.dispose()
 
-                        commandOutput
+                        commandOutput shouldBe (output as Any).toString().trim()
                     }
                 }
-
-                val rhs =
-                    (output as Any).toString().trim()
-
-                lhs shouldBe rhs
             }
         } else {
             val name = nestedScenario["name"] as String
