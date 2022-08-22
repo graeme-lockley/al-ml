@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <setjmp.h>
 
-#include "../../../bdwgc/include/gc.h"
+#include "../../../build/bdwgc/include/gc.h"
 
 #include "lib.h"
 

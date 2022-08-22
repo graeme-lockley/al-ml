@@ -7,7 +7,7 @@
 #include <string.h>
 
 #include "./lib.h"
-#include "../../../bdwgc/include/gc.h"
+#include "../../../build/bdwgc/include/gc.h"
 
 struct Value *_VNull;
 struct Value *_VTrue;
