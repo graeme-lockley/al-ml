@@ -1,0 +1,10 @@
+#!/bin/bash
+
+EXEC_FILE=$( command -v "$1" )
+
+if [ -f "$EXEC_FILE" ] && [ -x "$EXEC_FILE" ]
+then
+    echo "true"
+else
+    echo "false"
+fi

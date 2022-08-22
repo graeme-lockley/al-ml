@@ -1,0 +1,78 @@
+#!/bin/bash
+
+PROJECT_HOME=$( "$( dirname "$0" )/../project-home" ) || exit 1
+
+COMMAND=deno
+
+IS_INSTALLED=$( "$PROJECT_HOME"/.tasks/is-executable "$COMMAND" )
+
+case "$1" in
+    help)
+        echo "Usage: $0 [<command>]"
+        echo ""
+        echo "A wrapper over $COMMAND."
+        echo ""
+        echo "Commands:"
+        echo "  help"
+        echo "    This help page"
+        echo "  run"
+        echo "    Run $COMMAND passing all arguments following run to $COMMAND"
+        echo "  info"
+        echo "    Describes the setup of the installed $COMMAND binary"
+        echo "  install"
+        echo "    If $COMMAND is not installed, installs it"
+        echo "  verify"
+        echo "    Exits with an error if $COMMAND is not installed otherwise silently continues"
+        exit 0
+        ;;
+
+    run)
+        if [ "$IS_INSTALLED" == "false" ]
+        then
+            "$PROJECT_HOME"/.tasks/tools/deno install || exit 1
+        fi
+
+        shift
+        "$COMMAND" "$@"
+        ;;
+
+    info)
+        "$PROJECT_HOME"/.tasks/tools/lint-dockerfile verify || exit 1
+
+        echo "$COMMAND version: $( $COMMAND --version )"
+        echo "$COMMAND executable: $( which $COMMAND )"
+        ;;
+
+    install)
+        if [ "$IS_INSTALLED" == "true" ]
+        then
+            echo "$0: $COMMAND is already installed"
+        else
+            case $( uname -s ) in
+                Darwin)
+                    "$PROJECT_HOME"/.tasks/tools/deno verify || exit 1
+                    brew install "$COMMAND" || exit 1
+                    ;;
+
+                Linux)
+                    sudo curl -fsSL https://deno.land/x/install/install.sh | sh
+                    ;;
+            esac
+        fi
+        ;;
+
+    verify)
+        if [ "$IS_INSTALLED" == "true" ]
+        then
+            exit 0
+        else
+            echo "$0: $COMMAND is not installed"
+            exit 1
+        fi
+        ;;
+
+    *)
+        echo "$0: $1: Unknown command"
+        exit 1
+        ;;
+esac

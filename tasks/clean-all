@@ -1,0 +1,38 @@
+#!/bin/bash
+
+PROJECT_HOME=$( "$( dirname "$0" )/../.tasks/project-home" ) || exit 1
+
+case "$1" in
+    help)
+        echo "Usage: $0 [<command>]"
+        echo "Commands:"
+        echo "  help"
+        echo "    This help page"
+        echo "  run"
+        echo "    Run all tasks"
+        ;;
+
+    "" | run)
+        (
+          cd "$PROJECT_HOME"/src/samples || exit 1
+          make clean || exit 1
+        )
+
+        (
+          cd "$PROJECT_HOME" || exit 1
+          ./gradlew clean || exit 1
+        )
+
+        (
+          cd "$PROJECT_HOME" || exit 1
+          rm -f ./test.bc ./test.bin || exit 1
+        )
+        ;;
+
+    *)
+        echo "$0: $1: Unknown command"
+        exit 1
+        ;;
+esac
+
+

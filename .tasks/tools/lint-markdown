@@ -1,0 +1,78 @@
+#!/bin/bash
+
+PROJECT_HOME=$( "$( dirname "$0" )/../project-home" ) || exit 1
+
+LINT_COMMAND=markdownlint
+
+IS_INSTALLED=$( "$PROJECT_HOME"/.tasks/is-executable "$LINT_COMMAND" )
+
+case "$1" in
+    help)
+        echo "Usage: $0 [<command>]"
+        echo ""
+        echo "A wrapper over $LINT_COMMAND supporting the linting of docker files."
+        echo ""
+        echo "Commands:"
+        echo "  help"
+        echo "    This help page"
+        echo "  run"
+        echo "    Run $LINT_COMMAND passing all arguments following run to $LINT_COMMAND"
+        echo "  info"
+        echo "    Describes the setup of the installed $LINT_COMMAND binary"
+        echo "  install"
+        echo "    If $LINT_COMMAND is not installed, installs it"
+        echo "  verify"
+        echo "    Exits with an error if $LINT_COMMAND is not installed otherwise silently continues"
+        exit 0
+        ;;
+
+    run)
+        if [ "$IS_INSTALLED" == "false" ]
+        then
+            "$PROJECT_HOME"/.tasks/tools/lint-markdown install || exit 1
+        fi
+
+        shift
+        "$LINT_COMMAND" "$@"
+        ;;
+
+    info)
+        "$PROJECT_HOME"/.tasks/tools/lint-markdown verify || exit 1
+
+        echo "$LINT_COMMAND version: $( $LINT_COMMAND --version )"
+        echo "$LINT_COMMAND executable: $( which $LINT_COMMAND )"
+        ;;
+
+    install)
+        if [ "$IS_INSTALLED" == "true" ]
+        then
+            echo "$0: $LINT_COMMAND is already installed"
+        else
+            case $( uname -s ) in
+                Darwin)
+                    "$PROJECT_HOME"/.tasks/tools/lint-markdown verify || exit 1
+                    brew install markdownlint-cli || exit 1
+                    ;;
+
+                Linux)
+                    sudo npm install -g markdownlint-cli || exit 1
+                    ;;
+            esac
+        fi
+        ;;
+
+    verify)
+        if [ "$IS_INSTALLED" == "true" ]
+        then
+            exit 0
+        else
+            echo "$0: $LINT_COMMAND is not installed"
+            exit 1
+        fi
+        ;;
+
+    *)
+        echo "$0: $1: Unknown command"
+        exit 1
+        ;;
+esac

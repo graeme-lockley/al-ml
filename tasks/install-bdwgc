@@ -11,8 +11,8 @@ if [[ "$UNAME" == "Darwin" || "$UNAME" == "Linux" ]]; then
   fi
 
   if [ -d "./build/bdwgc" ]; then
-    echo "Warning: ./build/bdwgc exists and is a directory - assuming then all is in"
-    echo "         order and doing nothing.  If you need to redo then delete this directory"
+    echo "Warning: ./build/bdwgc exists and is a directory - assuming all is order"
+    echo "         and doing nothing.  If you need to redo then delete this directory"
     echo "         and rerun"
   else
     echo "Info: Getting bdwgc and building"

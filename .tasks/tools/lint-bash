@@ -1,0 +1,78 @@
+#!/bin/bash
+
+PROJECT_HOME=$( "$( dirname "$0" )/../project-home" ) || exit 1
+
+IS_INSTALLED=$( "$PROJECT_HOME"/.tasks/is-executable shellcheck )
+
+case "$1" in
+    help)
+        echo "Usage: $0 [<command>]"
+        echo ""
+        echo "A wrapper over shellcheck supporting the linting of Bash shell scripts."
+        echo ""
+        echo "Commands:"
+        echo "  help"
+        echo "    This help page"
+        echo "  run"
+        echo "    Run shellcheck passing all arguments following run to shellcheck"
+        echo "  info"
+        echo "    Describes the setup of the installed shellcheck binary"
+        echo "  install"
+        echo "    If shellcheck is not installed, installs it"
+        echo "  verify"
+        echo "    Exits with an error if shellcheck is not installed otherwise silently continues"
+        exit 0
+        ;;
+
+    run)
+        if [ "$IS_INSTALLED" == "false" ]
+        then
+            "$PROJECT_HOME"/.tasks/tools/lint-bash install || exit 1
+        fi
+
+        shift
+        shellcheck "$@"
+        ;;
+
+    info)
+        "$PROJECT_HOME"/.tasks/tools/lint-bash verify || exit 1
+
+        echo "Shellcheck version: $( shellcheck --version )"
+        echo "Shellcheck executable: $( which shellcheck )"
+        ;;
+
+    install)
+        if [ "$IS_INSTALLED" == "true" ]
+        then
+            echo "$0: Spellcheck is already installed"
+        else
+            case $( uname -s ) in
+                Darwin)
+                    "$PROJECT_HOME"/.tasks/tools/lint-bash verify || exit 1
+                    brew install shellcheck || exit 1
+                    ;;
+
+                Linux)
+                    sudo apt-get update
+                    sudo apt-get -y install --no-install-recommends shellcheck
+                    ;;
+            esac
+        fi
+        ;;
+
+    verify)
+        if [ "$IS_INSTALLED" == "true" ]
+        then
+            exit 0
+        else
+            echo "$0: Shellcheck is not installed"
+            exit 1
+        fi
+        ;;
+
+    *)
+        echo "$0: $1: Unknown command"
+        exit 1
+        ;;
+esac
+ 

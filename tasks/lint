@@ -1,0 +1,56 @@
+#!/bin/bash
+
+PROJECT_HOME=$( "$( dirname "$0" )/../.tasks/project-home" ) || exit 1
+
+cd "$PROJECT_HOME" || exit 1
+
+lint_bash () {
+    echo "---| lint bash"
+    "$PROJECT_HOME"/.tasks/tools/lint-bash run -e SC1090,SC1091 ./tasks/* || exit 1
+}
+
+lint_markdown () {
+    echo "---| lint markdown"
+    "$PROJECT_HOME"/.tasks/tools/lint-markdown run --config ./tasks/.markdownlint.json README.md TODO.md || exit 1
+}
+
+case "$1" in
+    help)
+        echo "Usage: $0 [<command>]"
+        echo "Commands:"
+        echo "  help"
+        echo "    This help page"
+        echo "  run"
+        echo "    Run all lint tasks"
+        echo "  bash"
+        echo "    Run all bash lint tasks"
+        echo "  markdown"
+        echo "    Run all markdown lint tasks"
+        echo "  install"
+        echo "    Install tooling if not installed"
+        exit 0
+        ;;
+
+    "" | run)
+        lint_bash
+        lint_markdown
+        ;;
+
+    bash)
+        lint_bash
+        ;;
+
+    markdown)
+        lint_markdown
+        ;;
+
+    install)
+        "$PROJECT_HOME"/.tasks/tools/lint-bash install
+        "$PROJECT_HOME"/.tasks/tools/lint-markdown install
+        ;;
+
+    *)
+        echo "$0: $1: Unknown command"
+        exit 1
+        ;;
+esac

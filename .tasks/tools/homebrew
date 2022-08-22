@@ -1,0 +1,51 @@
+#!/bin/bash
+
+PROJECT_HOME=$( "$( dirname "$0" )/../project-home" ) || exit 1
+
+case "$1" in
+    help)
+        echo "Usage: $0 [<command>]"
+        echo ""
+        echo "A wrapper over homebrew for me to manage my tasks."
+        echo ""
+        echo "Commands:"
+        echo "  help"
+        echo "    This help page"
+        echo "  info"
+        echo "    Describes the setup of the installed homebrew binary"
+        echo "  verify"
+        echo "    Exits with an error if homebrew is not installed otherwise silently continues"
+        exit 0
+        ;;
+
+    run)
+        shift
+        shellcheck "$@"
+        ;;
+
+    info)
+        "$PROJECT_HOME"/.tasks/tools/homebrew verify || exit 1
+
+        echo "Homebrew version: $( brew --version )"
+
+        EXEC_FILE=$( which brew ) || exit 1
+        echo "Homebrew executable: $EXEC_FILE"
+        ;;
+
+    verify)
+        EXEC_FILE=$( which brew )
+        if [ -f "$EXEC_FILE" ] && [ -x "$EXEC_FILE" ]
+        then
+            exit 0
+        else
+            echo "$0: Homebrew is not installed"
+            exit 1
+        fi
+        ;;
+
+    *)
+        echo "$0: $1: Unknown command"
+        exit 1
+        ;;
+esac
+ 

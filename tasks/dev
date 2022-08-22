@@ -1,0 +1,98 @@
+#!/bin/bash
+
+PROJECT_HOME=$( "$( dirname "$0" )/../.tasks/project-home" ) || exit 1
+
+build_c_runtime () {
+    echo "---| c-runtime parser"
+
+    (
+      cd "$PROJECT_HOME"/src/main/c || exit 1
+      make || exit 1
+    )
+}
+
+build_parser () {
+    echo "---| build parser"
+
+    deno run --allow-read --allow-write --allow-net \
+      "https://raw.githubusercontent.com/littlelanguages/parspiler-cli/main/mod.ts" kotlin \
+      --verbose \
+      --directory=src/main/kotlin --package=io.littlelanguages.mil.static \
+      "$PROJECT_HOME"/src/main/kotlin/io/littlelanguages/mil/static/Grammar.llgd || exit 1
+}
+
+build_kotlin () {
+    echo "---| build kotlin"
+
+    (
+      cd "$PROJECT_HOME" || exit 1
+      ./gradlew build || exit 1
+    )
+}
+
+distribution () {
+    (
+      cd "$PROJECT_HOME" || exit 1
+      mkdir -p ./build || exit 1
+      cd ./build || exit 1
+      tar -xvf ./distributions/al-ml.tar || exit 1
+      rm -rf dist || exit 1
+      mv al-ml dist || exit 1
+    )
+}
+
+case "$1" in
+    help)
+        echo "Usage: $0 [<command>]"
+        echo "Commands:"
+        echo "  help"
+        echo "    This help page"
+        echo "  c-runtime"
+        echo "    Builds the Al-ML runtime system"
+        echo "  kotlin"
+        echo "    Builds the Kotlin code"
+        echo "  parser"
+        echo "    Builds the parser from specs"
+        echo "  distribution"
+        echo "    Build the distribution in ~/build/dist"
+        echo "  run"
+        echo "    Run all tasks"
+        ;;
+
+    "" | run)
+        echo "===| Install Packages"
+        "$PROJECT_HOME"/tasks/install-bdwgc || exit 1
+
+        echo "===| Lint"
+        "$PROJECT_HOME"/tasks/lint || exit 1
+
+        build_parser
+        build_c_runtime
+        build_kotlin
+
+        distribution
+        ;;
+
+    "c-runtime")
+        build_c_runtime
+        ;;
+
+    distribution)
+        distribution
+        ;;
+
+    kotlin)
+        build_kotlin
+        ;;
+
+    parser)
+        build_parser
+        ;;
+
+    *)
+        echo "$0: $1: Unknown command"
+        exit 1
+        ;;
+esac
+
+

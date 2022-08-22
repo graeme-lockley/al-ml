@@ -12,7 +12,7 @@ Al-ML is an implementation of an ML flavoured language with the following charac
 
 The implementation is built in Kotlin and compiles programs to binary code using LLVM.
 
-This implementation is seeded from https://github.com/littlelanguages/ll-mini-ilisp-kotlin-llvm.
+This implementation is seeded from <https://github.com/littlelanguages/ll-mini-ilisp-kotlin-llvm>.
 
 ## What to expect
 
@@ -28,6 +28,3 @@ This implementation will evolve as I have more fun with it.  Essentially though 
 At that point I would then like to rewrite the entire compiler in Al-ML and have it bootstrap itself.
 
 I maintain a [TODO](./TODO.md) to highlight what I am actively working on.  
-
-
-
