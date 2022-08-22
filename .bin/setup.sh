@@ -16,9 +16,9 @@ if [[ "$UNAME" == "Darwin" || "$UNAME" == "Linux" ]]; then
   else
     echo "Getting bdwgc and building"
     (
-      git clone git://github.com/ivmai/bdwgc.git
+      git clone https://github.com/ivmai/bdwgc.git
       cd bdwgc || exit
-      git clone git://github.com/ivmai/libatomic_ops.git
+      git clone https://github.com/ivmai/libatomic_ops.git
       ./autogen.sh
       ./configure
       make -j
