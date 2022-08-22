@@ -32,6 +32,6 @@ jobs:
       - name: Install distribution mini-ilisp-kotlin-llvm
         run: .bin/dist.sh
       - name: Make samples
-        run: ( cd ./samples ; make )
-      - name: Run hello
-        run: ./samples/hello
+        run: ( cd ./src/samples ; make )
+      - name: Run primes
+        run: ./src/samples/primes
