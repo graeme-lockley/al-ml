@@ -1,0 +1,801 @@
+- name: Hello World
+  input: |
+    (println "Hello world")
+  output:
+    program:
+      values: [ ]
+      procedures:
+        - procedure:
+            name: _main
+            parameters: [ ]
+            depth: 0
+            offsets: 0
+            es:
+              - call-procedure:
+                  procedure:
+                    external-procedure: println
+                  es:
+                    - [ 'Hello world' ]
+                  line-number: 1
+- scenario:
+    name: Declaration
+    tests:
+      - name: Top-level constant
+        input: |
+          (const x 10)
+        output:
+          program:
+            values:
+              - x
+            procedures:
+              - procedure:
+                  name: _main
+                  parameters: [ ]
+                  depth: 0
+                  offsets: 0
+                  es:
+                    - assign:
+                        symbol:
+                          toplevel-value: x
+                        es:
+                          - 10
+      - name: Top-level procedure
+        input: |
+          (const (add a b) (+ a b))
+        output:
+          program:
+            values: [ ]
+            procedures:
+              - procedure:
+                  name: add
+                  parameters:
+                    - a
+                    - b
+                  depth: 0
+                  offsets: 2
+                  es:
+                    - call-procedure:
+                        procedure:
+                          external-procedure: +
+                        es:
+                          - - parameter:
+                                name: a
+                                depth: 0
+                                offset: 0
+                          - - parameter:
+                                name: b
+                                depth: 0
+                                offset: 1
+                        line-number: 1
+              - procedure:
+                  name: _main
+                  parameters: [ ]
+                  depth: 0
+                  offsets: 0
+                  es: [ ]
+      - name: Procedure with duplicate parameter names
+        input: |
+          (const (add a a) (+ a a))
+        output:
+          - DuplicateParameterNameError:
+              name: a
+              location: "14:1:15"
+      - name: Values within a procedure
+        input: |
+          (const (double-sum a b)
+            (const sum (+ a b))
+            (+ sum sum)
+          )
+        output:
+          program:
+            values: [ ]
+            procedures:
+              - procedure:
+                  name: double-sum
+                  parameters:
+                    - a
+                    - b
+                  depth: 0
+                  offsets: 3
+                  es:
+                    - assign:
+                        symbol:
+                          procedure-value:
+                            name: sum
+                            depth: 0
+                            offset: 2
+                        es:
+                          - call-procedure:
+                              procedure:
+                                external-procedure: +
+                              es:
+                                - - parameter:
+                                      name: a
+                                      depth: 0
+                                      offset: 0
+                                - - parameter:
+                                      name: b
+                                      depth: 0
+                                      offset: 1
+                              line-number: 2
+                    - call-procedure:
+                        procedure:
+                          external-procedure: +
+                        es:
+                          - - procedure-value:
+                                name: sum
+                                depth: 0
+                                offset: 2
+                          - - procedure-value:
+                                name: sum
+                                depth: 0
+                                offset: 2
+                        line-number: 3
+              - procedure:
+                  name: _main
+                  parameters: [ ]
+                  depth: 0
+                  offsets: 0
+                  es: [ ]
+      - name: Nested procedures with free variables
+        input: |
+          (const (f a b)
+              (const sum (+ a b))
+
+              (const (g x)
+                  (const sum2 (+ a b sum))
+
+                  (+ sum2 x)
+              )
+
+              (g sum)
+          )
+
+          (println (f 1 2))
+        output:
+          program:
+            values: [ ]
+            procedures:
+              - procedure:
+                  name: f
+                  parameters:
+                    - a
+                    - b
+                  depth: 0
+                  offsets: 3
+                  es:
+                    - assign:
+                        symbol:
+                          procedure-value:
+                            name: sum
+                            depth: 0
+                            offset: 2
+                        es:
+                          - call-procedure:
+                              procedure:
+                                external-procedure: +
+                              es:
+                                - - parameter:
+                                      name: a
+                                      depth: 0
+                                      offset: 0
+                                - - parameter:
+                                      name: b
+                                      depth: 0
+                                      offset: 1
+                              line-number: 2
+                    - procedure:
+                        name: g
+                        parameters:
+                          - x
+                        depth: 1
+                        offsets: 2
+                        es:
+                          - assign:
+                              symbol:
+                                procedure-value:
+                                  name: sum2
+                                  depth: 1
+                                  offset: 1
+                              es:
+                                - call-procedure:
+                                    procedure:
+                                      external-procedure: +
+                                    es:
+                                      - - parameter:
+                                            name: a
+                                            depth: 0
+                                            offset: 0
+                                      - - parameter:
+                                            name: b
+                                            depth: 0
+                                            offset: 1
+                                      - - procedure-value:
+                                            name: sum
+                                            depth: 0
+                                            offset: 2
+                                    line-number: 5
+                          - call-procedure:
+                              procedure:
+                                external-procedure: +
+                              es:
+                                - - procedure-value:
+                                      name: sum2
+                                      depth: 1
+                                      offset: 1
+                                - - parameter:
+                                      name: x
+                                      depth: 1
+                                      offset: 0
+                              line-number: 7
+                    - call-procedure:
+                        procedure:
+                          declared-procedure:
+                            name: g
+                            parameter-count: 1
+                            depth: 1
+                        es:
+                          - - procedure-value:
+                                name: sum
+                                depth: 0
+                                offset: 2
+                        line-number: 10
+              - procedure:
+                  name: _main
+                  parameters: [ ]
+                  depth: 0
+                  offsets: 0
+                  es:
+                    - call-procedure:
+                        procedure:
+                          external-procedure: println
+                        es:
+                          - - call-procedure:
+                                procedure:
+                                  declared-procedure:
+                                    name: f
+                                    parameter-count: 2
+                                    depth: 0
+                                es:
+                                  - - 1
+                                  - - 2
+                                line-number: 13
+                        line-number: 13
+      - name: Lambda function without free variables
+        input: |
+          ((proc (a b c) (+ a (* b b) (* c c))) 1 2 3)
+        output:
+          program:
+            values: [ ]
+            procedures:
+              - procedure:
+                  name: _main
+                  parameters: [ ]
+                  depth: 0
+                  offsets: 0
+                  es:
+                    - call-value:
+                        operand:
+                          - procedure:
+                              name: __n0
+                              parameters:
+                                - a
+                                - b
+                                - c
+                              depth: 0
+                              offsets: 3
+                              es:
+                                - call-procedure:
+                                    procedure:
+                                      external-procedure: +
+                                    es:
+                                      - - parameter:
+                                            name: a
+                                            depth: 0
+                                            offset: 0
+                                      - - call-procedure:
+                                            procedure:
+                                              external-procedure: "*"
+                                            es:
+                                              - - parameter:
+                                                    name: b
+                                                    depth: 0
+                                                    offset: 1
+                                              - - parameter:
+                                                    name: b
+                                                    depth: 0
+                                                    offset: 1
+                                            line-number: 1
+                                      - - call-procedure:
+                                            procedure:
+                                              external-procedure: "*"
+                                            es:
+                                              - - parameter:
+                                                    name: c
+                                                    depth: 0
+                                                    offset: 2
+                                              - - parameter:
+                                                    name: c
+                                                    depth: 0
+                                                    offset: 2
+                                            line-number: 1
+                                    line-number: 1
+                          - declared-procedure:
+                              name: __n0
+                              parameter-count: 3
+                              depth: 0
+                        es:
+                          - 1
+                          - 2
+                          - 3
+- scenario:
+    name: Identifier Reference
+    tests:
+      - name: Unknown value identifier
+        input: |
+          (println x)
+        output:
+          - UnknownSymbolError:
+              name: x
+              location: "9:1:10"
+      - name: Unknown procedure identifier
+        input: |
+          (println (add 1 2))
+        output:
+          - UnknownSymbolError:
+              name: add
+              location: 10:1:11-12:1:13
+      - name: Top-level value
+        input: |
+          (const x 10)
+
+          (println x)
+        output:
+          program:
+            values:
+              - x
+            procedures:
+              - procedure:
+                  name: _main
+                  parameters: [ ]
+                  depth: 0
+                  offsets: 0
+                  es:
+                    - assign:
+                        symbol:
+                          toplevel-value: x
+                        es:
+                          - 10
+                    - call-procedure:
+                        procedure:
+                          external-procedure: println
+                        es:
+                          - - toplevel-value: x
+                        line-number: 3
+      - name: Multiple top-level values
+        input: |
+          (const v1 1)
+          (const v2 "Hello world")
+
+          (println v1 v2)
+        output:
+          program:
+            values:
+              - v1
+              - v2
+            procedures:
+              - procedure:
+                  name: _main
+                  parameters: [ ]
+                  depth: 0
+                  offsets: 0
+                  es:
+                    - assign:
+                        symbol:
+                          toplevel-value: v1
+                        es:
+                          - 1
+                    - assign:
+                        symbol:
+                          toplevel-value: v2
+                        es:
+                          - Hello world
+                    - call-procedure:
+                        procedure:
+                          external-procedure: println
+                        es:
+                          - - toplevel-value: v1
+                          - - toplevel-value: v2
+                        line-number: 4
+      - name: Top-level procedure
+        input: |
+          (const (add a b) (+ a b))
+
+          (println (add 1 2))
+        output:
+          program:
+            values: [ ]
+            procedures:
+              - procedure:
+                  name: add
+                  parameters:
+                    - a
+                    - b
+                  depth: 0
+                  offsets: 2
+                  es:
+                    - call-procedure:
+                        procedure:
+                          external-procedure: +
+                        es:
+                          - - parameter:
+                                name: a
+                                depth: 0
+                                offset: 0
+                          - - parameter:
+                                name: b
+                                depth: 0
+                                offset: 1
+                        line-number: 1
+              - procedure:
+                  name: _main
+                  parameters: [ ]
+                  depth: 0
+                  offsets: 0
+                  es:
+                    - call-procedure:
+                        procedure:
+                          external-procedure: println
+                        es:
+                          - - call-procedure:
+                                procedure:
+                                  declared-procedure:
+                                    name: add
+                                    parameter-count: 2
+                                    depth: 0
+                                es:
+                                  - - 1
+                                  - - 2
+                                line-number: 3
+                        line-number: 3
+      - name: Top-level procedure with incorrect number of arguments
+        input: |
+          (const (add a b) (+ a b))
+
+          (println (add))
+          (println (add 1))
+          (println (add 1 2 3))
+        output:
+          - ArgumentMismatchError:
+              name: add
+              expected: 2
+              actual: 0
+              location: 36:3:10-40:3:14
+          - ArgumentMismatchError:
+              name: add
+              expected: 2
+              actual: 1
+              location: 52:4:10-58:4:16
+          - ArgumentMismatchError:
+              name: add
+              expected: 2
+              actual: 3
+              location: 70:5:10-80:5:20
+      - name: Local forward declaration
+        input: |
+          (const a 9)
+
+          (const (f)
+              (const v1 a)
+              (const a 10)
+              (const v2 a)
+              (+ v1 v2)
+          )
+        output:
+          program:
+            values:
+              - a
+            procedures:
+              - procedure:
+                  name: f
+                  parameters: [ ]
+                  depth: 0
+                  offsets: 3
+                  es:
+                    - assign:
+                        symbol:
+                          procedure-value:
+                            name: v1
+                            depth: 0
+                            offset: 0
+                        es:
+                          - toplevel-value: a
+                    - assign:
+                        symbol:
+                          procedure-value:
+                            name: a
+                            depth: 0
+                            offset: 1
+                        es:
+                          - 10
+                    - assign:
+                        symbol:
+                          procedure-value:
+                            name: v2
+                            depth: 0
+                            offset: 2
+                        es:
+                          - procedure-value:
+                              name: a
+                              depth: 0
+                              offset: 1
+                    - call-procedure:
+                        procedure:
+                          external-procedure: +
+                        es:
+                          - - procedure-value:
+                                name: v1
+                                depth: 0
+                                offset: 0
+                          - - procedure-value:
+                                name: v2
+                                depth: 0
+                                offset: 2
+                        line-number: 7
+              - procedure:
+                  name: _main
+                  parameters: [ ]
+                  depth: 0
+                  offsets: 0
+                  es:
+                    - assign:
+                        symbol:
+                          toplevel-value: a
+                        es:
+                          - 9
+      - name: Top-level declaration with embedded declaration
+        input: |
+          (const a (do (const b 1)
+                       (+ b 1)
+                   )
+          )
+        output:
+          program:
+            values:
+              - a
+            procedures:
+              - procedure:
+                  name: _main
+                  parameters: [ ]
+                  depth: 0
+                  offsets: 1
+                  es:
+                    - assign:
+                        symbol:
+                          toplevel-value: a
+                        es:
+                          - assign:
+                              symbol:
+                                procedure-value:
+                                  name: b
+                                  depth: 0
+                                  offset: 0
+                              es:
+                                - 1
+                          - call-procedure:
+                              procedure:
+                                external-procedure: +
+                              es:
+                                - - procedure-value:
+                                      name: b
+                                      depth: 0
+                                      offset: 0
+                                - - 1
+                              line-number: 2
+      - name: Top-level declaration with embedded replacement declaration
+        input: |
+          (const b 1)
+          (const a (do (const b 10)
+                       (+ b 1)
+                   )
+          )
+          (const c b)
+        output:
+          program:
+            values:
+              - b
+              - a
+              - c
+            procedures:
+              - procedure:
+                  name: _main
+                  parameters: [ ]
+                  depth: 0
+                  offsets: 1
+                  es:
+                    - assign:
+                        symbol:
+                          toplevel-value: b
+                        es:
+                          - 1
+                    - assign:
+                        symbol:
+                          toplevel-value: a
+                        es:
+                          - assign:
+                              symbol:
+                                procedure-value:
+                                  name: b
+                                  depth: 0
+                                  offset: 0
+                              es:
+                                - 10
+                          - call-procedure:
+                              procedure:
+                                external-procedure: +
+                              es:
+                                - - procedure-value:
+                                      name: b
+                                      depth: 0
+                                      offset: 0
+                                - - 1
+                              line-number: 3
+                    - assign:
+                        symbol:
+                          toplevel-value: c
+                        es:
+                          - toplevel-value: b
+- scenario:
+    name: Exceptions
+    tests:
+      - name: signal
+        input: |
+          (signal "hello world")
+        output:
+          program:
+            values: [ ]
+            procedures:
+              - procedure:
+                  name: _main
+                  parameters: [ ]
+                  depth: 0
+                  offsets: 0
+                  es:
+                    - signal:
+                        - hello world
+      - name: try-catch
+        input: |
+          (try
+            "hello world"
+            (proc (c) "cool")
+          )
+        output:
+          program:
+            values: [ ]
+            procedures:
+              - procedure:
+                  name: __n0
+                  parameters: [ ]
+                  depth: 0
+                  offsets: 0
+                  es:
+                    - hello world
+              - procedure:
+                  name: __n1
+                  parameters:
+                    - c
+                  depth: 0
+                  offsets: 1
+                  es:
+                    - "cool"
+              - procedure:
+                  name: _main
+                  parameters: [ ]
+                  depth: 0
+                  offsets: 0
+                  es:
+                    - try:
+                        body:
+                          declared-procedure:
+                            name: __n0
+                            parameter-count: 0
+                            depth: 0
+                        catch:
+                          declared-procedure:
+                            name: __n1
+                            parameter-count: 1
+                            depth: 0
+      - name: try-catch with bindings
+        input: |
+          (const (safe-divide a b)
+            (try
+              (do (const a2 (+ a a))
+                  (/ a2 b)
+              )
+              (proc (c) 0)
+            )
+          )
+        output:
+          program:
+            values: [ ]
+            procedures:
+              - procedure:
+                  name: safe-divide
+                  parameters:
+                    - a
+                    - b
+                  depth: 0
+                  offsets: 2
+                  es:
+                    - procedure:
+                        name: __n0
+                        parameters: [ ]
+                        depth: 1
+                        offsets: 1
+                        es:
+                          - assign:
+                              symbol:
+                                procedure-value:
+                                  name: a2
+                                  depth: 1
+                                  offset: 0
+                              es:
+                                - call-procedure:
+                                    procedure:
+                                      external-procedure: +
+                                    es:
+                                      - - parameter:
+                                            name: a
+                                            depth: 0
+                                            offset: 0
+                                      - - parameter:
+                                            name: a
+                                            depth: 0
+                                            offset: 0
+                                    line-number: 3
+                          - call-procedure:
+                              procedure:
+                                external-procedure: /
+                              es:
+                                - - procedure-value:
+                                      name: a2
+                                      depth: 1
+                                      offset: 0
+                                - - parameter:
+                                      name: b
+                                      depth: 0
+                                      offset: 1
+                              line-number: 4
+                    - procedure:
+                        name: __n1
+                        parameters:
+                          - c
+                        depth: 1
+                        offsets: 1
+                        es:
+                          - 0
+                    - try:
+                        body:
+                          declared-procedure:
+                            name: __n0
+                            parameter-count: 0
+                            depth: 1
+                        catch:
+                          declared-procedure:
+                            name: __n1
+                            parameter-count: 1
+                            depth: 1
+              - procedure:
+                  name: _main
+                  parameters: [ ]
+                  depth: 0
+                  offsets: 0
+                  es: [ ]
+      - name: try-catch error
+        input: |
+          (try
+            "hello world"
+            "cool"
+          )
+        output:
+          - ExpressionNotProcedureError: "23:3:3-28:3:8"

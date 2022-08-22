@@ -1,0 +1,48 @@
+- name: Hello World
+  input: |
+    (println "Hello world")
+  output:
+    - SExpression:
+        - Symbol:
+            value: println
+            position: 1:1:2-7:1:8
+        - LiteralString:
+            value: '"Hello world"'
+            position: 9:1:10-21:1:22
+- scenario:
+    name: Expressions
+    tests:
+      - name: Literal True
+        input: |
+          #t
+        output:
+          - Symbol:
+              value: "#t"
+              position: 0:1:1-1:1:2
+      - name: Literal False
+        input: |
+          #f
+        output:
+          - Symbol:
+              value: "#f"
+              position: 0:1:1-1:1:2
+      - name: Literal Int
+        input: |
+          234
+        output:
+          - LiteralInt:
+              value: 234
+              position: 0:1:1-2:1:3
+      - name: Literal String
+        input: |
+          "hello"
+        output:
+          - LiteralString:
+              value: '"hello"'
+              position: 0:1:1-6:1:7
+      - name: Literal Null
+        input: |
+          ()
+        output:
+          - LiteralUnit:
+              position: 0:1:1-1:1:2

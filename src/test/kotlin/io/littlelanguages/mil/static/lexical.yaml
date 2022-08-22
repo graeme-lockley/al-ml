@@ -1,0 +1,46 @@
+- name: Blank
+  input: ""
+  output:
+    - EOS 0:1:1 []
+- name: "Whitespace only"
+  input: "      "
+  output:
+    - EOS 6:1:7 []
+- name: Symbols
+  input: hello if string? some-exciting-name' - -123a
+  output:
+    - Symbol 0:1:1-4:1:5 [hello]
+    - If 6:1:7-7:1:8 [if]
+    - Symbol 9:1:10-15:1:16 [string?]
+    - Symbol 17:1:18-35:1:36 [some-exciting-name']
+    - Symbol 37:1:38 [-]
+    - Symbol 39:1:40-43:1:44 [-123a]
+    - EOS 44:1:45 []
+- name: Literal Integers
+  input: 1 12 123
+  output:
+    - LiteralInt 0:1:1 [1]
+    - LiteralInt 2:1:3-3:1:4 [12]
+    - LiteralInt 5:1:6-7:1:8 [123]
+    - EOS 8:1:9 []
+- name: Literal Strings
+  input: '"" "hello world" "hello \"world\"" "hello \\world\\"'
+  output:
+    - LiteralString 0:1:1-1:1:2 [""]
+    - LiteralString 3:1:4-15:1:16 ["hello world"]
+    - LiteralString 17:1:18-33:1:34 ["hello \"world\""]
+    - LiteralString 35:1:36-51:1:52 ["hello \\world\\"]
+    - EOS 52:1:53 []
+- name: Hectic Literal Strings
+  input: '"\t \r \\ \" \n \x1aF"'
+  output:
+    - LiteralString 0:1:1-21:1:22 ["\t \r \\ \" \n \x1aF"]
+    - EOS 22:1:23 []
+- name: Single-line comments
+  input: |
+    abc ; some or other comment
+    def
+  output:
+    - Symbol 0:1:1-2:1:3 [abc]
+    - Symbol 28:2:1-30:2:3 [def]
+    - EOS 32:3:1 []

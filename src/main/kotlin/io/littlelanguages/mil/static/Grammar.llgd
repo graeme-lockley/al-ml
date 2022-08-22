@@ -1,0 +1,25 @@
+uses "./Scanner.llld";
+
+Program: {Expression};
+
+Expression
+  : "(" [ExpressionBody] ")"
+  | Symbol
+  | LiteralInt
+  | LiteralString
+  ;
+
+ExpressionBody
+  : "if" {Expression}
+  | "do" {Expression}
+  | "const" ConstBody
+  | "proc" "(" {Symbol} ")" {Expression}
+  | "try" Expression Expression
+  | "signal" Expression
+  | Expression {Expression}
+  ;
+
+ConstBody
+  : Symbol Expression
+  | "(" Symbol {Symbol} ")" {Expression}
+  ;

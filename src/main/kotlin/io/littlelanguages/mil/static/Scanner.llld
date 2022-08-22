@@ -1,0 +1,18 @@
+tokens
+    LiteralInt = ['-'] digits;
+    LiteralString = '"' {!('"' + cr) | "\" ('"' + '\' + 't' + 'n' + 'r' | "\x" hexDigits)} '"';
+    Symbol = id {digit | id};
+
+comments
+   ";" {!cr};
+
+whitespace
+  chr(0)-' ';
+
+fragments
+  digit = '0'-'9';
+  digits = digit {digit};
+  hexDigit = digit + 'a'-'f' + 'A'-'F';
+  hexDigits = hexDigit {hexDigit};
+  id = '!'-'}' \ ('0'-'9' + '"' + '(' + ')' + ';');
+  cr = chr(10);
