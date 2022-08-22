@@ -65,7 +65,7 @@ suspend fun parserConformanceTest(
 //                        LLVM.LLVMDumpModule(module)
 //                        System.err.println(LLVM.LLVMPrintModuleToString(module).string)
                         module.writeBitcodeToFile("test.bc")
-                        runCommand(arrayOf("clang", "test.bc", "src/main/c/lib.o", "./src/main/c/main.o", "./bdwgc/libgc.a", "-o", "test.bin"))
+                        runCommand(arrayOf("clang", "test.bc", "src/main/c/lib.o", "./src/main/c/main.o", "./build/bdwgc/libgc.a", "-o", "test.bin"))
                         val commandOutput = runCommand(arrayOf("./test.bin"))
 
                         module.dispose()

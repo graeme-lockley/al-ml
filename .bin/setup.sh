@@ -3,30 +3,33 @@
 UNAME=$(uname)
 
 if [[ "$UNAME" == "Darwin" || "$UNAME" == "Linux" ]]; then
-  echo "Setting up $UNAME"
+  echo "Info: Setting up $UNAME"
 
   if [[ "$UNAME" == "Darwin" ]]; then
     echo Using brew to install autoconf and automake
     brew install autoconf automake
   fi
 
-  if [ -d "./bdwgc" ]; then
-    echo "./bdwgc exists and is a directory - assuming then all is in order and doing nothing"
-    echo "If you need to redo then delete this directory and rerun this script"
+  if [ -d "./build/bdwgc" ]; then
+    echo "Warning: ./build/bdwgc exists and is a directory - assuming then all is in"
+    echo "         order and doing nothing.  If you need to redo then delete this directory"
+    echo "         and rerun"
   else
-    echo "Getting bdwgc and building"
+    echo "Info: Getting bdwgc and building"
     (
-      git clone https://github.com/ivmai/bdwgc.git
-      cd bdwgc || exit
-      git clone https://github.com/ivmai/libatomic_ops.git
-      ./autogen.sh
-      ./configure
-      make -j
-      make check
-      make -f Makefile.direct
+      mkdir -p build || exit 1
+      cd ./build || exit 1
+      git clone https://github.com/ivmai/bdwgc.git || exit 1
+      cd bdwgc || exit 1
+      git clone https://github.com/ivmai/libatomic_ops.git || exit 1
+      ./autogen.sh || exit 1
+      ./configure || exit 1
+      make -j || exit 1
+      make check || exit 1
+      make -f Makefile.direct || exit 1
     )
   fi
 else
-  echo "Exiting: uname == $UNAME: Unable to setup"
+  echo "Error: uname == $UNAME: Unable to setup"
   exit 1
 fi
