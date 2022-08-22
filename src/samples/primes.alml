@@ -1,0 +1,33 @@
+let isMultiple m n = {
+  let remainder = m - ((m / n) * n);
+  remainder == 0
+};
+
+let append e lst =
+  if isNull lst -> [e]
+  else (head lst) : (append e (tail lst));
+
+let isDivisibleBy n lst =
+  if isNull lst -> False
+   | isMultiple n (head lst) -> True
+  else isDivisibleBy n (tail xs);
+
+let primes min max = {
+  var n = min;
+  var result = [];
+
+  while (n < max) {
+    if !(isDivisible n result) ->
+      result := append n result;
+
+    n := n + 1
+  };
+
+  result
+};
+
+let map f lst =
+  if isNull lst -> []
+  else (f (head lst)) : (map f (tail lst));
+
+map intToString (primes 2 10000) |> PrStrLn
