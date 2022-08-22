@@ -28,3 +28,7 @@ This implementation will evolve as I have more fun with it.  Essentially though 
 At that point I would then like to rewrite the entire compiler in Al-ML and have it bootstrap itself.
 
 I maintain a [TODO](./TODO.md) to highlight what I am actively working on.  
+
+## Building this code base
+
+I have placed the entire build process into `./tasks/dev`.  This script captures the sequence and the individual tasks to build the entire code base including the samples from `./src/samples`.
