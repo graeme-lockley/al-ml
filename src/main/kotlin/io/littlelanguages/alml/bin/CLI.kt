@@ -62,6 +62,7 @@ fun formatTToken(token: TToken): String =
         TToken.TLParen -> "'('"
         TToken.TLiteralInt -> "Literal Int"
         TToken.TLiteralString -> "Literal String"
+        TToken.TSemicolon -> "';'"
         TToken.TSignal -> "'signal'"
         TToken.TSymbol -> "Symbol"
         TToken.TTry -> "'try'"

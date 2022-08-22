@@ -1,16 +1,6 @@
-# Reshape the code base
+# Transform the supported language from mini-ilisp to a small dialect Al-ML
 
-Move the code base into a style that is less cluttered and easier to work on.  This shape does not consider any bootstrapping - this will follow later.
+Piece by piece transform mini-iLisp into Al-ML.  The intention here is to re-use the compiler and the generation of closures as far as possible.
 
-## Housekeeping
-
-- [X] Move ./bdwgc into ./build/bdwgc
-- [X] Have ./ll-mini-ilisp-kotlin-llvm renamed to ./dist and move into ./build
-- [X] Move ~/samples into ~/src/samples
-- [X] Move ./.bin to ./tasks
-- [X] Create the task "dev-clean" with an "all" option
-- [X] Add lint tasks for bash scripts and for markdown and embed into the build pipeline
-
-## Reshape Source
-
-- [X] Rename .mil. package to .alml. - this will be in both main and test
+- [X] Change comments to start with // and extend to end of line
+- [X] Introduce semicolons between expressions at a top-level

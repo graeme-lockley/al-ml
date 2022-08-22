@@ -6,6 +6,7 @@ import io.littlelanguages.data.Right
 import io.littlelanguages.alml.Errors
 import io.littlelanguages.alml.ParseError
 import io.littlelanguages.alml.static.ast.*
+import io.littlelanguages.data.Tuple2
 import io.littlelanguages.scanpiler.Location
 import io.littlelanguages.scanpiler.Locationable
 
@@ -17,9 +18,12 @@ fun parse(scanner: Scanner): Either<Errors, Program> =
     }
 
 class ParseVisitor : Visitor<
-        Program, List<Expression>, List<Expression>, Expression> {
+        Program, List<List<Expression>>, List<Expression>, List<Expression>, Expression> {
     override fun visitProgram(a: List<List<Expression>>): Program =
         Program(a.flatten())
+
+    override fun visitExpressions(a1: List<Expression>, a2: List<Tuple2<Token, List<Expression>>>): List<List<Expression>> =
+        listOf(a1) + a2.map{it.b}
 
     override fun visitExpression1(a1: Token, a2: List<Expression>?, a3: Token): List<Expression> =
         if (a2 == null)

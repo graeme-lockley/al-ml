@@ -149,7 +149,7 @@
               )
 
               (g sum)
-          )
+          );
 
           (println (f 1 2))
         output:
@@ -347,7 +347,7 @@
               location: 10:1:11-12:1:13
       - name: Top-level value
         input: |
-          (const x 10)
+          (const x 10);
 
           (println x)
         output:
@@ -374,8 +374,8 @@
                         line-number: 3
       - name: Multiple top-level values
         input: |
-          (const v1 1)
-          (const v2 "Hello world")
+          (const v1 1);
+          (const v2 "Hello world");
 
           (println v1 v2)
         output:
@@ -409,7 +409,7 @@
                         line-number: 4
       - name: Top-level procedure
         input: |
-          (const (add a b) (+ a b))
+          (const (add a b) (+ a b));
 
           (println (add 1 2))
         output:
@@ -460,30 +460,30 @@
                         line-number: 3
       - name: Top-level procedure with incorrect number of arguments
         input: |
-          (const (add a b) (+ a b))
+          (const (add a b) (+ a b));
 
-          (println (add))
-          (println (add 1))
+          (println (add));
+          (println (add 1));
           (println (add 1 2 3))
         output:
           - ArgumentMismatchError:
               name: add
               expected: 2
               actual: 0
-              location: 36:3:10-40:3:14
+              location: 37:3:10-41:3:14
           - ArgumentMismatchError:
               name: add
               expected: 2
               actual: 1
-              location: 52:4:10-58:4:16
+              location: 54:4:10-60:4:16
           - ArgumentMismatchError:
               name: add
               expected: 2
               actual: 3
-              location: 70:5:10-80:5:20
+              location: 73:5:10-83:5:20
       - name: Local forward declaration
         input: |
-          (const a 9)
+          (const a 9);
 
           (const (f)
               (const v1 a)
@@ -594,11 +594,11 @@
                               line-number: 2
       - name: Top-level declaration with embedded replacement declaration
         input: |
-          (const b 1)
+          (const b 1);
           (const a (do (const b 10)
                        (+ b 1)
                    )
-          )
+          );
           (const c b)
         output:
           program:

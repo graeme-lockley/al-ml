@@ -4,14 +4,14 @@
     )
 
     (= remainder 0)
-)
+);
 
 (const (append e lst)
     (if (null? lst)
             (pair e ())
         (pair (car lst) (append e (cdr lst)))
     )
-)
+);
 
 (const (divisible-by? n lst)
     (if (null? lst)
@@ -20,7 +20,7 @@
             #t
         (divisible-by? n (cdr lst))
     )
-)
+);
 
 (const (primes min max)
     (const (sieve n p')
@@ -33,6 +33,6 @@
     )
 
     (sieve min ())
-)
+);
 
 (println (primes 2 10000))

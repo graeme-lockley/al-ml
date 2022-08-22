@@ -34,21 +34,21 @@
           tests:
             - name: Boolean
               input: |
-                (println #t)
+                (println #t);
                 (println #f)
               output: |
                 #t
                 #f
             - name: Integer
               input: |
-                (println 123)
+                (println 123);
                 (println -987)
               output: |
                 123
                 -987
             - name: String
               input: |
-                (println "Hello\nWorld")
+                (println "Hello\nWorld");
                 (println "Bye\nbye\nlove")
               output: |
                 Hello
@@ -66,9 +66,9 @@
           tests:
             - name: plus
               input: |
-                (println (+))
-                (println (+ 1))
-                (println (+ 1 2))
+                (println (+));
+                (println (+ 1));
+                (println (+ 1 2));
                 (println (+ 1 2 3 4 5 6))
               output: |
                 0
@@ -77,9 +77,9 @@
                 21
             - name: minus
               input: |
-                (println (-))
-                (println (- 1))
-                (println (- 1 2))
+                (println (-));
+                (println (- 1));
+                (println (- 1 2));
                 (println (- 1 2 3 4 5 6))
               output: |
                 0
@@ -88,9 +88,9 @@
                 -19
             - name: star
               input: |
-                (println (*))
-                (println (* 2))
-                (println (* 3 4))
+                (println (*));
+                (println (* 2));
+                (println (* 3 4));
                 (println (* 1 2 3 4 5 6))
               output: |
                 1
@@ -99,9 +99,9 @@
                 720
             - name: slash
               input: |
-                (println (/))
-                (println (/ 1))
-                (println (/ 4 2))
+                (println (/));
+                (println (/ 1));
+                (println (/ 4 2));
                 (println (/ 500 50 2))
               output: |
                 1
@@ -110,7 +110,7 @@
                 5
             - name: slash by zero
               input: |
-                (println (/ 500 50 2))
+                (println (/ 500 50 2));
                 (println (/ 500 50 0 2))
               output: |
                 5
@@ -120,10 +120,10 @@
                 tests:
                   - name: ()
                     input: |
-                      (println (= () ()))
-                      (println (= () #t))
-                      (println (= () 123))
-                      (println (= () "hello"))
+                      (println (= () ()));
+                      (println (= () #t));
+                      (println (= () 123));
+                      (println (= () "hello"));
                       (println (= () (pair 1 2)))
                     output: |
                       #t
@@ -133,11 +133,11 @@
                       #f
                   - name: boolean
                     input: |
-                      (println (= #t ()))
-                      (println (= #t #t))
-                      (println (= #t #f))
-                      (println (= #t 123))
-                      (println (= #t "hello"))
+                      (println (= #t ()));
+                      (println (= #t #t));
+                      (println (= #t #f));
+                      (println (= #t 123));
+                      (println (= #t "hello"));
                       (println (= #t (pair 1 2)))
                     output: |
                       #f
@@ -148,11 +148,11 @@
                       #f
                   - name: integer
                     input: |
-                      (println (= 123 ()))
-                      (println (= 123 #t))
-                      (println (= 123 123))
-                      (println (= 456 123))
-                      (println (= 123 "hello"))
+                      (println (= 123 ()));
+                      (println (= 123 #t));
+                      (println (= 123 123));
+                      (println (= 456 123));
+                      (println (= 123 "hello"));
                       (println (= 123 (pair 1 2)))
                     output: |
                       #f
@@ -163,11 +163,11 @@
                       #f
                   - name: string
                     input: |
-                      (println (= "hello" ()))
-                      (println (= "hello" #t))
-                      (println (= "hello" 123))
-                      (println (= "hello" "hello"))
-                      (println (= "hello" "world"))
+                      (println (= "hello" ()));
+                      (println (= "hello" #t));
+                      (println (= "hello" 123));
+                      (println (= "hello" "hello"));
+                      (println (= "hello" "world"));
                       (println (= "hello" (pair 1 2)))
                     output: |
                       #f
@@ -178,11 +178,11 @@
                       #f
                   - name: pair
                     input: |
-                      (println (= (pair 1 2) ()))
-                      (println (= (pair 1 2) #t))
-                      (println (= (pair 1 2) 123))
-                      (println (= (pair 1 2) "hello"))
-                      (println (= (pair 1 2) (pair 1 2)))
+                      (println (= (pair 1 2) ()));
+                      (println (= (pair 1 2) #t));
+                      (println (= (pair 1 2) 123));
+                      (println (= (pair 1 2) "hello"));
+                      (println (= (pair 1 2) (pair 1 2)));
                       (println (= (pair 1 3) (pair 1 2)))
                     output: |
                       #f
@@ -196,9 +196,9 @@
                 tests:
                   - name: boolean
                     input: |
-                      (println (< #f #f))
-                      (println (< #f #t))
-                      (println (< #t #f))
+                      (println (< #f #f));
+                      (println (< #f #t));
+                      (println (< #t #f));
                       (println (< #t #t))
                     output: |
                       #f
@@ -207,8 +207,8 @@
                       #f
                   - name: integer
                     input: |
-                      (println (< 1 1))
-                      (println (< 1 2))
+                      (println (< 1 1));
+                      (println (< 1 2));
                       (println (< 2 1))
                     output: |
                       #f
@@ -216,8 +216,8 @@
                       #f
                   - name: string
                     input: |
-                      (println (< "a" "a"))
-                      (println (< "a" "b"))
+                      (println (< "a" "a"));
+                      (println (< "a" "b"));
                       (println (< "b" "a"))
                     output: |
                       #f
@@ -241,9 +241,9 @@
                       1
                   - name: (if v1 v2 v2)
                     input: |
-                      (println (if (= 1 1) 2 3))
-                      (println (if (= 0 1) 2 3))
-                      (println (if (= 4 7) 1 (= 3 2) 2 3))
+                      (println (if (= 1 1) 2 3));
+                      (println (if (= 0 1) 2 3));
+                      (println (if (= 4 7) 1 (= 3 2) 2 3));
                       (println (if (= 4 7) 1 (= 3 2) 2))
                     output: |
                       2
@@ -255,14 +255,14 @@
           tests:
             - name: pair
               input: |
-                (println (pair 1 2))
+                (println (pair 1 2));
                 (println (pair 1 (pair 2 (pair 3 ()))))
               output: |
                 (1 . 2)
                 (1 2 3)
             - name: car
               input: |
-                (println (car (pair 1 2)))
+                (println (car (pair 1 2)));
                 (println (car (pair 1 (pair 2 (pair 3 ())))))
               output: |
                 1
@@ -274,8 +274,8 @@
                 Unhandled Exception: ((EmptyList (reason . Attempt to call car on empty list)) ./test.mlsp 1)
             - name: cdr
               input: |
-                (println (cdr (pair 1 2)))
-                (println (cdr (pair 1 (pair 2 ()))))
+                (println (cdr (pair 1 2)));
+                (println (cdr (pair 1 (pair 2 ()))));
                 (println (cdr (pair 1 (pair 2 (pair 3 ())))))
               output: |
                 2
@@ -288,10 +288,10 @@
                 Unhandled Exception: ((EmptyList (reason . Attempt to call cdr on empty list)) ./test.mlsp 1)
             - name: null?
               input: |
-                (println (null? ()))
-                (println (null? #t))
-                (println (null? 123))
-                (println (null? "hello"))
+                (println (null? ()));
+                (println (null? #t));
+                (println (null? 123));
+                (println (null? "hello"));
                 (println (null? (pair 1 2)))
               output: |
                 #t
@@ -301,10 +301,10 @@
                 #f
             - name: boolean?
               input: |
-                (println (boolean? ()))
-                (println (boolean? #t))
-                (println (boolean? 123))
-                (println (boolean? "hello"))
+                (println (boolean? ()));
+                (println (boolean? #t));
+                (println (boolean? 123));
+                (println (boolean? "hello"));
                 (println (boolean? (pair 1 2)))
               output: |
                 #f
@@ -314,10 +314,10 @@
                 #f
             - name: integer?
               input: |
-                (println (integer? ()))
-                (println (integer? #t))
-                (println (integer? 123))
-                (println (integer? "hello"))
+                (println (integer? ()));
+                (println (integer? #t));
+                (println (integer? 123));
+                (println (integer? "hello"));
                 (println (integer? (pair 1 2)))
               output: |
                 #f
@@ -327,10 +327,10 @@
                 #f
             - name: string?
               input: |
-                (println (string? ()))
-                (println (string? #t))
-                (println (string? 123))
-                (println (string? "hello"))
+                (println (string? ()));
+                (println (string? #t));
+                (println (string? 123));
+                (println (string? "hello"));
                 (println (string? (pair 1 2)))
               output: |
                 #f
@@ -340,10 +340,10 @@
                 #f
             - name: pair?
               input: |
-                (println (pair? ()))
-                (println (pair? #t))
-                (println (pair? 123))
-                (println (pair? "hello"))
+                (println (pair? ()));
+                (println (pair? #t));
+                (println (pair? 123));
+                (println (pair? "hello"));
                 (println (pair? (pair 1 2)))
               output: |
                 #f
@@ -353,7 +353,7 @@
                 #t
             - name: exit
               input: |
-                (const some-message "This is my message")
+                (const some-message "This is my message");
 
                 (exit some-message)
               output: |
@@ -379,9 +379,9 @@
                 (do (const x 1)
                     (do (const y 2)
                     )
-                )
+                );
 
-                (println x)
+                (println x);
                 (println y)
               output: |
                 1
@@ -391,16 +391,16 @@
     tests:
       - name: "Toplevel value declaration"
         input: |
-          (const v1 1)
-          (const v2 #t)
-          (const v3 "Hello world")
-          (const v4 ())
-          (const v5 (pair 1 2))
+          (const v1 1);
+          (const v2 #t);
+          (const v3 "Hello world");
+          (const v4 ());
+          (const v5 (pair 1 2));
 
-          (println v1)
-          (println v2)
-          (println v3)
-          (println v4)
+          (println v1);
+          (println v2);
+          (println v3);
+          (println v4);
           (println v5)
         output: |
           1
@@ -410,8 +410,8 @@
           (1 . 2)
       - name: "Toplevel procedure declaration"
         input: |
-          (const (add a b) (+ a b))
-          (const (minus a b) (- a b))
+          (const (add a b) (+ a b));
+          (const (minus a b) (- a b));
 
           (println (minus 10 (add 1 2)))
         output: |
@@ -422,21 +422,21 @@
             (const sum (+ a b))
 
             (+ sum sum)
-          )
+          );
 
           (println (double-sum 1 2))
         output: |
           6
       - name: "Nested const forward value declaration"
         input: |
-          (const a 9)
+          (const a 9);
 
           (const (f)
               (const v1 a)
               (const a 10)
               (const v2 a)
               (pair v1 v2)
-          )
+          );
 
           (println (f))
         output: |
@@ -453,7 +453,7 @@
             )
 
             (g sum)
-          )
+          );
 
           (const (nested a)
             (const a' (+ a 1))
@@ -471,17 +471,17 @@
             )
 
             (nested-nested a')
-          )
+          );
 
           (const (range min max)
             (if (< min max) (pair min (range (+ min 1) max))
                 ()
             )
-          )
+          );
 
           (const (max a b)
               (if (< a b) b a)
-          )
+          );
 
           (const (maxs items)
               (const (max-helper largest rest)
@@ -495,27 +495,27 @@
                       ()
                   (max-helper (car items) (cdr items))
               )
-          )
+          );
 
           (const (count items)
             (if (null? items) 0
                 (+ 1 (count (cdr items)))
             )
-          )
+          );
 
           (const (sum items)
             (if (null? items) 0
                 (+ (car items) (sum (cdr items)))
             )
-          )
+          );
 
-          (println (f 1 2))
-          (println (nested 1))
+          (println (f 1 2));
+          (println (nested 1));
 
-          (const lots (range 0 100000))
+          (const lots (range 0 100000));
 
-          (println "count: " (count lots))
-          (println "sum: " (sum lots))
+          (println "count: " (count lots));
+          (println "sum: " (sum lots));
           (println "max: " (maxs lots))
         output: |
           9
@@ -525,13 +525,13 @@
           max: 99999
       - name: "Nested if declarations"
         input: |
-          (const a 1)
-          (const b (if (= a 1) 2 3))
+          (const a 1);
+          (const b (if (= a 1) 2 3));
           (const c
             (do (const z 4)
                 (- z 1)
             )
-          )
+          );
 
           (const d
             (do (println c)
@@ -539,11 +539,11 @@
                 (println c)
                 c
             )
-          )
+          );
 
-          (println a)
-          (println b)
-          (println c)
+          (println a);
+          (println b);
+          (println c);
           (println d)
         output: |
           3
@@ -560,16 +560,16 @@
         input: |
           (const (plus a b)
               (+ a b)
-          )
+          );
 
-          (const plusp plus)
+          (const plusp plus);
 
-          (const (inc a) (plus 1 a))
-          (const (incp a) (plusp 1 a))
+          (const (inc a) (plus 1 a));
+          (const (incp a) (plusp 1 a));
 
-          (println (plus 1 2))
-          (println (plusp 1 2))
-          (println (inc 1))
+          (println (plus 1 2));
+          (println (plusp 1 2));
+          (println (inc 1));
           (println (incp 1))
         output: |
           3
@@ -594,7 +594,7 @@
               (n0-nested-nested (+ b 20))
             )
             (n0-nested (+ a 10))
-          )
+          );
 
           (const (n1 a)
             (const a' (+ a 1))
@@ -614,9 +614,9 @@
               (n1-nested-nested (+ b 20))
             )
             (n1-nested (+ a 10))
-          )
+          );
 
-          (println ((n0 0)))
+          (println ((n0 0)));
           (println ((n1 0) 30))
         output: |
           (0 1 10 11 30 31)
@@ -625,79 +625,79 @@
         input: |
           (const (f0)
             (println "f0")
-          )
+          );
 
           (const (f1 a1)
             (println "f1: " a1)
-          )
+          );
 
           (const (f2 a1 a2)
             (println "f2: " a1 ", " a2)
-          )
+          );
 
           (const (f3 a1 a2 a3)
             (println "f3: " a1 ", " a2 ", " a3)
-          )
+          );
 
           (const (f4 a1 a2 a3 a4)
             (println "f4: " a1 ", " a2 ", " a3 ", " a4)
-          )
+          );
 
           (const (f5 a1 a2 a3 a4 a5)
             (println "f5: " a1 ", " a2 ", " a3 ", " a4 ", " a5)
-          )
+          );
 
           (const (f6 a1 a2 a3 a4 a5 a6)
             (println "f6: " a1 ", " a2 ", " a3 ", " a4 ", " a5 ", " a6)
-          )
+          );
 
           (const (f7 a1 a2 a3 a4 a5 a6 a7)
             (println "f7: " a1 ", " a2 ", " a3 ", " a4 ", " a5 ", " a6 ", " a7)
-          )
+          );
 
           (const (f8 a1 a2 a3 a4 a5 a6 a7 a8)
             (println "f8: " a1 ", " a2 ", " a3 ", " a4 ", " a5 ", " a6 ", " a7 ", " a8)
-          )
+          );
 
           (const (f9 a1 a2 a3 a4 a5 a6 a7 a8 a9)
             (println "f9: " a1 ", " a2 ", " a3 ", " a4 ", " a5 ", " a6 ", " a7 ", " a8 ", " a9)
-          )
+          );
 
           (const (f10 a1 a2 a3 a4 a5 a6 a7 a8 a9 a10)
             (println "f10: " a1 ", " a2 ", " a3 ", " a4 ", " a5 ", " a6 ", " a7 ", " a8 ", " a9 ", " a10)
-          )
+          );
 
-          (const v0 f0)
-          (v0)
+          (const v0 f0);
+          (v0);
 
-          (const v1 f1)
-          (v1 1)
+          (const v1 f1);
+          (v1 1);
 
-          (const v2 f2)
-          (v2 1 2)
+          (const v2 f2);
+          (v2 1 2);
 
-          (const v3 f3)
-          (v3 1 2 3)
+          (const v3 f3);
+          (v3 1 2 3);
 
-          (const v4 f4)
-          (v4 1 2 3 4)
+          (const v4 f4);
+          (v4 1 2 3 4);
 
-          (const v5 f5)
-          (v5 1 2 3 4 5)
+          (const v5 f5);
+          (v5 1 2 3 4 5);
 
-          (const v6 f6)
-          (v6 1 2 3 4 5 6)
+          (const v6 f6);
+          (v6 1 2 3 4 5 6);
 
-          (const v7 f7)
-          (v7 1 2 3 4 5 6 7)
+          (const v7 f7);
+          (v7 1 2 3 4 5 6 7);
 
-          (const v8 f8)
-          (v8 1 2 3 4 5 6 7 8)
+          (const v8 f8);
+          (v8 1 2 3 4 5 6 7 8);
 
-          (const v9 f9)
-          (v9 1 2 3 4 5 6 7 8 9)
+          (const v9 f9);
+          (v9 1 2 3 4 5 6 7 8 9);
 
-          (const v10 f10)
+          (const v10 f10);
           (v10 1 2 3 4 5 6 7 8 9 10)
         output: |
           f0
@@ -713,12 +713,12 @@
           f10: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
       - name: builtin procedure of fixed arity
         input: |
-          (const apair pair)
-          (const result (apair 1 (apair 2 (apair 3 ()))))
+          (const apair pair);
+          (const result (apair 1 (apair 2 (apair 3 ()))));
 
-          (const apair? pair?)
+          (const apair? pair?);
 
-          (println result)
+          (println result);
           (println (apair? result))
         output: |
           (1 2 3)
@@ -730,13 +730,13 @@
             (println (op 10))
             (println (op 10 2))
             (println (op 10 2 3 4 5))
-          )
+          );
 
-          (call +)
-          (call -)
-          (call *)
-          (call /)
-          (call print)
+          (call +);
+          (call -);
+          (call *);
+          (call /);
+          (call print);
           (call println)
         output: |
           0
@@ -775,19 +775,19 @@
                   (pair min (range (+ min 1) max))
                 ()
             )
-          )
+          );
 
           (const (map p lst)
             (if (null? lst)
                   ()
                 (pair (p (car lst)) (map p (cdr lst)))
              )
-          )
+          );
 
-          (const f (proc (n) (+ n n)))
-          (const values (range 1 10))
+          (const f (proc (n) (+ n n)));
+          (const values (range 1 10));
 
-          (println (map f values))
+          (println (map f values));
           (println (map (proc (n) (+ n n)) (range 1 10)))
         output: |
           (2 4 6 8 10 12 14 16 18)
@@ -799,7 +799,7 @@
                   (pair min (range (+ min 1) max))
                 ()
             )
-          )
+          );
 
           (const (filter p lst)
             (if (null? lst)
@@ -808,16 +808,16 @@
                   (pair (car lst) (filter p (cdr lst)))
                 (filter p (cdr lst))
              )
-          )
+          );
 
-          (const values (range 1 10))
+          (const values (range 1 10));
 
           (const (less-than n lst)
             (filter (proc (v) (< v n)) lst)
-          )
+          );
 
-          (const limit 5)
-          (println (filter (proc (n) (< n limit)) values))
+          (const limit 5);
+          (println (filter (proc (n) (< n limit)) values));
           (println (less-than limit values))
         output: |
           (1 2 3 4)
@@ -837,10 +837,10 @@
                 0
               )
             )
-          )
+          );
 
-          (println (safe-divide 10 2))
-          (println (safe-divide 10 3))
+          (println (safe-divide 10 2));
+          (println (safe-divide 10 3));
           (println (safe-divide 10 0))
         output: |
           10
@@ -856,15 +856,15 @@
                   (signal "SomethingElse")
                 (* a 2)
             )
-          )
+          );
 
-          (println (something 10))
+          (println (something 10));
           (try
             (something 1)
             (proc (c)
               (println "Caught exception: " c)
             )
-          )
+          );
           (println (something 0))
         output: |
           20
@@ -879,7 +879,7 @@
                   (signal "SomethingElse")
                 (* a 2)
             )
-          )
+          );
 
           (const (fix-something a)
             (try
@@ -891,15 +891,15 @@
                 )
               )
             )
-          )
+          );
 
-          (println (fix-something 10))
+          (println (fix-something 10));
           (try
             (fix-something 1)
             (proc (c)
               (println "Caught exception: " c)
             )
-          )
+          );
           (println (fix-something 0))
         output: |
           20
@@ -922,16 +922,16 @@
               input: |
                 (const (p a1 a2 a3 a4 a5 a6 a7 a8 a9 a10 a11 a12 a13 a14 a15 a16 a17 a18 a19 a20)
                   "cool"
-                )
+                );
 
                 (const v p)
               output: |
                 Unhandled Exception: ((InternalError (reason . UnableToWrapNative) (number-of-arguments . 20)) ./test.mlsp 5)
             - name: "argument count mismatch"
               input: |
-                (const (add m n) (+ m n))
+                (const (add m n) (+ m n));
 
-                (const v add)
+                (const v add);
 
                 (v 1 2 3)
               output: |

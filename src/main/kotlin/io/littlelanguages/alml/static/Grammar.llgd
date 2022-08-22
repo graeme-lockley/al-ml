@@ -1,6 +1,8 @@
 uses "./Scanner.llld";
 
-Program: {Expression};
+Program: Expressions;
+
+Expressions: Expression {";" Expression};
 
 Expression
   : "(" [ExpressionBody] ")"
