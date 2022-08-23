@@ -1,5 +1,6 @@
 package io.littlelanguages.alml.static.ast
 
+import io.littlelanguages.data.Tuple2
 import io.littlelanguages.data.Yamlable
 import io.littlelanguages.scanpiler.Location
 import io.littlelanguages.scanpiler.Locationable
@@ -91,16 +92,27 @@ data class ConstProcedure(
 
 data class IfExpression(
     override val position: Location,
-    val expressions: List<Expression>
+    val ifThenExpressions: List<Tuple2<Expression, Expression>>,
+    val elseExpression: Expression?
 ) : Expression(position) {
     override fun yaml(): Any =
-        singletonMap(
-            "If",
-            mapOf(
-                Pair("expressions", expressions.map { it.yaml() }),
-                Pair("position", position.yaml())
+        if (elseExpression == null)
+            singletonMap(
+                "If",
+                mapOf(
+                    Pair("if-expressions", ifThenExpressions.map { Pair(it.a.yaml(), it.b.yaml()) }),
+                    Pair("position", position.yaml())
+                )
             )
-        )
+        else
+            singletonMap(
+                "If",
+                mapOf(
+                    Pair("if-expressions", ifThenExpressions.map { Pair(it.a.yaml(), it.b.yaml()) }),
+                    Pair("else-expression", elseExpression.yaml()),
+                    Pair("position", position.yaml())
+                )
+            )
 }
 
 data class ProcExpression(

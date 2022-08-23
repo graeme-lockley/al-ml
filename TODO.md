@@ -9,11 +9,12 @@ Piece by piece transform mini-iLisp into Al-ML.  The intention here is to re-use
 - [X] Replace `const` with `let` and move it into expression
 - [X] Reshape expressions into a precedence hierarchy
 - [X] Move `if` out of s-expression into Al-ML
-- [ ] Move call expression
+- [X] Refactor if AST so that it is understandable
 - [ ] Move `+` and `-`
 - [ ] Move `*` and `/`
 - [ ] Move `==`, `!=`, `<`, `<=`, `>`, `>=`
 - [ ] Move `&&`, `||`
 - [ ] Move lambda expression
+- [ ] Move call expression
 
 - [ ] Defect with comments - see euler-001 sample

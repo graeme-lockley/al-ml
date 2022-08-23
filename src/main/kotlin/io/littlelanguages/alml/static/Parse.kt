@@ -49,10 +49,7 @@ class ParseVisitor : Visitor<Program, List<Expression>, Expression, Expression, 
         val location =
             a1.location + (a6?.b?.position() ?: if (a5.isEmpty()) a4.position() else a5.last().d.position())
 
-        return IfExpression(
-            location,
-            listOf(a2) + listOf(a4) + a5.map { listOf(it.b, it.d) }.flatten() + if (a6 == null) emptyList() else listOf(a6.b)
-        )
+        return IfExpression(location, listOf(Tuple2(a2, a4)) + a5.map { Tuple2(it.b, it.d) }, a6?.b)
     }
 
     override fun visitIfExpression2(a: Expression): Expression =

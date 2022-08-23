@@ -5,6 +5,7 @@ import io.littlelanguages.alml.dynamic.tst.*
 import io.littlelanguages.data.Either
 import io.littlelanguages.data.Left
 import io.littlelanguages.data.Right
+import io.littlelanguages.data.Tuple2
 import io.littlelanguages.scanpiler.Location
 import io.littlelanguages.scanpiler.LocationCoordinate
 import io.littlelanguages.scanpiler.LocationRange
@@ -82,7 +83,10 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
             }
 
             is io.littlelanguages.alml.static.ast.IfExpression ->
-                ifToTST(e.expressions.map { expressionToTST(it) })
+                ifToTST(
+                    e.ifThenExpressions.map { Tuple2(expressionToTST(it.a), expressionToTST(it.b)) },
+                    if (e.elseExpression == null) null else expressionToTST(e.elseExpression)
+                )
 
             is io.littlelanguages.alml.static.ast.ProcExpression -> {
                 val tst = procedureToTST(nextName(), e.parameters, e.expressions)
@@ -208,12 +212,16 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
         return Pair(procedure, binding)
     }
 
-    private fun ifToTST(es: List<List<Expression<S, T>>>): List<Expression<S, T>> =
-        when (es.size) {
-            0 -> listOf(LiteralUnit())
-            1 -> es[0]
-            2 -> listOf(IfExpression(es[0], es[1], listOf(LiteralUnit())))
-            else -> listOf(IfExpression(es[0], es[1], ifToTST(es.drop(2))))
+    private fun ifToTST(
+        ifThenExpressions: List<Tuple2<Expressions<S, T>, Expressions<S, T>>>,
+        elseExpression: Expressions<S, T>?
+    ): List<Expression<S, T>> =
+        if (ifThenExpressions.isEmpty())
+            elseExpression ?: listOf(LiteralUnit())
+        else {
+            val ifThen = ifThenExpressions[0]
+
+            listOf(IfExpression(ifThen.a, ifThen.b, ifToTST(ifThenExpressions.drop(1), elseExpression)))
         }
 
     private fun reportError(error: Errors): List<Expression<S, T>> {
