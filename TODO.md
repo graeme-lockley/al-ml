@@ -18,9 +18,18 @@ Piece by piece transform mini-iLisp into Al-ML.  The intention here is to re-use
 - [X] Move lambda expression
 - [X] Move call expression
 
+## Transform the runtime system so that it uses untagged values
+
+Superficially this is straight forward however it is necessary to introduce type expressions and free variables.  Further to that it'll be necessary to allow type signatures to be specified.
+
+- [ ] Enhance the grammar to include type info
+- [ ] Extend the parser to parse the type detail and augment the AST
+- [ ] Type every TST expression
+
 ## Extend the small dialect of Al-ML to include the full Al-ML language
 
 - [ ] Add support for custom infix operators
+- [ ] Add support for `|>` and `<|`
 - [ ] Add support for `(..)` for all infix operators
 - [ ] Add support for unary `-` and `+`
 
