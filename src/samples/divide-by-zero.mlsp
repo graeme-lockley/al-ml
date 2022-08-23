@@ -1,7 +1,7 @@
-(println "Hello worlds!");
+println "Hello worlds!";
 
 let x = 0;
 let y = 10 / x;
 
-(println "x: " x ", y: " y)
+println "x: " x ", y: " y
 

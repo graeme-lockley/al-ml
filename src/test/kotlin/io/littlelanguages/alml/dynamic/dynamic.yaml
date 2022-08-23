@@ -268,7 +268,7 @@
                         line-number: 13
       - name: Lambda function without free variables
         input: |
-          (\a b c -> a + b * b + c * c 1 2 3)
+          (\a b c -> a + b * b + c * c) 1 2 3
         output:
           program:
             values: [ ]
@@ -472,25 +472,19 @@
         input: |
           let add a b = a + b;
 
-          (println (add));
-          (println (add 1));
-          (println (add 1 2 3))
+          println (add 1);
+          println (add 1 2 3)
         output:
           - ArgumentMismatchError:
               name: add
               expected: 2
-              actual: 0
+              actual: 1
               location: 31:3:10-35:3:14
           - ArgumentMismatchError:
               name: add
               expected: 2
-              actual: 1
-              location: 48:4:10-54:4:16
-          - ArgumentMismatchError:
-              name: add
-              expected: 2
               actual: 3
-              location: 67:5:10-77:5:20
+              location: 48:4:10-56:4:18
       - name: Local forward declaration
         input: |
           let a = 9;
@@ -657,7 +651,7 @@
     tests:
       - name: signal
         input: |
-          (signal "hello world")
+          signal "hello world"
         output:
           program:
             values: [ ]
@@ -672,10 +666,9 @@
                         - hello world
       - name: try-catch
         input: |
-          (try
+          try
             "hello world"
-            \c -> "cool"
-          )
+            (\c -> "cool")
         output:
           program:
             values: [ ]
@@ -715,13 +708,11 @@
       - name: try-catch with bindings
         input: |
           let safe-divide a b = 
-            (try
+            try
               { let a2 = a + a;
                 a2 / b
               }
-              \c -> 0
-            )
-          )
+              (\c -> 0)
         output:
           program:
             values: [ ]
@@ -800,9 +791,8 @@
                   es: [ ]
       - name: try-catch error
         input: |
-          (try
+          try
             "hello world"
             "cool"
-          )
         output:
-          - ExpressionNotProcedureError: "23:3:3-28:3:8"
+          - ExpressionNotProcedureError: "22:3:3-27:3:8"

@@ -5,21 +5,21 @@ let multiple? m n = {
 };
 
 let append e lst =
-  if (null? lst) -> (pair e ())
-  else (pair (car lst) (append e (cdr lst)));
+  if null? lst -> pair e ()
+  else pair (car lst) (append e (cdr lst));
 
 let divisible-by? n lst =
-  if (null? lst) -> #f
-   | (multiple? n (car lst)) -> #t
-  else (divisible-by? n (cdr lst));
+  if null? lst -> #f
+   | multiple? n (car lst) -> #t
+  else divisible-by? n (cdr lst);
 
 let primes min max = {
   let sieve n p' =
     if max < n -> p'
-     | (divisible-by? n p') -> (sieve n + 1 p')
-    else (sieve n + 1 (append n p'));
+     | divisible-by? n p' -> sieve n + 1 p'
+    else sieve n + 1 (append n p');
 
-  (sieve min ())
+  sieve min ()
 };
 
-(println (primes 2 10000))
+println (primes 2 10000)

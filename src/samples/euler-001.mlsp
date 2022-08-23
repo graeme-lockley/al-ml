@@ -18,21 +18,24 @@ let or a b =
   else #f;
 
 let range min max =
-  if min < max -> (pair min (range min + 1 max))
+  if min < max -> pair min (range min + 1 max)
   else ();
 
 let filter f lst =
-  if (null? lst) -> ()
+  if null? lst -> ()
   else {
-    let first = (car lst);
-    let rest = (filter f (cdr lst));
+    let first = car lst;
+    let rest = filter f (cdr lst);
 
-    if (f first) -> (pair first rest)
+    if f first -> pair first rest
     else rest
   };
 
 let sum lst =
-  if (null? lst) -> 0
+  if null? lst -> 0
   else (car lst) + (sum (cdr lst));
 
-(println (sum (filter \n -> (or (multiple? n 5) (multiple? n 3)) (range 0 1000))))
+let my-filter n = or (multiple? n 5) (multiple? n 3);
+let my-range = range 0 1000;
+
+println (sum (filter my-filter my-range))

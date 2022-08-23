@@ -5,9 +5,12 @@ Program: Expressions;
 Expressions: Expression {";" Expression};
 
 Expression
-  : "{" Expression {";" Expression} "}"
-  | "let" Symbol {Symbol} "=" Expression
-  | IfExpression
+  : "let" Symbol {Symbol} "=" Expression
+  | CallExpression
+  ;
+
+CallExpression
+  : IfExpression {IfExpression}
   ;
 
 IfExpression
@@ -35,14 +38,11 @@ MultiplicativeExpression
   ;
 
 Term
-  : "(" [ExpressionBody] ")"
+  : "(" [Expression] ")"
   | LiteralInt
   | LiteralString
   | Symbol
-  ;
-
-ExpressionBody
-  : "try" Expression Expression
-  | "signal" Expression
-  | Expression {Expression}
+  | "try" Term Term
+  | "signal" Term
+  | "{" Expression {";" Expression} "}"
   ;

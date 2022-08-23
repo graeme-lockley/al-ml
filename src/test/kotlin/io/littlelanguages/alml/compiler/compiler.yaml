@@ -3,27 +3,27 @@
     tests:
       - name: "Hello 42"
         input: |
-          (println 42)
+          println 42
         output: |
           42
       - name: "Hello #t"
         input: |
-          (println #t)
+          println #t
         output: |
           #t
       - name: "Hello ()"
         input: |
-          (println ())
+          println ()
         output: |
           ()
       - name: "Hello (pair 1 (pair 2 3)))"
         input: |
-          (println (pair 1 (pair 2 3)))
+          println (pair 1 (pair 2 3))
         output: |
           (1 2 . 3)
       - name: "Hello World"
         input: |
-          (println "Hello World")
+          println "Hello World"
         output: |
           Hello World
 - scenario:
@@ -34,22 +34,22 @@
           tests:
             - name: Boolean
               input: |
-                (println #t);
-                (println #f)
+                println #t;
+                println #f
               output: |
                 #t
                 #f
             - name: Integer
               input: |
-                (println 123);
-                (println -987)
+                println 123;
+                println -987
               output: |
                 123
                 -987
             - name: String
               input: |
-                (println "Hello\nWorld");
-                (println "Bye\nbye\nlove")
+                println "Hello\nWorld";
+                println "Bye\nbye\nlove"
               output: |
                 Hello
                 World
@@ -58,7 +58,7 @@
                 love
             - name: ()
               input: |
-                (println ())
+                println ()
               output: |
                 ()
       - scenario:
@@ -66,36 +66,36 @@
           tests:
             - name: plus
               input: |
-                (println 1 + 2);
-                (println 1 + 2 + 3 + 4 + 5 + 6)
+                println 1 + 2;
+                println 1 + 2 + 3 + 4 + 5 + 6
               output: |
                 3
                 21
             - name: minus
               input: |
-                (println 1 - 2);
-                (println 1 - 2 - 3 - 4 - 5 - 6)
+                println 1 - 2;
+                println 1 - 2 - 3 - 4 - 5 - 6
               output: |
                 -1
                 -19
             - name: star
               input: |
-                (println 3 * 4);
-                (println 1 * 2 * 3 * 4 * 5 * 6)
+                println 3 * 4;
+                println 1 * 2 * 3 * 4 * 5 * 6
               output: |
                 12
                 720
             - name: slash
               input: |
-                (println 4 / 2);
-                (println 500 / 50 / 2)
+                println 4 / 2;
+                println 500 / 50 / 2
               output: |
                 2
                 5
             - name: slash by zero
               input: |
-                (println 500 / 50 / 2);
-                (println 500 / 50 / 0 / 2)
+                println 500 / 50 / 2;
+                println 500 / 50 / 0 / 2
               output: |
                 5
                 Unhandled Exception: (DivideByZero ./test.mlsp 2)
@@ -104,11 +104,11 @@
                 tests:
                   - name: ()
                     input: |
-                      (println () == ());
-                      (println () == #t);
-                      (println () == 123);
-                      (println () == "hello");
-                      (println () == (pair 1 2))
+                      println () == ();
+                      println () == #t;
+                      println () == 123;
+                      println () == "hello";
+                      println () == (pair 1 2)
                     output: |
                       #t
                       #f
@@ -117,12 +117,12 @@
                       #f
                   - name: boolean
                     input: |
-                      (println #t == ());
-                      (println #t == #t);
-                      (println #t == #f);
-                      (println #t == 123);
-                      (println #t == "hello");
-                      (println #t == (pair 1 2))
+                      println #t == ();
+                      println #t == #t;
+                      println #t == #f;
+                      println #t == 123;
+                      println #t == "hello";
+                      println #t == (pair 1 2)
                     output: |
                       #f
                       #t
@@ -132,12 +132,12 @@
                       #f
                   - name: integer
                     input: |
-                      (println 123 == ());
-                      (println 123 == #t);
-                      (println 123 == 123);
-                      (println 456 == 123);
-                      (println 123 == "hello");
-                      (println 123 == (pair 1 2))
+                      println 123 == ();
+                      println 123 == #t;
+                      println 123 == 123;
+                      println 456 == 123;
+                      println 123 == "hello";
+                      println 123 == (pair 1 2)
                     output: |
                       #f
                       #f
@@ -147,12 +147,12 @@
                       #f
                   - name: string
                     input: |
-                      (println "hello" == ());
-                      (println "hello" == #t);
-                      (println "hello" == 123);
-                      (println "hello" == "hello");
-                      (println "hello" == "world");
-                      (println "hello" == (pair 1 2))
+                      println "hello" == ();
+                      println "hello" == #t;
+                      println "hello" == 123;
+                      println "hello" == "hello";
+                      println "hello" == "world";
+                      println "hello" == (pair 1 2)
                     output: |
                       #f
                       #f
@@ -162,12 +162,12 @@
                       #f
                   - name: pair
                     input: |
-                      (println (pair 1 2) == ());
-                      (println (pair 1 2) == #t);
-                      (println (pair 1 2) == 123);
-                      (println (pair 1 2) == "hello");
-                      (println (pair 1 2) == (pair 1 2));
-                      (println (pair 1 3) == (pair 1 2))
+                      println (pair 1 2) == ();
+                      println (pair 1 2) == #t;
+                      println (pair 1 2) == 123;
+                      println (pair 1 2) == "hello";
+                      println (pair 1 2) == (pair 1 2);
+                      println (pair 1 3) == (pair 1 2)
                     output: |
                       #f
                       #f
@@ -180,11 +180,11 @@
                 tests:
                   - name: ()
                     input: |
-                      (println () != ());
-                      (println () != #t);
-                      (println () != 123);
-                      (println () != "hello");
-                      (println () != (pair 1 2))
+                      println () != ();
+                      println () != #t;
+                      println () != 123;
+                      println () != "hello";
+                      println () != (pair 1 2)
                     output: |
                       #f
                       #t
@@ -193,12 +193,12 @@
                       #t
                   - name: boolean
                     input: |
-                      (println #t != ());
-                      (println #t != #t);
-                      (println #t != #f);
-                      (println #t != 123);
-                      (println #t != "hello");
-                      (println #t != (pair 1 2))
+                      println #t != ();
+                      println #t != #t;
+                      println #t != #f;
+                      println #t != 123;
+                      println #t != "hello";
+                      println #t != (pair 1 2)
                     output: |
                       #t
                       #f
@@ -208,12 +208,12 @@
                       #t
                   - name: integer
                     input: |
-                      (println 123 != ());
-                      (println 123 != #t);
-                      (println 123 != 123);
-                      (println 456 != 123);
-                      (println 123 != "hello");
-                      (println 123 != (pair 1 2))
+                      println 123 != ();
+                      println 123 != #t;
+                      println 123 != 123;
+                      println 456 != 123;
+                      println 123 != "hello";
+                      println 123 != (pair 1 2)
                     output: |
                       #t
                       #t
@@ -223,12 +223,12 @@
                       #t
                   - name: string
                     input: |
-                      (println "hello" != ());
-                      (println "hello" != #t);
-                      (println "hello" != 123);
-                      (println "hello" != "hello");
-                      (println "hello" != "world");
-                      (println "hello" != (pair 1 2))
+                      println "hello" != ();
+                      println "hello" != #t;
+                      println "hello" != 123;
+                      println "hello" != "hello";
+                      println "hello" != "world";
+                      println "hello" != (pair 1 2)
                     output: |
                       #t
                       #t
@@ -238,12 +238,12 @@
                       #t
                   - name: pair
                     input: |
-                      (println (pair 1 2) != ());
-                      (println (pair 1 2) != #t);
-                      (println (pair 1 2) != 123);
-                      (println (pair 1 2) != "hello");
-                      (println (pair 1 2) != (pair 1 2));
-                      (println (pair 1 3) != (pair 1 2))
+                      println (pair 1 2) != ();
+                      println (pair 1 2) != #t;
+                      println (pair 1 2) != 123;
+                      println (pair 1 2) != "hello";
+                      println (pair 1 2) != (pair 1 2);
+                      println (pair 1 3) != (pair 1 2)
                     output: |
                       #t
                       #t
@@ -256,10 +256,10 @@
                 tests:
                   - name: boolean
                     input: |
-                      (println #f < #f);
-                      (println #f < #t);
-                      (println #t < #f);
-                      (println #t < #t)
+                      println #f < #f;
+                      println #f < #t;
+                      println #t < #f;
+                      println #t < #t
                     output: |
                       #f
                       #t
@@ -267,18 +267,18 @@
                       #f
                   - name: integer
                     input: |
-                      (println 1 < 1);
-                      (println 1 < 2);
-                      (println 2 < 1)
+                      println 1 < 1;
+                      println 1 < 2;
+                      println 2 < 1
                     output: |
                       #f
                       #t
                       #f
                   - name: string
                     input: |
-                      (println "a" < "a");
-                      (println "a" < "b");
-                      (println "b" < "a")
+                      println "a" < "a";
+                      println "a" < "b";
+                      println "b" < "a"
                     output: |
                       #f
                       #t
@@ -288,10 +288,10 @@
                 tests:
                   - name: boolean
                     input: |
-                      (println #f <= #f);
-                      (println #f <= #t);
-                      (println #t <= #f);
-                      (println #t <= #t)
+                      println #f <= #f;
+                      println #f <= #t;
+                      println #t <= #f;
+                      println #t <= #t
                     output: |
                       #t
                       #t
@@ -299,18 +299,18 @@
                       #t
                   - name: integer
                     input: |
-                      (println 1 <= 1);
-                      (println 1 <= 2);
-                      (println 2 <= 1)
+                      println 1 <= 1;
+                      println 1 <= 2;
+                      println 2 <= 1
                     output: |
                       #t
                       #t
                       #f
                   - name: string
                     input: |
-                      (println "a" <= "a");
-                      (println "a" <= "b");
-                      (println "b" <= "a")
+                      println "a" <= "a";
+                      println "a" <= "b";
+                      println "b" <= "a"
                     output: |
                       #t
                       #t
@@ -320,10 +320,10 @@
                 tests:
                   - name: boolean
                     input: |
-                      (println #f > #f);
-                      (println #f > #t);
-                      (println #t > #f);
-                      (println #t > #t)
+                      println #f > #f;
+                      println #f > #t;
+                      println #t > #f;
+                      println #t > #t
                     output: |
                       #f
                       #f
@@ -331,18 +331,18 @@
                       #f
                   - name: integer
                     input: |
-                      (println 1 > 1);
-                      (println 1 > 2);
-                      (println 2 > 1)
+                      println 1 > 1;
+                      println 1 > 2;
+                      println 2 > 1
                     output: |
                       #f
                       #f
                       #t
                   - name: string
                     input: |
-                      (println "a" > "a");
-                      (println "a" > "b");
-                      (println "b" > "a")
+                      println "a" > "a";
+                      println "a" > "b";
+                      println "b" > "a"
                     output: |
                       #f
                       #f
@@ -352,10 +352,10 @@
                 tests:
                   - name: boolean
                     input: |
-                      (println #f >= #f);
-                      (println #f >= #t);
-                      (println #t >= #f);
-                      (println #t >= #t)
+                      println #f >= #f;
+                      println #f >= #t;
+                      println #t >= #f;
+                      println #t >= #t
                     output: |
                       #t
                       #f
@@ -363,18 +363,18 @@
                       #t
                   - name: integer
                     input: |
-                      (println 1 >= 1);
-                      (println 1 >= 2);
-                      (println 2 >= 1)
+                      println 1 >= 1;
+                      println 1 >= 2;
+                      println 2 >= 1
                     output: |
                       #t
                       #f
                       #t
                   - name: string
                     input: |
-                      (println "a" >= "a");
-                      (println "a" >= "b");
-                      (println "b" >= "a")
+                      println "a" >= "a";
+                      println "a" >= "b";
+                      println "b" >= "a"
                     output: |
                       #t
                       #f
@@ -387,17 +387,17 @@
                 tests:
                   - name: (if v1 v2)
                     input: |
-                      (println if 1 == 1 -> 2);
-                      (println if 0 == 1 -> 2)
+                      println if 1 == 1 -> 2;
+                      println if 0 == 1 -> 2
                     output: |
                       2
                       ()
                   - name: (if v1 v2 v2)
                     input: |
-                      (println if 1 == 1 -> 2 else 3);
-                      (println if 0 == 1 -> 2 else 3);
-                      (println if 4 == 7 -> 1 | 3 == 2 -> 2 else 3);
-                      (println if 4 == 7 -> 1 | 3 == 2 -> 2)
+                      println if 1 == 1 -> 2 else 3;
+                      println if 0 == 1 -> 2 else 3;
+                      println if 4 == 7 -> 1 | 3 == 2 -> 2 else 3;
+                      println if 4 == 7 -> 1 | 3 == 2 -> 2
                     output: |
                       2
                       3
@@ -408,44 +408,44 @@
           tests:
             - name: pair
               input: |
-                (println (pair 1 2));
-                (println (pair 1 (pair 2 (pair 3 ()))))
+                println (pair 1 2);
+                println (pair 1 (pair 2 (pair 3 ())))
               output: |
                 (1 . 2)
                 (1 2 3)
             - name: car
               input: |
-                (println (car (pair 1 2)));
-                (println (car (pair 1 (pair 2 (pair 3 ())))))
+                println (car (pair 1 2));
+                println (car (pair 1 (pair 2 (pair 3 ()))))
               output: |
                 1
                 1
             - name: car error
               input: |
-                (println (car ()))
+                println (car ())
               output: |
                 Unhandled Exception: ((EmptyList (reason . Attempt to call car on empty list)) ./test.mlsp 1)
             - name: cdr
               input: |
-                (println (cdr (pair 1 2)));
-                (println (cdr (pair 1 (pair 2 ()))));
-                (println (cdr (pair 1 (pair 2 (pair 3 ())))))
+                println (cdr (pair 1 2));
+                println (cdr (pair 1 (pair 2 ())));
+                println (cdr (pair 1 (pair 2 (pair 3 ()))))
               output: |
                 2
                 (2)
                 (2 3)
             - name: cdr error
               input: |
-                (println (cdr ()))
+                println (cdr ())
               output: |
                 Unhandled Exception: ((EmptyList (reason . Attempt to call cdr on empty list)) ./test.mlsp 1)
             - name: null?
               input: |
-                (println (null? ()));
-                (println (null? #t));
-                (println (null? 123));
-                (println (null? "hello"));
-                (println (null? (pair 1 2)))
+                println (null? ());
+                println (null? #t);
+                println (null? 123);
+                println (null? "hello");
+                println (null? (pair 1 2))
               output: |
                 #t
                 #f
@@ -454,11 +454,11 @@
                 #f
             - name: boolean?
               input: |
-                (println (boolean? ()));
-                (println (boolean? #t));
-                (println (boolean? 123));
-                (println (boolean? "hello"));
-                (println (boolean? (pair 1 2)))
+                println (boolean? ());
+                println (boolean? #t);
+                println (boolean? 123);
+                println (boolean? "hello");
+                println (boolean? (pair 1 2))
               output: |
                 #f
                 #t
@@ -467,11 +467,11 @@
                 #f
             - name: integer?
               input: |
-                (println (integer? ()));
-                (println (integer? #t));
-                (println (integer? 123));
-                (println (integer? "hello"));
-                (println (integer? (pair 1 2)))
+                println (integer? ());
+                println (integer? #t);
+                println (integer? 123);
+                println (integer? "hello");
+                println (integer? (pair 1 2))
               output: |
                 #f
                 #f
@@ -480,11 +480,11 @@
                 #f
             - name: string?
               input: |
-                (println (string? ()));
-                (println (string? #t));
-                (println (string? 123));
-                (println (string? "hello"));
-                (println (string? (pair 1 2)))
+                println (string? ());
+                println (string? #t);
+                println (string? 123);
+                println (string? "hello");
+                println (string? (pair 1 2))
               output: |
                 #f
                 #f
@@ -493,11 +493,11 @@
                 #f
             - name: pair?
               input: |
-                (println (pair? ()));
-                (println (pair? #t));
-                (println (pair? 123));
-                (println (pair? "hello"));
-                (println (pair? (pair 1 2)))
+                println (pair? ());
+                println (pair? #t);
+                println (pair? 123);
+                println (pair? "hello");
+                println (pair? (pair 1 2))
               output: |
                 #f
                 #f
@@ -508,7 +508,7 @@
               input: |
                 let some-message = "This is my message";
 
-                (exit some-message)
+                exit some-message
               output: |
                 Unhandled Exception: ((Exit (message . This is my message)) ./test.mlsp 3)
 - scenario:
@@ -520,8 +520,8 @@
             - name: if
               input: |
                 if #t ->
-                  { (println "Hello")
-                  ; (println "World")
+                  { println "Hello"
+                  ; println "World"
                   }
               output: |
                 Hello
@@ -533,15 +533,15 @@
                    }
                 };
 
-                (println x);
-                (println y)
+                println x;
+                println y
               output:
                 - UnknownSymbolError:
                     name: x
-                    location: "46:6:10"
+                    location: "45:6:9"
                 - UnknownSymbolError:
                     name: y
-                    location: "59:7:10"
+                    location: "56:7:9"
 - scenario:
     name: "Declarations"
     tests:
@@ -551,13 +551,13 @@
           let v2 = #t;
           let v3 = "Hello world";
           let v4 = ();
-          let v5 = (pair 1 2);
+          let v5 = pair 1 2;
 
-          (println v1);
-          (println v2);
-          (println v3);
-          (println v4);
-          (println v5)
+          println v1;
+          println v2;
+          println v3;
+          println v4;
+          println v5
         output: |
           1
           #t
@@ -569,7 +569,7 @@
           let add a b = a + b;
           let minus a b = a - b;
 
-          (println (minus 10 (add 1 2)))
+          println (minus 10 (add 1 2))
         output: |
           7
       - name: "Const value in procedure declaration"
@@ -580,7 +580,7 @@
             sum + sum
           };
 
-          (println (double-sum 1 2))
+          println (double-sum 1 2)
         output: |
           6
       - name: "Nested const forward value declaration"
@@ -591,10 +591,10 @@
               let v1 = a;
               let a = 10;
               let v2 = a;
-              (pair v1 v2)
+              pair v1 v2
           };
 
-          (println f)
+          println f
         output: |
           (9 . 10)
       - name: "Nested procedures with free variables"
@@ -608,7 +608,7 @@
                 sum2 + x
             };
 
-            (g sum)
+            g sum
           };
 
           let nested a = {
@@ -623,14 +623,14 @@
                 a + b + c + a' + b' + c'
               };
 
-              (nested-nested-nested b')
+              nested-nested-nested b'
             };
 
-            (nested-nested a')
+            nested-nested a'
           };
 
           let range min max = 
-            if min < max -> (pair min (range min + 1 max))
+            if min < max -> pair min (range min + 1 max)
             else ();
 
           let max a b =
@@ -638,29 +638,29 @@
 
           let maxs items = {
               let max-helper largest rest =
-                  if (null? rest) -> largest
-                  else (max-helper (max largest (car rest)) (cdr rest));
+                  if null? rest -> largest
+                  else max-helper (max largest (car rest)) (cdr rest);
 
-              if (null? items) -> ()
-              else (max-helper (car items) (cdr items))
+              if null? items -> ()
+              else max-helper (car items) (cdr items)
           };
 
           let count items =
-            if (null? items) -> 0
+            if null? items -> 0
             else 1 + (count (cdr items));
 
           let sum items =
-            if (null? items) -> 0
+            if null? items -> 0
             else (car items) + (sum (cdr items));
 
-          (println (f 1 2));
-          (println (nested 1));
+          println (f 1 2);
+          println (nested 1);
 
-          let lots = (range 0 100000);
+          let lots = range 0 100000;
 
-          (println "count: " (count lots));
-          (println "sum: " (sum lots));
-          (println "max: " (maxs lots))
+          println "count: " (count lots);
+          println "sum: " (sum lots);
+          println "max: " (maxs lots)
         output: |
           9
           15
@@ -677,16 +677,16 @@
             };
 
           let d =
-            { (println c);
+            { println c;
               let c = a + b + 1;
-              (println c);
-               c
+              println c;
+              c
             };
 
-          (println a);
-          (println b);
-          (println c);
-          (println d)
+          println a;
+          println b;
+          println c;
+          println d
         output: |
           3
           4
@@ -705,13 +705,13 @@
 
           let plusp = plus;
 
-          let inc a = (plus 1 a);
-          let incp a = (plusp 1 a);
+          let inc a = plus 1 a;
+          let incp a = plusp 1 a;
 
-          (println (plus 1 2));
-          (println (plusp 1 2));
-          (println (inc 1));
-          (println (incp 1))
+          println (plus 1 2);
+          println (plusp 1 2);
+          println (inc 1);
+          println (incp 1)
         output: |
           3
           3
@@ -727,13 +727,13 @@
                 let c' = c + 1;
 
                 let n0-all _ =
-                  (pair a (pair a' (pair b (pair b' (pair c (pair c' ()))))));
+                  pair a (pair a' (pair b (pair b' (pair c (pair c' ())))));
 
                 n0-all
               };
-              (n0-nested-nested b + 20)
+              n0-nested-nested b + 20
             };
-            (n0-nested a + 10)
+            n0-nested a + 10
           };
 
           let n1 a = {
@@ -742,7 +742,7 @@
               let b' = b + 1;
 
               let n1-all other =
-                (pair a (pair a' (pair b (pair b' (pair other ())))));
+                pair a (pair a' (pair b (pair b' (pair other ()))));
 
               let n1-nested-nested c = {
                 let c' = c + 1;
@@ -750,77 +750,77 @@
                 n1-all
               };
 
-              (n1-nested-nested b + 20)
+              n1-nested-nested b + 20
             };
-            (n1-nested a + 10)
+            n1-nested a + 10
           };
 
-          (println ((n0 0) 0));
-          (println ((n1 0) 30))
+          println ((n0 0) 0);
+          println ((n1 0) 30)
         output: |
           (0 1 10 11 30 31)
           (0 1 10 11 30)
       - name: "Up to 10 arguments without frame"
         input: |
           let f1 a1 =
-            (println "f1: " a1);
+            println "f1: " a1;
 
           let f2 a1 a2 =
-            (println "f2: " a1 ", " a2);
+            println "f2: " a1 ", " a2;
 
           let f3 a1 a2 a3 =
             (println "f3: " a1 ", " a2 ", " a3);
 
           let f4 a1 a2 a3 a4 =
-            (println "f4: " a1 ", " a2 ", " a3 ", " a4);
+            println "f4: " a1 ", " a2 ", " a3 ", " a4;
 
           let f5 a1 a2 a3 a4 a5 =
-            (println "f5: " a1 ", " a2 ", " a3 ", " a4 ", " a5);
+            println "f5: " a1 ", " a2 ", " a3 ", " a4 ", " a5;
 
           let f6 a1 a2 a3 a4 a5 a6 =
-            (println "f6: " a1 ", " a2 ", " a3 ", " a4 ", " a5 ", " a6);
+            println "f6: " a1 ", " a2 ", " a3 ", " a4 ", " a5 ", " a6;
 
           let f7 a1 a2 a3 a4 a5 a6 a7 =
-            (println "f7: " a1 ", " a2 ", " a3 ", " a4 ", " a5 ", " a6 ", " a7);
+            println "f7: " a1 ", " a2 ", " a3 ", " a4 ", " a5 ", " a6 ", " a7;
 
           let f8 a1 a2 a3 a4 a5 a6 a7 a8 =
-            (println "f8: " a1 ", " a2 ", " a3 ", " a4 ", " a5 ", " a6 ", " a7 ", " a8);
+            println "f8: " a1 ", " a2 ", " a3 ", " a4 ", " a5 ", " a6 ", " a7 ", " a8;
 
           let f9 a1 a2 a3 a4 a5 a6 a7 a8 a9 =
-            (println "f9: " a1 ", " a2 ", " a3 ", " a4 ", " a5 ", " a6 ", " a7 ", " a8 ", " a9);
+            println "f9: " a1 ", " a2 ", " a3 ", " a4 ", " a5 ", " a6 ", " a7 ", " a8 ", " a9;
 
           let f10 a1 a2 a3 a4 a5 a6 a7 a8 a9 a10 =
-            (println "f10: " a1 ", " a2 ", " a3 ", " a4 ", " a5 ", " a6 ", " a7 ", " a8 ", " a9 ", " a10);
+            println "f10: " a1 ", " a2 ", " a3 ", " a4 ", " a5 ", " a6 ", " a7 ", " a8 ", " a9 ", " a10;
 
           let v1 = f1;
-          (v1 1);
+          v1 1;
 
           let v2 = f2;
-          (v2 1 2);
+          v2 1 2;
 
           let v3 = f3;
-          (v3 1 2 3);
+          v3 1 2 3;
 
           let v4 = f4;
-          (v4 1 2 3 4);
+          v4 1 2 3 4;
 
           let v5 = f5;
-          (v5 1 2 3 4 5);
+          v5 1 2 3 4 5;
 
           let v6 = f6;
-          (v6 1 2 3 4 5 6);
+          v6 1 2 3 4 5 6;
 
           let v7 = f7;
-          (v7 1 2 3 4 5 6 7);
+          v7 1 2 3 4 5 6 7;
 
           let v8 = f8;
-          (v8 1 2 3 4 5 6 7 8);
+          v8 1 2 3 4 5 6 7 8;
 
           let v9 = f9;
-          (v9 1 2 3 4 5 6 7 8 9);
+          v9 1 2 3 4 5 6 7 8 9;
 
           let v10 = f10;
-          (v10 1 2 3 4 5 6 7 8 9 10)
+          v10 1 2 3 4 5 6 7 8 9 10
         output: |
           f1: 1
           f2: 1, 2
@@ -835,33 +835,29 @@
       - name: builtin procedure of fixed arity
         input: |
           let apair = pair;
-          let result = (apair 1 (apair 2 (apair 3 ())));
+          let result = apair 1 (apair 2 (apair 3 ()));
 
           let apair? = pair?;
 
-          (println result);
-          (println (apair? result))
+          println result;
+          println (apair? result)
         output: |
           (1 2 3)
           #t
       - name: "builtin procedure of variable arity"
         input: |
           let call op = {
-            (println (op));
-            (println (op 10));
-            (println (op 10 2));
-            (println (op 10 2 3 4 5))
+            println (op 10);
+            println (op 10 2);
+            println (op 10 2 3 4 5)
           };
 
-          (call print);
-          (call println)
+          call print;
+          call println
         output: |
-          ()
           10()
           102()
           102345()
-
-          ()
           10
           ()
           102
@@ -872,40 +868,40 @@
       - name: "anonymous procedure without frame"
         input: |
           let range min max =
-            if min < max -> (pair min (range min + 1 max))
+            if min < max -> pair min (range min + 1 max)
             else ();
 
           let map p lst =
-            if (null? lst) -> ()
-            else (pair (p (car lst)) (map p (cdr lst)));
+            if null? lst -> ()
+            else pair (p (car lst)) (map p (cdr lst));
 
           let f = \n -> n + n;
-          let values = (range 1 10);
+          let values = range 1 10;
 
-          (println (map f values));
-          (println (map \n -> n + n (range 1 10)))
+          println (map f values);
+          println (map (\n -> n + n) (range 1 10))
         output: |
           (2 4 6 8 10 12 14 16 18)
           (2 4 6 8 10 12 14 16 18)
       - name: "anonymous procedure with frame"
         input: |
           let range min max =
-            if min < max -> (pair min (range min + 1 max))
+            if min < max -> pair min (range min + 1 max)
             else ();
 
           let filter p lst =
-            if (null? lst) -> ()
-            | (p (car lst)) -> (pair (car lst) (filter p (cdr lst)))
-            else (filter p (cdr lst));
+            if null? lst -> ()
+            | p (car lst) -> pair (car lst) (filter p (cdr lst))
+            else filter p (cdr lst);
 
-          let values = (range 1 10);
+          let values = range 1 10;
 
           let less-than n lst =
-            (filter \v -> v < n lst);
+            filter (\v -> v < n) lst;
 
           let limit = 5;
-          (println (filter \n -> n < limit values));
-          (println (less-than limit values))
+          println (filter (\n -> n < limit) values);
+          println (less-than limit values)
         output: |
           (1 2 3 4)
           (1 2 3 4)
@@ -915,19 +911,18 @@
       - name: try-catch
         input: |
           let safe-divide a b =
-            (try
+            try
               { let a2 = a + a;
                 a2 / b
               }
-              \c -> {
-                (println c);
+              (\c -> {
+                println c;
                 0
-              }
-            );
+              });
 
-          (println (safe-divide 10 2));
-          (println (safe-divide 10 3));
-          (println (safe-divide 10 0))
+          println (safe-divide 10 2);
+          println (safe-divide 10 3);
+          println (safe-divide 10 0)
         output: |
           10
           6
@@ -936,16 +931,15 @@
       - name: signal
         input: |
           let something a =
-            if a == 0 -> (signal "Something")
-             | a == 1 -> (signal "SomethingElse")
+            if a == 0 -> signal "Something"
+             | a == 1 -> signal "SomethingElse"
             else a * 2;
 
-          (println (something 10));
-          (try
+          println (something 10);
+          try
             (something 1)
-            \c -> (println "Caught exception: " c)
-          );
-          (println (something 0))
+            (\c -> println "Caught exception: " c);
+          println (something 0)
         output: |
           20
           Caught exception: (SomethingElse ./test.mlsp 3)
@@ -953,22 +947,20 @@
       - name: signal with try-catch and signal
         input: |
           let something a =
-            if a == 0 -> (signal "Something")
-             | a == 1 -> (signal "SomethingElse")
+            if a == 0 -> signal "Something"
+             | a == 1 -> signal "SomethingElse"
             else a * 2;
 
           let fix-something a =
-            (try
+            try
               (something a)
-              \c -> if a == 0 -> 0 else (signal c)
-            );
+              (\c -> if a == 0 -> 0 else signal c);
 
-          (println (fix-something 10));
-          (try
+          println (fix-something 10);
+          try
             (fix-something 1)
-            \c -> (println "Caught exception: " c)
-          );
-          (println (fix-something 0))
+            (\c -> println "Caught exception: " c);
+          println (fix-something 0)
         output: |
           20
           Caught exception: ((SomethingElse ./test.mlsp 3) ./test.mlsp 9)
@@ -978,12 +970,12 @@
           tests:
             - name: "car on empty list"
               input: |
-                (car ())
+                car ()
               output: |
                 Unhandled Exception: ((EmptyList (reason . Attempt to call car on empty list)) ./test.mlsp 1)
             - name: "cdr on empty list"
               input: |
-                (cdr ())
+                cdr ()
               output: |
                 Unhandled Exception: ((EmptyList (reason . Attempt to call cdr on empty list)) ./test.mlsp 1)
             - name: "too many arguments on native procedure"
@@ -1000,6 +992,6 @@
 
                 let v = add;
 
-                (v 1 2 3)
+                v 1 2 3
               output: |
                 Unhandled Exception: ((ArgumentCountMismatch (reason . Argument mismatch) (received . 3) (expected . 2)) ./test.mlsp 5)
