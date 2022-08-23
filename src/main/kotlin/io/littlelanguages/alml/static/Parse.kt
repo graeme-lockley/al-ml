@@ -16,7 +16,7 @@ fun parse(scanner: Scanner): Either<Errors, Program> = try {
     Left(ParseError(e.found, e.expected))
 }
 
-class ParseVisitor : Visitor<Program, List<Expression>, Expression, Expression> {
+class ParseVisitor : Visitor<Program, List<Expression>, Expression, Expression, Expression> {
     override fun visitProgram(a: List<Expression>): Program = Program(a)
 
     override fun visitExpressions(a1: Expression, a2: List<Tuple2<Token, Expression>>): List<Expression> =
@@ -38,15 +38,17 @@ class ParseVisitor : Visitor<Program, List<Expression>, Expression, Expression> 
         else
             ConstProcedure(a1.location + a5.position(), Symbol(a2.location, a2.lexeme), a3.map { Symbol(it.location, it.lexeme) }, a5)
 
+    override fun visitExpression4(a: Expression): Expression =
+        a
 
-    override fun visitExpression4(a: Token): Expression =
-        Symbol(a.location, a.lexeme)
-
-    override fun visitExpression5(a: Token): Expression =
+    override fun visitTerm1(a: Token): Expression =
         LiteralInt(a.location, a.lexeme)
 
-    override fun visitExpression6(a: Token): Expression =
+    override fun visitTerm2(a: Token): Expression =
         LiteralString(a.location, a.lexeme)
+
+    override fun visitTerm3(a: Token): Expression =
+        Symbol(a.location, a.lexeme)
 
     override fun visitExpressionBody1(a1: Token, a2: List<Expression>): Expression =
         IfExpression(locationOf(a1.location, a2), a2)

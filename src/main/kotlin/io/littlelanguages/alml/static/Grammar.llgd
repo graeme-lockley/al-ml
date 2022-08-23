@@ -8,9 +8,13 @@ Expression
   : "(" [ExpressionBody] ")"
   | "{" Expression {";" Expression} "}"
   | "let" Symbol {Symbol} "=" Expression
-  | Symbol
-  | LiteralInt
+  | Term
+  ;
+
+Term
+  : LiteralInt
   | LiteralString
+  | Symbol
   ;
 
 ExpressionBody

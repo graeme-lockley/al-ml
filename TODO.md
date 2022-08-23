@@ -7,6 +7,12 @@ Piece by piece transform mini-iLisp into Al-ML.  The intention here is to re-use
 - [X] Replace `(do ...)` form with `{ ... }`
 - [X] Change the structure so that `{ ... }` is an expression block rather than passing `Array<Expression>` around.
 - [X] Replace `const` with `let` and move it into expression
+- [X] Reshape expressions into a precedence hierarchy
 - [ ] Move `if` out of s-expression into Al-ML
+- [ ] Move call expression
+- [ ] Move `+` and `-`
+- [ ] Move `*` and `/`
+- [ ] Move `==`, `!=`, `<`, `<=`, `>`, `>=`
+- [ ] Move `&&`, `||`
 
 - [ ] Defect with comments - see euler-001 sample
