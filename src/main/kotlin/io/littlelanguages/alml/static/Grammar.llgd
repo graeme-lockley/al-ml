@@ -11,7 +11,11 @@ Expression
   ;
 
 AdditiveExpression
-  : IfExpression {("+" | "-") IfExpression}
+  : MultiplicativeExpression {("+" | "-") MultiplicativeExpression}
+  ;
+
+MultiplicativeExpression
+  : IfExpression {("*" | "/") IfExpression}
   ;
 
 IfExpression

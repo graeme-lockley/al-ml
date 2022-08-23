@@ -80,30 +80,22 @@
                 -19
             - name: star
               input: |
-                (println (*));
-                (println (* 2));
-                (println (* 3 4));
-                (println (* 1 2 3 4 5 6))
+                (println 3 * 4);
+                (println 1 * 2 * 3 * 4 * 5 * 6)
               output: |
-                1
-                2
                 12
                 720
             - name: slash
               input: |
-                (println (/));
-                (println (/ 1));
-                (println (/ 4 2));
-                (println (/ 500 50 2))
+                (println 4 / 2);
+                (println 500 / 50 / 2)
               output: |
-                1
-                1
                 2
                 5
             - name: slash by zero
               input: |
-                (println (/ 500 50 2));
-                (println (/ 500 50 0 2))
+                (println 500 / 50 / 2);
+                (println 500 / 50 / 0 / 2)
               output: |
                 5
                 Unhandled Exception: (DivideByZero ./test.mlsp 2)
@@ -689,19 +681,9 @@
             (println (op 10 2 3 4 5))
           };
 
-          (call *);
-          (call /);
           (call print);
           (call println)
         output: |
-          1
-          10
-          20
-          1200
-          1
-          0
-          5
-          0
           ()
           10()
           102()
@@ -763,7 +745,7 @@
           let safe-divide a b =
             (try
               { let a2 = a + a;
-                (/ a2 b)
+                a2 / b
               }
               (proc (c)
                 (println c)
@@ -784,7 +766,7 @@
           let something a =
             if (== a 0) -> (signal "Something")
              | (== a 1) -> (signal "SomethingElse")
-            else (* a 2);
+            else a * 2;
 
           (println (something 10));
           (try
@@ -803,7 +785,7 @@
           let something a =
             if (== a 0) -> (signal "Something")
              | (== a 1) -> (signal "SomethingElse")
-            else (* a 2);
+            else a * 2;
 
           let fix-something a =
             (try

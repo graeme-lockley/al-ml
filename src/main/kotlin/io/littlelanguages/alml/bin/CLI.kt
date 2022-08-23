@@ -71,6 +71,8 @@ fun formatTToken(token: TToken): String =
         TToken.TRParen -> "')'"
         TToken.TSemicolon -> "';'"
         TToken.TSignal -> "'signal'"
+        TToken.TSlash -> "'/'"
+        TToken.TStar -> "'*'"
         TToken.TSymbol -> "Symbol"
         TToken.TTry -> "'try'"
         TToken.TEOS -> "End Of Stream"

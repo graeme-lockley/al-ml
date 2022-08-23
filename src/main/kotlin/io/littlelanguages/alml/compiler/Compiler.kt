@@ -8,7 +8,9 @@ import io.littlelanguages.alml.compiler.llvm.Module
 import io.littlelanguages.alml.compiler.llvm.VerifyError
 import io.littlelanguages.alml.dynamic.*
 import io.littlelanguages.alml.dynamic.tst.*
+import io.littlelanguages.alml.static.ast.Divide
 import io.littlelanguages.alml.static.ast.Minus
+import io.littlelanguages.alml.static.ast.Multiply
 import io.littlelanguages.alml.static.ast.Plus
 import io.littlelanguages.data.Either
 import io.littlelanguages.data.Right
@@ -226,8 +228,10 @@ private class CompileExpression(val compileState: CompileState) {
                 val procedure = when (e.op) {
                     is Plus -> plusBinding
                     is Minus -> minusBinding
+                    is Multiply -> multiplyBinding
+                    is Divide -> divideBinding
                 }
-                
+
                 procedure.compile(compileState, e.lineNumber, listOf(e.left, e.right))
             }
 
@@ -417,12 +421,14 @@ private fun getFileName(functionBuilder: FunctionBuilder): LLVMValueRef =
 
 private val plusBinding = VariableArityExternalProcedure("+", "_plus_variable")
 private val minusBinding = VariableArityExternalProcedure("-", "_minus_variable")
+private val multiplyBinding = VariableArityExternalProcedure("*", "_multiply_variable")
+private val divideBinding = VariableArityExternalPositionProcedure("/", "_divide_variable")
 
 val builtinBindings = listOf(
     plusBinding,
     minusBinding,
-    VariableArityExternalProcedure("*", "_multiply_variable"),
-    VariableArityExternalPositionProcedure("/", "_divide_variable"),
+    multiplyBinding,
+    divideBinding,
     FixedArityExternalProcedure("==", 2, "_equals"),
     FixedArityExternalProcedure("<", 2, "_less_than"),
     FixedArityExternalProcedure("boolean?", 1, "_booleanp"),

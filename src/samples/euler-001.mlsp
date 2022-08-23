@@ -7,9 +7,9 @@
 // Find the sum of all the multiples of 3 or 5 below 1000.
 
 let multiple? m n = {
-    let remainder = m - (* (/ m n) n);
+  let remainder = m - m / n * n;
 
-    (== remainder 0)
+  (== remainder 0)
 };
 
 let or a b =

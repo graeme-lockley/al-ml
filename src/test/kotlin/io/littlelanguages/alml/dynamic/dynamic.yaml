@@ -268,7 +268,7 @@
                         line-number: 13
       - name: Lambda function without free variables
         input: |
-          ((proc (a b c) a + (* b b) + (* c c)) 1 2 3)
+          ((proc (a b c) a + b * b + c * c) 1 2 3)
         output:
           program:
             values: [ ]
@@ -300,34 +300,34 @@
                                                 offset: 0
                                           op: Plus
                                           right:
-                                            - call-procedure:
-                                                procedure:
-                                                  external-procedure: "*"
-                                                es:
-                                                  - - parameter:
-                                                        name: b
-                                                        depth: 0
-                                                        offset: 1
-                                                  - - parameter:
-                                                        name: b
-                                                        depth: 0
-                                                        offset: 1
+                                            - binary-op-expression:
+                                                left:
+                                                  - parameter:
+                                                      name: b
+                                                      depth: 0
+                                                      offset: 1
+                                                op: Multiply
+                                                right:
+                                                  - parameter:
+                                                      name: b
+                                                      depth: 0
+                                                      offset: 1
                                                 line-number: 1
                                           line-number: 1
                                     op: Plus
                                     right:
-                                      - call-procedure:
-                                          procedure:
-                                            external-procedure: "*"
-                                          es:
-                                            - - parameter:
-                                                  name: c
-                                                  depth: 0
-                                                  offset: 2
-                                            - - parameter:
-                                                  name: c
-                                                  depth: 0
-                                                  offset: 2
+                                      - binary-op-expression:
+                                          left:
+                                            - parameter:
+                                                name: c
+                                                depth: 0
+                                                offset: 2
+                                          op: Multiply
+                                          right:
+                                            - parameter:
+                                                name: c
+                                                depth: 0
+                                                offset: 2
                                           line-number: 1
                                     line-number: 1
                           - declared-procedure:
@@ -717,7 +717,7 @@
           let safe-divide a b = 
             (try
               { let a2 = a + a;
-                (/ a2 b)
+                a2 / b
               }
               (proc (c) 0)
             )
@@ -760,18 +760,18 @@
                                           depth: 0
                                           offset: 0
                                     line-number: 3
-                          - call-procedure:
-                              procedure:
-                                external-procedure: /
-                              es:
-                                - - procedure-value:
-                                      name: a2
-                                      depth: 1
-                                      offset: 0
-                                - - parameter:
-                                      name: b
-                                      depth: 0
-                                      offset: 1
+                          - binary-op-expression:
+                              left:
+                                - procedure-value:
+                                    name: a2
+                                    depth: 1
+                                    offset: 0
+                              op: Divide
+                              right:
+                                - parameter:
+                                    name: b
+                                    depth: 0
+                                    offset: 1
                               line-number: 4
                     - procedure:
                         name: __n1

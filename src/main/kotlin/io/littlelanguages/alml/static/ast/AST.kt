@@ -227,3 +227,11 @@ data class Plus(override val position: Location) : BinaryOperator(position) {
 data class Minus(override val position: Location) : BinaryOperator(position) {
     override fun yaml(): Any = "Minus"
 }
+
+data class Multiply(override val position: Location) : BinaryOperator(position) {
+    override fun yaml(): Any = "Multiply"
+}
+
+data class Divide(override val position: Location) : BinaryOperator(position) {
+    override fun yaml(): Any = "Divide"
+}

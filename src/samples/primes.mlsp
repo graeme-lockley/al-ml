@@ -1,5 +1,5 @@
 let multiple? m n = {
-  let remainder = m - (* (/ m n) n);
+  let remainder = m - m / n * n;
 
   (== remainder 0)
 };

@@ -13,7 +13,7 @@ fun parse(scanner: Scanner): Either<Errors, Program> = try {
     Left(ParseError(e.found, e.expected))
 }
 
-class ParseVisitor : Visitor<Program, List<Expression>, Expression, Expression, Expression, Expression, Expression> {
+class ParseVisitor : Visitor<Program, List<Expression>, Expression, Expression, Expression, Expression, Expression, Expression> {
     override fun visitProgram(a: List<Expression>): Program = Program(a)
 
     override fun visitExpressions(a1: Expression, a2: List<Tuple2<Token, Expression>>): List<Expression> =
@@ -47,6 +47,18 @@ class ParseVisitor : Visitor<Program, List<Expression>, Expression, Expression, 
 
     override fun visitIfExpression2(a: Expression): Expression =
         a
+
+    override fun visitMultiplicativeExpression(a1: Expression, a2: List<Tuple2<Union2<Token, Token>, Expression>>): Expression =
+        a2.fold(
+            a1
+        ) { acc, opExpr ->
+            BinaryOpExpression(
+                acc.position() + opExpr.b.position(),
+                acc,
+                if (opExpr.a.isA()) Multiply(opExpr.a.a().location) else Divide(opExpr.a.b().location),
+                opExpr.b
+            )
+        }
 
     override fun visitAdditiveExpression(a1: Expression, a2: List<Tuple2<Union2<Token, Token>, Expression>>): Expression =
         a2.fold(

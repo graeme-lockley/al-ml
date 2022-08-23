@@ -11,7 +11,7 @@ Piece by piece transform mini-iLisp into Al-ML.  The intention here is to re-use
 - [X] Move `if` out of s-expression into Al-ML
 - [X] Refactor if AST so that it is understandable
 - [X] Move `+` and `-` to binary op
-- [ ] Move `*` and `/` to binary op
+- [X] Move `*` and `/` to binary op
 - [ ] Move `==`, `!=`, `<`, `<=`, `>`, `>=` to binary op
 - [ ] Move `&&`, `||` to binary op
 - [ ] Move lambda expression
