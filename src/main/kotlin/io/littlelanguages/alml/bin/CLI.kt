@@ -148,7 +148,7 @@ fun compile(input: File, triple: String, output: File) {
     context.dispose()
 }
 
-@Command(name = "ll-mini-ilisp-kotlin-llvm", version = ["0.1"], mixinStandardHelpOptions = true, description = ["A mini iLisp compiler."])
+@Command(name = "almi", version = ["0.1"], mixinStandardHelpOptions = true, description = ["An Al-ML compiler."])
 class CLI : Callable<Int> {
     @Parameters(paramLabel = "FILE", description = ["File to compile.  File must exist and have a .mlsp extension."], arity = "1")
     private lateinit var file: File
