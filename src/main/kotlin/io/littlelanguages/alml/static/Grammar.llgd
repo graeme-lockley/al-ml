@@ -12,6 +12,11 @@ Expression
 
 IfExpression
   : "if" Expression "->" Expression {"|" Expression "->" Expression} ["else" Expression]
+  | LambdaExpression
+  ;
+
+LambdaExpression
+  : "\" Symbol {Symbol} "->" Expression
   | RelationalExpression
   ;
 
@@ -37,8 +42,7 @@ Term
   ;
 
 ExpressionBody
-  : "proc" "(" {Symbol} ")" {Expression}
-  | "try" Expression Expression
+  : "try" Expression Expression
   | "signal" Expression
   | Expression {Expression}
   ;

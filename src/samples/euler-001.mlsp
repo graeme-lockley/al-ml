@@ -35,4 +35,4 @@ let sum lst =
   if (null? lst) -> 0
   else (car lst) + (sum (cdr lst));
 
-(println (sum (filter (proc (n) (or (multiple? n 5) (multiple? n 3))) (range 0 1000))))
+(println (sum (filter \n -> (or (multiple? n 5) (multiple? n 3)) (range 0 1000))))

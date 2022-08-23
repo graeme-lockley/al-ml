@@ -879,11 +879,11 @@
             if (null? lst) -> ()
             else (pair (p (car lst)) (map p (cdr lst)));
 
-          let f = (proc (n) n + n);
+          let f = \n -> n + n;
           let values = (range 1 10);
 
           (println (map f values));
-          (println (map (proc (n) n + n) (range 1 10)))
+          (println (map \n -> n + n (range 1 10)))
         output: |
           (2 4 6 8 10 12 14 16 18)
           (2 4 6 8 10 12 14 16 18)
@@ -901,10 +901,10 @@
           let values = (range 1 10);
 
           let less-than n lst =
-            (filter (proc (v) v < n) lst);
+            (filter \v -> v < n lst);
 
           let limit = 5;
-          (println (filter (proc (n) n < limit) values));
+          (println (filter \n -> n < limit values));
           (println (less-than limit values))
         output: |
           (1 2 3 4)
@@ -919,10 +919,10 @@
               { let a2 = a + a;
                 a2 / b
               }
-              (proc (c)
-                (println c)
+              \c -> {
+                (println c);
                 0
-              )
+              }
             );
 
           (println (safe-divide 10 2));
@@ -943,9 +943,7 @@
           (println (something 10));
           (try
             (something 1)
-            (proc (c)
-              (println "Caught exception: " c)
-            )
+            \c -> (println "Caught exception: " c)
           );
           (println (something 0))
         output: |
@@ -962,22 +960,18 @@
           let fix-something a =
             (try
               (something a)
-              (proc (c)
-                if a == 0 -> 0 else (signal c)
-              )
+              \c -> if a == 0 -> 0 else (signal c)
             );
 
           (println (fix-something 10));
           (try
             (fix-something 1)
-            (proc (c)
-              (println "Caught exception: " c)
-            )
+            \c -> (println "Caught exception: " c)
           );
           (println (fix-something 0))
         output: |
           20
-          Caught exception: ((SomethingElse ./test.mlsp 3) ./test.mlsp 10)
+          Caught exception: ((SomethingElse ./test.mlsp 3) ./test.mlsp 9)
           0
       - scenario:
           name: "Internal signals"

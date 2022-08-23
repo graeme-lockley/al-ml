@@ -13,7 +13,7 @@ Piece by piece transform mini-iLisp into Al-ML.  The intention here is to re-use
 - [X] Move `+` and `-` to binary op
 - [X] Move `*` and `/` to binary op
 - [X] Move `==`, `!=`, `<`, `<=`, `>`, `>=` to binary op
-- [ ] Move lambda expression
+- [X] Move lambda expression
 - [ ] Move call expression
 - [ ] Add support for `(+)`, `(-)`, `(*)`, `(/)`, `(==)`, `(!=)`, `(<)`, `(<=)`, `(>)`, `(>=)`, `(&&)`, `(||)`
 - [ ] Add support for unary `-` and `+`

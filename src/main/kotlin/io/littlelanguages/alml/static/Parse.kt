@@ -14,7 +14,7 @@ fun parse(scanner: Scanner): Either<Errors, Program> = try {
 }
 
 class ParseVisitor :
-    Visitor<Program, List<Expression>, Expression, Expression, Expression, BinaryOperator, Expression, Expression, Expression, Expression> {
+    Visitor<Program, List<Expression>, Expression, Expression, Expression, Expression, BinaryOperator, Expression, Expression, Expression, Expression> {
     override fun visitProgram(a: List<Expression>): Program = Program(a)
 
     override fun visitExpressions(a1: Expression, a2: List<Tuple2<Token, Expression>>): List<Expression> =
@@ -47,6 +47,12 @@ class ParseVisitor :
     }
 
     override fun visitIfExpression2(a: Expression): Expression =
+        a
+
+    override fun visitLambdaExpression1(a1: Token, a2: Token, a3: List<Token>, a4: Token, a5: Expression): Expression =
+        ProcExpression(a1.location + a5.position(), listOf(Symbol(a2.location, a2.lexeme)) + a3.map { Symbol(it.location, it.lexeme) }, a5)
+
+    override fun visitLambdaExpression2(a: Expression): Expression =
         a
 
     override fun visitRelationalExpression(a1: Expression, a2: Tuple2<BinaryOperator, Expression>?): Expression =
@@ -110,16 +116,13 @@ class ParseVisitor :
     override fun visitTerm4(a: Token): Expression =
         Symbol(a.location, a.lexeme)
 
-    override fun visitExpressionBody1(a1: Token, a2: Token, a3: List<Token>, a4: Token, a5: List<Expression>): Expression =
-        ProcExpression(locationOf(a1.location + a4.location, a5), a3.map { Symbol(it.location, it.lexeme) }, a5)
-
-    override fun visitExpressionBody2(a1: Token, a2: Expression, a3: Expression): Expression =
+    override fun visitExpressionBody1(a1: Token, a2: Expression, a3: Expression): Expression =
         TryExpression(a1.location + a3.position(), a2, a3)
 
-    override fun visitExpressionBody3(a1: Token, a2: Expression): Expression =
+    override fun visitExpressionBody2(a1: Token, a2: Expression): Expression =
         SignalExpression(a1.location + a2.position(), a2)
 
-    override fun visitExpressionBody4(a1: Expression, a2: List<Expression>): Expression {
+    override fun visitExpressionBody3(a1: Expression, a2: List<Expression>): Expression {
         val es = listOf(a1) + a2
 
         return SExpression(locationOf(es[0].position, es.drop(1)), es)

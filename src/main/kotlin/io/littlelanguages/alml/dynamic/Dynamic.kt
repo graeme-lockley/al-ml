@@ -64,7 +64,7 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
                 expressionsToTST(e.expressions)
 
             is io.littlelanguages.alml.static.ast.ConstProcedure ->
-                listOf(procedureToTST(e.symbol.name, e.parameters, listOf(e.expression)).first)
+                listOf(procedureToTST(e.symbol.name, e.parameters, e.expression).first)
 
             is io.littlelanguages.alml.static.ast.ConstValue -> {
                 val name = e.symbol.name
@@ -92,7 +92,7 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
                 )
 
             is io.littlelanguages.alml.static.ast.ProcExpression -> {
-                val tst = procedureToTST(nextName(), e.parameters, e.expressions)
+                val tst = procedureToTST(nextName(), e.parameters, e.expression)
 
                 listOf(tst.first, SymbolReferenceExpression(tst.second, lineNumber(e.position)))
             }
@@ -148,7 +148,7 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
                 listOf(SignalExpression(expressionToTST(e.expression), lineNumber(e.position)))
 
             is io.littlelanguages.alml.static.ast.TryExpression -> {
-                val body = procedureToTST(nextName(), emptyList(), listOf(e.body))
+                val body = procedureToTST(nextName(), emptyList(), e.body)
                 val catch = expressionToTST(e.catch)
 
                 if (!isProcedure(catch))
@@ -184,7 +184,7 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
     private fun procedureToTST(
         name: String,
         parameters: List<io.littlelanguages.alml.static.ast.Symbol>,
-        expressions: List<io.littlelanguages.alml.static.ast.Expression>
+        expression: io.littlelanguages.alml.static.ast.Expression
     ): Pair<Procedure<S, T>, DeclaredProcedureBinding<S, T>> {
         val parameterNames = mutableListOf<String>()
 
@@ -204,7 +204,7 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
             bindings.add(parameterName, ParameterBinding(parameterName, depth, index))
         }
         bindings.open()
-        val es = expressionsToTST(expressions)
+        val es = expressionToTST(expression)
         val procedure = Procedure(name, parameterNames, depth, offset, es)
         bindings.close()
         bindings.close()
