@@ -12,8 +12,7 @@ Piece by piece transform mini-iLisp into Al-ML.  The intention here is to re-use
 - [X] Refactor if AST so that it is understandable
 - [X] Move `+` and `-` to binary op
 - [X] Move `*` and `/` to binary op
-- [ ] Move `==`, `!=`, `<`, `<=`, `>`, `>=` to binary op
-- [ ] Move `&&`, `||` to binary op
+- [X] Move `==`, `!=`, `<`, `<=`, `>`, `>=` to binary op
 - [ ] Move lambda expression
 - [ ] Move call expression
 - [ ] Add support for `(+)`, `(-)`, `(*)`, `(/)`, `(==)`, `(!=)`, `(<)`, `(<=)`, `(>)`, `(>=)`, `(&&)`, `(||)`

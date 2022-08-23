@@ -9,7 +9,7 @@
 let multiple? m n = {
   let remainder = m - m / n * n;
 
-  (== remainder 0)
+  remainder == 0
 };
 
 let or a b =
@@ -18,7 +18,7 @@ let or a b =
   else #f;
 
 let range min max =
-  if (< min max) -> (pair min (range min + 1 max))
+  if min < max -> (pair min (range min + 1 max))
   else ();
 
 let filter f lst =

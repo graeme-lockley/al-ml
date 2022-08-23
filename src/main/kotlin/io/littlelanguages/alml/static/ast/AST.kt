@@ -235,3 +235,27 @@ data class Multiply(override val position: Location) : BinaryOperator(position) 
 data class Divide(override val position: Location) : BinaryOperator(position) {
     override fun yaml(): Any = "Divide"
 }
+
+data class Equals(override val position: Location) : BinaryOperator(position) {
+    override fun yaml(): Any = "Equals"
+}
+
+data class NotEquals(override val position: Location) : BinaryOperator(position) {
+    override fun yaml(): Any = "NotEquals"
+}
+
+data class LessThan(override val position: Location) : BinaryOperator(position) {
+    override fun yaml(): Any = "LessThan"
+}
+
+data class LessEquals(override val position: Location) : BinaryOperator(position) {
+    override fun yaml(): Any = "LessEquals"
+}
+
+data class GreaterThan(override val position: Location) : BinaryOperator(position) {
+    override fun yaml(): Any = "GreaterThan"
+}
+
+data class GreaterEquals(override val position: Location) : BinaryOperator(position) {
+    override fun yaml(): Any = "GreaterEquals"
+}

@@ -7,20 +7,26 @@ Expressions: Expression {";" Expression};
 Expression
   : "{" Expression {";" Expression} "}"
   | "let" Symbol {Symbol} "=" Expression
-  | AdditiveExpression
+  | IfExpression
   ;
+
+IfExpression
+  : "if" Expression "->" Expression {"|" Expression "->" Expression} ["else" Expression]
+  | RelationalExpression
+  ;
+
+RelationalExpression
+  : AdditiveExpression [RelationalOp AdditiveExpression]
+  ;
+
+RelationalOp: "==" | "!=" | "<" | "<=" | ">" | ">=";
 
 AdditiveExpression
   : MultiplicativeExpression {("+" | "-") MultiplicativeExpression}
   ;
 
 MultiplicativeExpression
-  : IfExpression {("*" | "/") IfExpression}
-  ;
-
-IfExpression
-  : "if" Expression "->" Expression {"|" Expression "->" Expression} ["else" Expression]
-  | Term
+  : Term {("*" | "/") Term}
   ;
 
 Term

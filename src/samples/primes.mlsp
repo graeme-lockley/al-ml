@@ -1,7 +1,7 @@
 let multiple? m n = {
   let remainder = m - m / n * n;
 
-  (== remainder 0)
+  remainder == 0
 };
 
 let append e lst =
@@ -15,7 +15,7 @@ let divisible-by? n lst =
 
 let primes min max = {
   let sieve n p' =
-    if (< max n) -> p'
+    if max < n -> p'
      | (divisible-by? n p') -> (sieve n + 1 p')
     else (sieve n + 1 (append n p'));
 

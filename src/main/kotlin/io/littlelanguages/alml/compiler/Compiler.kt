@@ -8,10 +8,16 @@ import io.littlelanguages.alml.compiler.llvm.Module
 import io.littlelanguages.alml.compiler.llvm.VerifyError
 import io.littlelanguages.alml.dynamic.*
 import io.littlelanguages.alml.dynamic.tst.*
-import io.littlelanguages.alml.static.ast.Divide
-import io.littlelanguages.alml.static.ast.Minus
-import io.littlelanguages.alml.static.ast.Multiply
-import io.littlelanguages.alml.static.ast.Plus
+import io.littlelanguages.alml.dynamic.tst.BinaryOpExpression
+import io.littlelanguages.alml.dynamic.tst.Expression
+import io.littlelanguages.alml.dynamic.tst.IfExpression
+import io.littlelanguages.alml.dynamic.tst.LiteralInt
+import io.littlelanguages.alml.dynamic.tst.LiteralString
+import io.littlelanguages.alml.dynamic.tst.LiteralUnit
+import io.littlelanguages.alml.dynamic.tst.Program
+import io.littlelanguages.alml.dynamic.tst.SignalExpression
+import io.littlelanguages.alml.dynamic.tst.TryExpression
+import io.littlelanguages.alml.static.ast.*
 import io.littlelanguages.data.Either
 import io.littlelanguages.data.Right
 import org.bytedeco.javacpp.PointerPointer
@@ -230,6 +236,12 @@ private class CompileExpression(val compileState: CompileState) {
                     is Minus -> minusBinding
                     is Multiply -> multiplyBinding
                     is Divide -> divideBinding
+                    is Equals -> equalsBinding
+                    is NotEquals -> notEqualsBinding
+                    is GreaterEquals -> greaterEqualsBinding
+                    is GreaterThan -> greaterThanBinding
+                    is LessEquals -> lessEqualsBinding
+                    is LessThan -> lessThanBinding
                 }
 
                 procedure.compile(compileState, e.lineNumber, listOf(e.left, e.right))
@@ -423,14 +435,24 @@ private val plusBinding = VariableArityExternalProcedure("+", "_plus_variable")
 private val minusBinding = VariableArityExternalProcedure("-", "_minus_variable")
 private val multiplyBinding = VariableArityExternalProcedure("*", "_multiply_variable")
 private val divideBinding = VariableArityExternalPositionProcedure("/", "_divide_variable")
+private val equalsBinding = FixedArityExternalProcedure("==", 2, "_equals")
+private val notEqualsBinding = FixedArityExternalProcedure("!-", 2, "_not_equals")
+private val lessThanBinding = FixedArityExternalProcedure("<", 2, "_less_than")
+private val lessEqualsBinding = FixedArityExternalProcedure("<=", 2, "_less_equals")
+private val greaterThanBinding = FixedArityExternalProcedure(">", 2, "_greater_than")
+private val greaterEqualsBinding = FixedArityExternalProcedure(">=", 2, "_greater_equals")
 
 val builtinBindings = listOf(
     plusBinding,
     minusBinding,
     multiplyBinding,
     divideBinding,
-    FixedArityExternalProcedure("==", 2, "_equals"),
-    FixedArityExternalProcedure("<", 2, "_less_than"),
+    equalsBinding,
+    notEqualsBinding,
+    lessThanBinding,
+    lessEqualsBinding,
+    greaterThanBinding,
+    greaterEqualsBinding,
     FixedArityExternalProcedure("boolean?", 1, "_booleanp"),
     FixedArityExternalPositionProcedure("car", 1, "_pair_car"),
     FixedArityExternalPositionProcedure("cdr", 1, "_pair_cdr"),

@@ -13,7 +13,8 @@ fun parse(scanner: Scanner): Either<Errors, Program> = try {
     Left(ParseError(e.found, e.expected))
 }
 
-class ParseVisitor : Visitor<Program, List<Expression>, Expression, Expression, Expression, Expression, Expression, Expression> {
+class ParseVisitor :
+    Visitor<Program, List<Expression>, Expression, Expression, Expression, BinaryOperator, Expression, Expression, Expression, Expression> {
     override fun visitProgram(a: List<Expression>): Program = Program(a)
 
     override fun visitExpressions(a1: Expression, a2: List<Tuple2<Token, Expression>>): List<Expression> =
@@ -47,6 +48,27 @@ class ParseVisitor : Visitor<Program, List<Expression>, Expression, Expression, 
 
     override fun visitIfExpression2(a: Expression): Expression =
         a
+
+    override fun visitRelationalExpression(a1: Expression, a2: Tuple2<BinaryOperator, Expression>?): Expression =
+        if (a2 == null) a1 else BinaryOpExpression(a1.position() + a2.b.position(), a1, a2.a, a2.b)
+
+    override fun visitRelationalOp1(a: Token): BinaryOperator =
+        Equals(a.location)
+
+    override fun visitRelationalOp2(a: Token): BinaryOperator =
+        NotEquals(a.location)
+
+    override fun visitRelationalOp3(a: Token): BinaryOperator =
+        LessThan(a.location)
+
+    override fun visitRelationalOp4(a: Token): BinaryOperator =
+        LessEquals(a.location)
+
+    override fun visitRelationalOp5(a: Token): BinaryOperator =
+        GreaterThan(a.location)
+
+    override fun visitRelationalOp6(a: Token): BinaryOperator =
+        GreaterEquals(a.location)
 
     override fun visitMultiplicativeExpression(a1: Expression, a2: List<Tuple2<Union2<Token, Token>, Expression>>): Expression =
         a2.fold(

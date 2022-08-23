@@ -672,6 +672,12 @@ struct Value *_equals(struct Value *op1, struct Value *op2)
     }
 }
 
+struct Value *_not_equals(struct Value *op1, struct Value *op2) {
+  struct Value *result = _equals(op1, op2);
+
+  return result == _VTrue ? _VFalse : _VTrue;
+}
+
 struct Value *_less_than(struct Value *op1, struct Value *op2)
 {
     if (op1->tag != op2->tag)
@@ -690,6 +696,12 @@ struct Value *_less_than(struct Value *op1, struct Value *op2)
     }
 }
 
+struct Value *_less_equals(struct Value *op1, struct Value *op2) {
+  struct Value *result = _less_than(op1, op2);
+
+  return result == _VTrue ? _VTrue : _equals(op1, op2);
+}
+
 struct Value *_greater_than(struct Value *op1, struct Value *op2)
 {
     if (op1->tag != op2->tag)
@@ -706,6 +718,12 @@ struct Value *_greater_than(struct Value *op1, struct Value *op2)
     default:
         return _VFalse;
     }
+}
+
+struct Value *_greater_equals(struct Value *op1, struct Value *op2) {
+  struct Value *result = _greater_than(op1, op2);
+
+  return result == _VTrue ? _VTrue : _equals(op1, op2);
 }
 
 static char *_value_type_name(int tag)
