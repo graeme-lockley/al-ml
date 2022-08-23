@@ -54,14 +54,17 @@ fun reportErrors(errors: List<Errors>) {
 
 fun formatTToken(token: TToken): String =
     when (token) {
-        TToken.TProc -> "'proc'"
-        TToken.TIf -> "'if'"
+        TToken.TBar -> "'|'"
+        TToken.TDashGreaterThan -> "'->'"
+        TToken.TElse -> "'else'"
         TToken.TEqual -> "'='"
+        TToken.TIf -> "'if'"
         TToken.TLet -> "'let'"
         TToken.TLCurly -> "'{'"
         TToken.TLParen -> "'('"
         TToken.TLiteralInt -> "Literal Int"
         TToken.TLiteralString -> "Literal String"
+        TToken.TProc -> "'proc'"
         TToken.TRCurly -> "'}'"
         TToken.TRParen -> "')'"
         TToken.TSemicolon -> "';'"

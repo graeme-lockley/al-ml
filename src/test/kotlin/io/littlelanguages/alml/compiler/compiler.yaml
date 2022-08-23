@@ -229,22 +229,19 @@
             - scenario:
                 name: if
                 tests:
-                  - name: (if)
+                  - name: (if v1 v2)
                     input: |
-                      (println (if))
+                      (println if (== 1 1) -> 2);
+                      (println if (== 0 1) -> 2)
                     output: |
+                      2
                       ()
-                  - name: (if 1)
-                    input: |
-                      (println (if 1))
-                    output: |
-                      1
                   - name: (if v1 v2 v2)
                     input: |
-                      (println (if (== 1 1) 2 3));
-                      (println (if (== 0 1) 2 3));
-                      (println (if (== 4 7) 1 (== 3 2) 2 3));
-                      (println (if (== 4 7) 1 (== 3 2) 2))
+                      (println if (== 1 1) -> 2 else 3);
+                      (println if (== 0 1) -> 2 else 3);
+                      (println if (== 4 7) -> 1 | (== 3 2) -> 2 else 3);
+                      (println if (== 4 7) -> 1 | (== 3 2) -> 2)
                     output: |
                       2
                       3
@@ -366,11 +363,10 @@
           tests:
             - name: if
               input: |
-                (if #t
+                if #t ->
                   { (println "Hello")
                   ; (println "World")
                   }
-                )
               output: |
                 Hello
                 World
@@ -478,35 +474,28 @@
           };
 
           let range min max = 
-            (if (< min max) (pair min (range (+ min 1) max))
-                ()
-            );
+            if (< min max) -> (pair min (range (+ min 1) max))
+            else ();
 
           let max a b =
-              (if (< a b) b a);
+              if (< a b) -> b else a;
 
           let maxs items = {
               let max-helper largest rest =
-                  (if (null? rest)
-                          largest
-                      (max-helper (max largest (car rest)) (cdr rest))
-                  );
+                  if (null? rest) -> largest
+                  else (max-helper (max largest (car rest)) (cdr rest));
 
-              (if (null? items)
-                      ()
-                  (max-helper (car items) (cdr items))
-              )
+              if (null? items) -> ()
+              else (max-helper (car items) (cdr items))
           };
 
           let count items =
-            (if (null? items) 0
-                (+ 1 (count (cdr items)))
-            );
+            if (null? items) -> 0
+            else (+ 1 (count (cdr items)));
 
           let sum items =
-            (if (null? items) 0
-                (+ (car items) (sum (cdr items)))
-            );
+            if (null? items) -> 0
+            else (+ (car items) (sum (cdr items)));
 
           (println (f 1 2));
           (println (nested 1));
@@ -525,7 +514,7 @@
       - name: "Nested if declarations"
         input: |
           let a = 1;
-          let b = (if (== a 1) 2 3);
+          let b = if (== a 1) -> 2 else 3;
           let c =
             { let z = 4;
               (- z 1)
@@ -747,16 +736,12 @@
       - name: "anonymous procedure without frame"
         input: |
           let range min max =
-            (if (< min max)
-                  (pair min (range (+ min 1) max))
-                ()
-            );
+            if (< min max) -> (pair min (range (+ min 1) max))
+            else ();
 
           let map p lst =
-            (if (null? lst)
-                  ()
-                (pair (p (car lst)) (map p (cdr lst)))
-             );
+            if (null? lst) -> ()
+            else (pair (p (car lst)) (map p (cdr lst)));
 
           let f = (proc (n) (+ n n));
           let values = (range 1 10);
@@ -769,18 +754,13 @@
       - name: "anonymous procedure with frame"
         input: |
           let range min max =
-            (if (< min max)
-                  (pair min (range (+ min 1) max))
-                ()
-            );
+            if (< min max) -> (pair min (range (+ min 1) max))
+            else ();
 
           let filter p lst =
-            (if (null? lst)
-                  ()
-                (p (car lst))
-                  (pair (car lst) (filter p (cdr lst)))
-                (filter p (cdr lst))
-             );
+            if (null? lst) -> ()
+            | (p (car lst)) -> (pair (car lst) (filter p (cdr lst)))
+            else (filter p (cdr lst));
 
           let values = (range 1 10);
 
@@ -820,12 +800,9 @@
       - name: signal
         input: |
           let something a =
-            (if (== a 0)
-                  (signal "Something")
-                (== a 1)
-                  (signal "SomethingElse")
-                (* a 2)
-            );
+            if (== a 0) -> (signal "Something")
+             | (== a 1) -> (signal "SomethingElse")
+            else (* a 2);
 
           (println (something 10));
           (try
@@ -837,26 +814,20 @@
           (println (something 0))
         output: |
           20
-          Caught exception: (SomethingElse ./test.mlsp 5)
-          Unhandled Exception: (Something ./test.mlsp 3)
+          Caught exception: (SomethingElse ./test.mlsp 3)
+          Unhandled Exception: (Something ./test.mlsp 2)
       - name: signal with try-catch and signal
         input: |
           let something a =
-            (if (== a 0)
-                  (signal "Something")
-                (== a 1)
-                  (signal "SomethingElse")
-                (* a 2)
-            );
+            if (== a 0) -> (signal "Something")
+             | (== a 1) -> (signal "SomethingElse")
+            else (* a 2);
 
           let fix-something a =
             (try
               (something a)
               (proc (c)
-                (if (== a 0)
-                      0
-                    (signal c)
-                )
+                if (== a 0) -> 0 else (signal c)
               )
             );
 
@@ -870,7 +841,7 @@
           (println (fix-something 0))
         output: |
           20
-          Caught exception: ((SomethingElse ./test.mlsp 5) ./test.mlsp 15)
+          Caught exception: ((SomethingElse ./test.mlsp 3) ./test.mlsp 10)
           0
       - scenario:
           name: "Internal signals"

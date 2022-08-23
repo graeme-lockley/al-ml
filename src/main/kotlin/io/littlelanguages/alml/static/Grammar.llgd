@@ -8,6 +8,11 @@ Expression
   : "(" [ExpressionBody] ")"
   | "{" Expression {";" Expression} "}"
   | "let" Symbol {Symbol} "=" Expression
+  | IfExpression
+  ;
+
+IfExpression
+  : "if" Expression "->" Expression {"|" Expression "->" Expression} ["else" Expression]
   | Term
   ;
 
@@ -18,8 +23,7 @@ Term
   ;
 
 ExpressionBody
-  : "if" {Expression}
-  | "proc" "(" {Symbol} ")" {Expression}
+  : "proc" "(" {Symbol} ")" {Expression}
   | "try" Expression Expression
   | "signal" Expression
   | Expression {Expression}
