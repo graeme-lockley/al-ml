@@ -109,6 +109,9 @@ fun targetTriple(): String {
     return when (result) {
         "x86_64-apple-darwin20.6.0" ->
             "x86_64-apple-macosx11.0.0"
+
+        "x86_64-apple-darwin21.6.0" ->
+            "x86_64-apple-macosx12.0.0"
         
         else ->
             result
