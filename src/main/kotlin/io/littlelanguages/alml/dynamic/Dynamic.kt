@@ -94,7 +94,7 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
             is io.littlelanguages.alml.static.ast.ProcExpression -> {
                 val tst = procedureToTST(nextName(), e.parameters, e.expression)
 
-                listOf(tst.first, SymbolReferenceExpression(tst.second, lineNumber(e.position)))
+                listOf(tst.first, SymbolReferenceExpression(tst.second, e.position.line()))
             }
 
             is io.littlelanguages.alml.static.ast.SExpression -> {
@@ -109,14 +109,14 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
 
                         is DeclaredProcedureBinding ->
                             if (binding.parameterCount == arguments.size)
-                                listOf(CallProcedureExpression(binding, arguments, lineNumber(e.position)))
+                                listOf(CallProcedureExpression(binding, arguments, e.position.line()))
                             else
                                 reportError(ArgumentMismatchError(first.name, binding.parameterCount, arguments.size, e.position))
 
                         is ExternalProcedureBinding ->
                             when (val error = binding.validateArguments(e, first.name, arguments)) {
                                 null ->
-                                    listOf(CallProcedureExpression(binding, arguments, lineNumber(e.position)))
+                                    listOf(CallProcedureExpression(binding, arguments, e.position.line()))
 
                                 else ->
                                     reportError(error)
@@ -125,14 +125,14 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
                         else ->
                             listOf(
                                 CallValueExpression(
-                                    listOf(SymbolReferenceExpression(binding, lineNumber(e.position))),
+                                    listOf(SymbolReferenceExpression(binding, e.position.line())),
                                     arguments.flatten(),
-                                    lineNumber(e.position)
+                                    e.position.line()
                                 )
                             )
                     }
                 } else
-                    listOf(CallValueExpression(expressionToTST(e.expressions[0]), expressionsToTST(e.expressions.drop(1)), lineNumber(e.position)))
+                    listOf(CallValueExpression(expressionToTST(e.expressions[0]), expressionsToTST(e.expressions.drop(1)), e.position.line()))
             }
 
             is io.littlelanguages.alml.static.ast.LiteralInt ->
@@ -145,7 +145,7 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
                 listOf(LiteralUnit())
 
             is io.littlelanguages.alml.static.ast.SignalExpression ->
-                listOf(SignalExpression(expressionToTST(e.expression), lineNumber(e.position)))
+                listOf(SignalExpression(expressionToTST(e.expression), e.position.line()))
 
             is io.littlelanguages.alml.static.ast.TryExpression -> {
                 val body = procedureToTST(nextName(), emptyList(), e.body)
@@ -156,9 +156,9 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
                 else
                     listOf(body.first) + catch.dropLast(1) + listOf(
                         TryExpression(
-                            SymbolReferenceExpression(body.second, lineNumber(e.position)),
+                            SymbolReferenceExpression(body.second, e.position.line()),
                             catch.last() as SymbolReferenceExpression<S, T>,
-                            lineNumber(e.position)
+                            e.position.line()
                         )
                     )
             }
@@ -169,7 +169,7 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
                 if (binding == null)
                     reportError(UnknownSymbolError(e.name, e.position))
                 else
-                    listOf(SymbolReferenceExpression(binding, lineNumber(e.position)))
+                    listOf(SymbolReferenceExpression(binding, e.position.line()))
             }
         }
 
@@ -239,12 +239,6 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
         "__n${nameGenerator++}"
 }
 
-private fun Location.line(): Int =
-    when (this) {
-        is LocationCoordinate -> this.line
-        is LocationRange -> this.start.line
-    }
-
 fun <S, T> translateLiteralString(e: io.littlelanguages.alml.static.ast.LiteralString): LiteralString<S, T> {
     val sb = StringBuilder()
     val eValue = e.value
@@ -286,10 +280,10 @@ fun <S, T> translateLiteralString(e: io.littlelanguages.alml.static.ast.LiteralS
 private fun Char.isHexDigit(): Boolean =
     this.isDigit() || this.uppercaseChar() in 'A'..'F'
 
-private fun lineNumber(p: Location): Int =
-    when (p) {
-        is LocationCoordinate -> p.line
-        is LocationRange -> p.start.line
+private fun Location.line(): Int =
+    when (this) {
+        is LocationCoordinate -> this.line
+        is LocationRange -> this.start.line
     }
 
 private fun <S, T> isProcedure(es: List<Expression<S, T>>): Boolean =
