@@ -1,4 +1,6 @@
-# Transform the supported language from mini-ilisp to a small dialect Al-ML
+# TODO
+
+## Transform the supported language from mini-ilisp to a small dialect Al-ML
 
 Piece by piece transform mini-iLisp into Al-ML.  The intention here is to re-use the compiler and the generation of closures as far as possible.
 
@@ -15,7 +17,11 @@ Piece by piece transform mini-iLisp into Al-ML.  The intention here is to re-use
 - [X] Move `==`, `!=`, `<`, `<=`, `>`, `>=` to binary op
 - [X] Move lambda expression
 - [X] Move call expression
-- [ ] Add support for `(+)`, `(-)`, `(*)`, `(/)`, `(==)`, `(!=)`, `(<)`, `(<=)`, `(>)`, `(>=)`, `(&&)`, `(||)`
+
+## Extend the small dialect of Al-ML to include the full Al-ML language
+
+- [ ] Add support for custom infix operators
+- [ ] Add support for `(..)` for all infix operators
 - [ ] Add support for unary `-` and `+`
 
 - [ ] Defect with comments - see euler-001 sample
