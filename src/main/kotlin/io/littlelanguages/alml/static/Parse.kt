@@ -13,29 +13,22 @@ fun parse(scanner: Scanner): Either<Errors, Program> = try {
     Left(ParseError(e.found, e.expected))
 }
 
-class ParseVisitor : Visitor<Program, List<Expression>, Expression, Expression, Expression, Expression> {
+class ParseVisitor : Visitor<Program, List<Expression>, Expression, Expression, Expression, Expression, Expression> {
     override fun visitProgram(a: List<Expression>): Program = Program(a)
 
     override fun visitExpressions(a1: Expression, a2: List<Tuple2<Token, Expression>>): List<Expression> =
         listOf(a1) + a2.map { it.b }
 
-    override fun visitExpression1(a1: Token, a2: Expression?, a3: Token): Expression =
-        when (a2) {
-            null -> LiteralUnit(a1.location + a3.location)
-            is SExpression -> SExpression(a1.location + a3.location, a2.expressions)
-            else -> a2
-        }
-
-    override fun visitExpression2(a1: Token, a2: Expression, a3: List<Tuple2<Token, Expression>>, a4: Token): Expression =
+    override fun visitExpression1(a1: Token, a2: Expression, a3: List<Tuple2<Token, Expression>>, a4: Token): Expression =
         if (a3.isEmpty()) a2 else BlockExpression(a1.location + a4.location, listOf(a2) + a3.map { it.b })
 
-    override fun visitExpression3(a1: Token, a2: Token, a3: List<Token>, a4: Token, a5: Expression): Expression =
+    override fun visitExpression2(a1: Token, a2: Token, a3: List<Token>, a4: Token, a5: Expression): Expression =
         if (a3.isEmpty())
             ConstValue(a1.location + a5.position(), Symbol(a2.location, a2.lexeme), a5)
         else
             ConstProcedure(a1.location + a5.position(), Symbol(a2.location, a2.lexeme), a3.map { Symbol(it.location, it.lexeme) }, a5)
 
-    override fun visitExpression4(a: Expression): Expression =
+    override fun visitExpression3(a: Expression): Expression =
         a
 
     override fun visitIfExpression1(
@@ -55,13 +48,32 @@ class ParseVisitor : Visitor<Program, List<Expression>, Expression, Expression, 
     override fun visitIfExpression2(a: Expression): Expression =
         a
 
-    override fun visitTerm1(a: Token): Expression =
-        LiteralInt(a.location, a.lexeme)
+    override fun visitAdditiveExpression(a1: Expression, a2: List<Tuple2<Union2<Token, Token>, Expression>>): Expression =
+        a2.fold(
+            a1
+        ) { acc, opExpr ->
+            BinaryOpExpression(
+                acc.position() + opExpr.b.position(),
+                acc,
+                if (opExpr.a.isA()) Plus(opExpr.a.a().location) else Minus(opExpr.a.b().location),
+                opExpr.b
+            )
+        }
+
+    override fun visitTerm1(a1: Token, a2: Expression?, a3: Token): Expression =
+        when (a2) {
+            null -> LiteralUnit(a1.location + a3.location)
+            is SExpression -> SExpression(a1.location + a3.location, a2.expressions)
+            else -> a2
+        }
 
     override fun visitTerm2(a: Token): Expression =
-        LiteralString(a.location, a.lexeme)
+        LiteralInt(a.location, a.lexeme)
 
     override fun visitTerm3(a: Token): Expression =
+        LiteralString(a.location, a.lexeme)
+
+    override fun visitTerm4(a: Token): Expression =
         Symbol(a.location, a.lexeme)
 
     override fun visitExpressionBody1(a1: Token, a2: Token, a3: List<Token>, a4: Token, a5: List<Expression>): Expression =

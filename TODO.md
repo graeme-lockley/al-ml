@@ -10,11 +10,13 @@ Piece by piece transform mini-iLisp into Al-ML.  The intention here is to re-use
 - [X] Reshape expressions into a precedence hierarchy
 - [X] Move `if` out of s-expression into Al-ML
 - [X] Refactor if AST so that it is understandable
-- [ ] Move `+` and `-`
-- [ ] Move `*` and `/`
-- [ ] Move `==`, `!=`, `<`, `<=`, `>`, `>=`
-- [ ] Move `&&`, `||`
+- [X] Move `+` and `-` to binary op
+- [ ] Move `*` and `/` to binary op
+- [ ] Move `==`, `!=`, `<`, `<=`, `>`, `>=` to binary op
+- [ ] Move `&&`, `||` to binary op
 - [ ] Move lambda expression
 - [ ] Move call expression
+- [ ] Add support for `(+)`, `(-)`, `(*)`, `(/)`, `(==)`, `(!=)`, `(<)`, `(<=)`, `(>)`, `(>=)`, `(&&)`, `(||)`
+- [ ] Add support for unary `-` and `+`
 
 - [ ] Defect with comments - see euler-001 sample

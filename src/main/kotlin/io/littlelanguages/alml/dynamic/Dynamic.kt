@@ -57,6 +57,9 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
 
     private fun expressionToTST(e: io.littlelanguages.alml.static.ast.Expression, toplevelValue: Boolean = false): List<Expression<S, T>> =
         when (e) {
+            is io.littlelanguages.alml.static.ast.BinaryOpExpression ->
+                listOf(BinaryOpExpression(expressionToTST(e.left), e.op, expressionToTST(e.right), e.op.position().line()))
+
             is io.littlelanguages.alml.static.ast.BlockExpression ->
                 expressionsToTST(e.expressions)
 
@@ -235,6 +238,12 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
     private fun nextName() =
         "__n${nameGenerator++}"
 }
+
+private fun Location.line(): Int =
+    when (this) {
+        is LocationCoordinate -> this.line
+        is LocationRange -> this.start.line
+    }
 
 fun <S, T> translateLiteralString(e: io.littlelanguages.alml.static.ast.LiteralString): LiteralString<S, T> {
     val sb = StringBuilder()

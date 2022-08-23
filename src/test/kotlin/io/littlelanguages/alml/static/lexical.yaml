@@ -13,7 +13,7 @@
     - If 6:1:7-7:1:8 [if]
     - Symbol 9:1:10-15:1:16 [string?]
     - Symbol 17:1:18-35:1:36 [some-exciting-name']
-    - Symbol 37:1:38 [-]
+    - Dash 37:1:38 [-]
     - Symbol 39:1:40-43:1:44 [-123a]
     - EOS 44:1:45 []
 - name: Literal Integers

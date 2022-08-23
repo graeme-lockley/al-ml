@@ -2,6 +2,7 @@ package io.littlelanguages.alml.dynamic.tst
 
 import io.littlelanguages.alml.dynamic.Binding
 import io.littlelanguages.alml.dynamic.ProcedureBinding
+import io.littlelanguages.alml.static.ast.BinaryOperator
 import io.littlelanguages.data.Yamlable
 
 data class Program<S, T>(val values: List<String>, val declarations: List<Declaration<S, T>>) : Yamlable {
@@ -41,6 +42,24 @@ data class AssignExpression<S, T>(val symbol: Binding<S, T>, val es: Expressions
             "assign", mapOf(
                 Pair("symbol", symbol.yaml()),
                 Pair("es", es.map { it.yaml() })
+            )
+        )
+}
+
+data class BinaryOpExpression<S, T>(
+    val left: Expressions<S, T>,
+    val op: BinaryOperator,
+    val right: Expressions<S, T>,
+    val lineNumber: Int
+) : Expression<S, T> {
+    override fun yaml(): Any =
+        singletonMap(
+            "binary-op-expression",
+            mapOf(
+                Pair("left", left.map { it.yaml() }),
+                Pair("op", op.yaml()),
+                Pair("right", right.map { it.yaml() }),
+                Pair("line-number", lineNumber)
             )
         )
 }

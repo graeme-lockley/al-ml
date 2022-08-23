@@ -1,7 +1,5 @@
 package io.littlelanguages.alml.compiler
 
-import io.littlelanguages.data.Either
-import io.littlelanguages.data.Right
 import io.littlelanguages.alml.CompilationError
 import io.littlelanguages.alml.Errors
 import io.littlelanguages.alml.compiler.llvm.Context
@@ -10,6 +8,10 @@ import io.littlelanguages.alml.compiler.llvm.Module
 import io.littlelanguages.alml.compiler.llvm.VerifyError
 import io.littlelanguages.alml.dynamic.*
 import io.littlelanguages.alml.dynamic.tst.*
+import io.littlelanguages.alml.static.ast.Minus
+import io.littlelanguages.alml.static.ast.Plus
+import io.littlelanguages.data.Either
+import io.littlelanguages.data.Right
 import org.bytedeco.javacpp.PointerPointer
 import org.bytedeco.llvm.LLVM.LLVMValueRef
 import org.bytedeco.llvm.global.LLVM
@@ -220,6 +222,15 @@ private class CompileExpression(val compileState: CompileState) {
                 null
             }
 
+            is BinaryOpExpression -> {
+                val procedure = when (e.op) {
+                    is Plus -> plusBinding
+                    is Minus -> minusBinding
+                }
+                
+                procedure.compile(compileState, e.lineNumber, listOf(e.left, e.right))
+            }
+
             is CallProcedureExpression ->
                 when (val procedure = e.procedure) {
                     is ExternalProcedureBinding ->
@@ -404,9 +415,12 @@ private fun getFileName(functionBuilder: FunctionBuilder): LLVMValueRef =
         2
     )
 
+private val plusBinding = VariableArityExternalProcedure("+", "_plus_variable")
+private val minusBinding = VariableArityExternalProcedure("-", "_minus_variable")
+
 val builtinBindings = listOf(
-    VariableArityExternalProcedure("+", "_plus_variable"),
-    VariableArityExternalProcedure("-", "_minus_variable"),
+    plusBinding,
+    minusBinding,
     VariableArityExternalProcedure("*", "_multiply_variable"),
     VariableArityExternalPositionProcedure("/", "_divide_variable"),
     FixedArityExternalProcedure("==", 2, "_equals"),

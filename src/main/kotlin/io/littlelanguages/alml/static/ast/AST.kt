@@ -42,6 +42,24 @@ data class SExpression(
         )
 }
 
+data class BinaryOpExpression(
+    override val position: Location,
+    val left: Expression,
+    val op: BinaryOperator,
+    val right: Expression
+) : Expression(position) {
+    override fun yaml(): Any =
+        singletonMap(
+            "BinaryOpExpression",
+            mapOf(
+                Pair("left", left.yaml()),
+                Pair("op", op.yaml()),
+                Pair("right", right.yaml()),
+                Pair("position", position.yaml())
+            )
+        )
+}
+
 data class BlockExpression(
     override val position: Location,
     val expressions: List<Expression>
@@ -196,4 +214,16 @@ data class LiteralUnit(
                 Pair("position", position.yaml())
             )
         )
+}
+
+sealed class BinaryOperator(open val position: Location) : Yamlable, Locationable {
+    override fun position(): Location = position
+}
+
+data class Plus(override val position: Location) : BinaryOperator(position) {
+    override fun yaml(): Any = "Plus"
+}
+
+data class Minus(override val position: Location) : BinaryOperator(position) {
+    override fun yaml(): Any = "Minus"
 }

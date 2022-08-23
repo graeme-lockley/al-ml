@@ -41,7 +41,7 @@
                           - 10
       - name: Top-level procedure
         input: |
-          let add a b = (+ a b)
+          let add a b = a + b
         output:
           program:
             values: [ ]
@@ -54,18 +54,18 @@
                   depth: 0
                   offsets: 2
                   es:
-                    - call-procedure:
-                        procedure:
-                          external-procedure: +
-                        es:
-                          - - parameter:
-                                name: a
-                                depth: 0
-                                offset: 0
-                          - - parameter:
-                                name: b
-                                depth: 0
-                                offset: 1
+                    - binary-op-expression:
+                        left:
+                          - parameter:
+                              name: a
+                              depth: 0
+                              offset: 0
+                        op: Plus
+                        right:
+                          - parameter:
+                              name: b
+                              depth: 0
+                              offset: 1
                         line-number: 1
               - procedure:
                   name: _main
@@ -75,7 +75,7 @@
                   es: [ ]
       - name: Procedure with duplicate parameter names
         input: |
-          let add a a = (+ a a)
+          let add a a = a + a
         output:
           - DuplicateParameterNameError:
               name: a
@@ -83,8 +83,8 @@
       - name: Values within a procedure
         input: |
           let double-sum a b = {
-            let sum = (+ a b);
-            (+ sum sum)
+            let sum = a + b;
+            sum + sum
           }
         output:
           program:
@@ -105,31 +105,31 @@
                             depth: 0
                             offset: 2
                         es:
-                          - call-procedure:
-                              procedure:
-                                external-procedure: +
-                              es:
-                                - - parameter:
-                                      name: a
-                                      depth: 0
-                                      offset: 0
-                                - - parameter:
-                                      name: b
-                                      depth: 0
-                                      offset: 1
+                          - binary-op-expression:
+                              left:
+                                - parameter:
+                                    name: a
+                                    depth: 0
+                                    offset: 0
+                              op: Plus
+                              right:
+                                - parameter:
+                                    name: b
+                                    depth: 0
+                                    offset: 1
                               line-number: 2
-                    - call-procedure:
-                        procedure:
-                          external-procedure: +
-                        es:
-                          - - procedure-value:
-                                name: sum
-                                depth: 0
-                                offset: 2
-                          - - procedure-value:
-                                name: sum
-                                depth: 0
-                                offset: 2
+                    - binary-op-expression:
+                        left:
+                          - procedure-value:
+                              name: sum
+                              depth: 0
+                              offset: 2
+                        op: Plus
+                        right:
+                          - procedure-value:
+                              name: sum
+                              depth: 0
+                              offset: 2
                         line-number: 3
               - procedure:
                   name: _main
@@ -140,12 +140,12 @@
       - name: Nested procedures with free variables
         input: |
           let f a b = {
-              let sum = (+ a b);
+              let sum = a + b;
 
               let g x = {
-                  let sum2 = (+ a b sum);
+                  let sum2 = a + b + sum;
 
-                  (+ sum2 x)
+                  sum2 + x
               };
 
               (g sum)
@@ -171,18 +171,18 @@
                             depth: 0
                             offset: 2
                         es:
-                          - call-procedure:
-                              procedure:
-                                external-procedure: +
-                              es:
-                                - - parameter:
-                                      name: a
-                                      depth: 0
-                                      offset: 0
-                                - - parameter:
-                                      name: b
-                                      depth: 0
-                                      offset: 1
+                          - binary-op-expression:
+                              left:
+                                - parameter:
+                                    name: a
+                                    depth: 0
+                                    offset: 0
+                              op: Plus
+                              right:
+                                - parameter:
+                                    name: b
+                                    depth: 0
+                                    offset: 1
                               line-number: 2
                     - procedure:
                         name: g
@@ -198,35 +198,40 @@
                                   depth: 1
                                   offset: 1
                               es:
-                                - call-procedure:
-                                    procedure:
-                                      external-procedure: +
-                                    es:
-                                      - - parameter:
-                                            name: a
-                                            depth: 0
-                                            offset: 0
-                                      - - parameter:
-                                            name: b
-                                            depth: 0
-                                            offset: 1
-                                      - - procedure-value:
-                                            name: sum
-                                            depth: 0
-                                            offset: 2
+                                - binary-op-expression:
+                                    left:
+                                      - binary-op-expression:
+                                          left:
+                                            - parameter:
+                                                name: a
+                                                depth: 0
+                                                offset: 0
+                                          op: Plus
+                                          right:
+                                            - parameter:
+                                                name: b
+                                                depth: 0
+                                                offset: 1
+                                          line-number: 5
+                                    op: Plus
+                                    right:
+                                      - procedure-value:
+                                          name: sum
+                                          depth: 0
+                                          offset: 2
                                     line-number: 5
-                          - call-procedure:
-                              procedure:
-                                external-procedure: +
-                              es:
-                                - - procedure-value:
-                                      name: sum2
-                                      depth: 1
-                                      offset: 1
-                                - - parameter:
-                                      name: x
-                                      depth: 1
-                                      offset: 0
+                          - binary-op-expression:
+                              left:
+                                - procedure-value:
+                                    name: sum2
+                                    depth: 1
+                                    offset: 1
+                              op: Plus
+                              right:
+                                - parameter:
+                                    name: x
+                                    depth: 1
+                                    offset: 0
                               line-number: 7
                     - call-procedure:
                         procedure:
@@ -263,7 +268,7 @@
                         line-number: 13
       - name: Lambda function without free variables
         input: |
-          ((proc (a b c) (+ a (* b b) (* c c))) 1 2 3)
+          ((proc (a b c) a + (* b b) + (* c c)) 1 2 3)
         output:
           program:
             values: [ ]
@@ -285,40 +290,45 @@
                               depth: 0
                               offsets: 3
                               es:
-                                - call-procedure:
-                                    procedure:
-                                      external-procedure: +
-                                    es:
-                                      - - parameter:
-                                            name: a
-                                            depth: 0
-                                            offset: 0
-                                      - - call-procedure:
-                                            procedure:
-                                              external-procedure: "*"
-                                            es:
-                                              - - parameter:
-                                                    name: b
-                                                    depth: 0
-                                                    offset: 1
-                                              - - parameter:
-                                                    name: b
-                                                    depth: 0
-                                                    offset: 1
-                                            line-number: 1
-                                      - - call-procedure:
-                                            procedure:
-                                              external-procedure: "*"
-                                            es:
-                                              - - parameter:
-                                                    name: c
-                                                    depth: 0
-                                                    offset: 2
-                                              - - parameter:
-                                                    name: c
-                                                    depth: 0
-                                                    offset: 2
-                                            line-number: 1
+                                - binary-op-expression:
+                                    left:
+                                      - binary-op-expression:
+                                          left:
+                                            - parameter:
+                                                name: a
+                                                depth: 0
+                                                offset: 0
+                                          op: Plus
+                                          right:
+                                            - call-procedure:
+                                                procedure:
+                                                  external-procedure: "*"
+                                                es:
+                                                  - - parameter:
+                                                        name: b
+                                                        depth: 0
+                                                        offset: 1
+                                                  - - parameter:
+                                                        name: b
+                                                        depth: 0
+                                                        offset: 1
+                                                line-number: 1
+                                          line-number: 1
+                                    op: Plus
+                                    right:
+                                      - call-procedure:
+                                          procedure:
+                                            external-procedure: "*"
+                                          es:
+                                            - - parameter:
+                                                  name: c
+                                                  depth: 0
+                                                  offset: 2
+                                            - - parameter:
+                                                  name: c
+                                                  depth: 0
+                                                  offset: 2
+                                          line-number: 1
                                     line-number: 1
                           - declared-procedure:
                               name: __n0
@@ -409,7 +419,7 @@
                         line-number: 4
       - name: Top-level procedure
         input: |
-          let add a b = (+ a b);
+          let add a b = a + b;
 
           (println (add 1 2))
         output:
@@ -424,18 +434,18 @@
                   depth: 0
                   offsets: 2
                   es:
-                    - call-procedure:
-                        procedure:
-                          external-procedure: +
-                        es:
-                          - - parameter:
-                                name: a
-                                depth: 0
-                                offset: 0
-                          - - parameter:
-                                name: b
-                                depth: 0
-                                offset: 1
+                    - binary-op-expression:
+                        left:
+                          - parameter:
+                              name: a
+                              depth: 0
+                              offset: 0
+                        op: Plus
+                        right:
+                          - parameter:
+                              name: b
+                              depth: 0
+                              offset: 1
                         line-number: 1
               - procedure:
                   name: _main
@@ -460,7 +470,7 @@
                         line-number: 3
       - name: Top-level procedure with incorrect number of arguments
         input: |
-          let add a b = (+ a b);
+          let add a b = a + b;
 
           (println (add));
           (println (add 1));
@@ -470,17 +480,17 @@
               name: add
               expected: 2
               actual: 0
-              location: 33:3:10-37:3:14
+              location: 31:3:10-35:3:14
           - ArgumentMismatchError:
               name: add
               expected: 2
               actual: 1
-              location: 50:4:10-56:4:16
+              location: 48:4:10-54:4:16
           - ArgumentMismatchError:
               name: add
               expected: 2
               actual: 3
-              location: 69:5:10-79:5:20
+              location: 67:5:10-77:5:20
       - name: Local forward declaration
         input: |
           let a = 9;
@@ -489,7 +499,7 @@
               let v1 = a;
               let a = 10;
               let v2 = a;
-              (+ v1 v2)
+              v1 + v2
           }
         output:
           program:
@@ -539,23 +549,23 @@
                                     name: a
                                     depth: 0
                                     offset: 1
-                          - call-procedure:
-                              procedure:
-                                external-procedure: "+"
-                              es:
-                                - - procedure-value:
-                                      name: v1
-                                      depth: 0
-                                      offset: 0
-                                - - procedure-value:
-                                      name: v2
-                                      depth: 0
-                                      offset: 2
+                          - binary-op-expression:
+                              left:
+                                - procedure-value:
+                                    name: v1
+                                    depth: 0
+                                    offset: 0
+                              op: Plus
+                              right:
+                                - procedure-value:
+                                    name: v2
+                                    depth: 0
+                                    offset: 2
                               line-number: 7
       - name: Top-level declaration with embedded declaration
         input: |
           let a = { let b = 1
-                  ; (+ b 1)
+                  ; b + 1
                   }
         output:
           program:
@@ -580,21 +590,21 @@
                                   offset: 0
                               es:
                                 - 1
-                          - call-procedure:
-                              procedure:
-                                external-procedure: +
-                              es:
-                                - - procedure-value:
-                                      name: b
-                                      depth: 0
-                                      offset: 0
-                                - - 1
+                          - binary-op-expression:
+                              left:
+                                - procedure-value:
+                                    name: b
+                                    depth: 0
+                                    offset: 0
+                              op: Plus
+                              right:
+                                - 1
                               line-number: 2
       - name: Top-level declaration with embedded replacement declaration
         input: |
           let b = 1;
           let a = { let b = 10;
-                    (+ b 1)
+                    b + 1
                   };
           let c = b
         output:
@@ -627,15 +637,15 @@
                                   offset: 0
                               es:
                                 - 10
-                          - call-procedure:
-                              procedure:
-                                external-procedure: +
-                              es:
-                                - - procedure-value:
-                                      name: b
-                                      depth: 0
-                                      offset: 0
-                                - - 1
+                          - binary-op-expression:
+                              left:
+                                - procedure-value:
+                                    name: b
+                                    depth: 0
+                                    offset: 0
+                              op: Plus
+                              right:
+                                - 1
                               line-number: 3
                     - assign:
                         symbol:
@@ -706,7 +716,7 @@
         input: |
           let safe-divide a b = 
             (try
-              { let a2 = (+ a a);
+              { let a2 = a + a;
                 (/ a2 b)
               }
               (proc (c) 0)
@@ -737,18 +747,18 @@
                                   depth: 1
                                   offset: 0
                               es:
-                                - call-procedure:
-                                    procedure:
-                                      external-procedure: +
-                                    es:
-                                      - - parameter:
-                                            name: a
-                                            depth: 0
-                                            offset: 0
-                                      - - parameter:
-                                            name: a
-                                            depth: 0
-                                            offset: 0
+                                - binary-op-expression:
+                                    left:
+                                      - parameter:
+                                          name: a
+                                          depth: 0
+                                          offset: 0
+                                    op: Plus
+                                    right:
+                                      - parameter:
+                                          name: a
+                                          depth: 0
+                                          offset: 0
                                     line-number: 3
                           - call-procedure:
                               procedure:

@@ -5,10 +5,13 @@ Program: Expressions;
 Expressions: Expression {";" Expression};
 
 Expression
-  : "(" [ExpressionBody] ")"
-  | "{" Expression {";" Expression} "}"
+  : "{" Expression {";" Expression} "}"
   | "let" Symbol {Symbol} "=" Expression
-  | IfExpression
+  | AdditiveExpression
+  ;
+
+AdditiveExpression
+  : IfExpression {("+" | "-") IfExpression}
   ;
 
 IfExpression
@@ -17,7 +20,8 @@ IfExpression
   ;
 
 Term
-  : LiteralInt
+  : "(" [ExpressionBody] ")"
+  | LiteralInt
   | LiteralString
   | Symbol
   ;
