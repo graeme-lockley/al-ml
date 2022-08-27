@@ -36,9 +36,9 @@ void _print_value(char *file_name, int line_number, struct Value *value)
         break;
     case BOOLEAN_VALUE:
         if (value->boolean)
-            printf("#t");
+            printf("True");
         else
-            printf("#f");
+            printf("False");
         break;
     case INTEGER_VALUE:
         printf("%d", value->integer);

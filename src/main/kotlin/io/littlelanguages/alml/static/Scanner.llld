@@ -1,7 +1,8 @@
 tokens
     LiteralInt = ['-'] digits;
     LiteralString = '"' {!('"' + cr) | "\" ('"' + '\' + 't' + 'n' + 'r' | "\x" hexDigits)} '"';
-    Symbol = id {digit | id};
+    LowerID = lowerID {digit | id};
+    UpperID = upperID {digit | id};
 
 comments
    "//" {!cr};
@@ -14,5 +15,7 @@ fragments
   digits = digit {digit};
   hexDigit = digit + 'a'-'f' + 'A'-'F';
   hexDigits = hexDigit {hexDigit};
-  id = '!'-'}' \ ('0'-'9' + '"' + '(' + ')' + ';' + chr(92));
+  id = '!'-'}' \ ('0'-'9' + '"' + '(' + ')' + ';' + ',' + ':' + chr(92));
+  upperID = 'A'-'Z';
+  lowerID = 'a'-'z';
   cr = chr(10);

@@ -22,8 +22,8 @@ Piece by piece transform mini-iLisp into Al-ML.  The intention here is to re-use
 
 Superficially this is straight forward however it is necessary to introduce type expressions and free variables.  Further to that it'll be necessary to allow type signatures to be specified.
 
-- [ ] Enhance the grammar to include type info
-- [ ] Extend the parser to parse the type detail and augment the AST
+- [X] Enhance the grammar to include type info
+- [X] Extend the parser to parse the type detail and augment the AST
 - [ ] Type every TST expression
 
 ## Extend the small dialect of Al-ML to include the full Al-ML language

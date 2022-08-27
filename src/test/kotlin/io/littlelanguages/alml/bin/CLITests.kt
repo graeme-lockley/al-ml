@@ -54,17 +54,17 @@ class FormatErrorTests : StringSpec({
 
         formatError(
             ParseError(
-                Token(TToken.TSymbol, L1, "fred"),
+                Token(TToken.TLowerID, L1, "fred"),
                 setOf(TToken.TLiteralInt, TToken.TLiteralString)
             )
-        ) shouldBe "Parse Error: (10, 11): Expected one of Literal Int, Literal String but found Symbol (fred)"
+        ) shouldBe "Parse Error: (10, 11): Expected one of Literal Int, Literal String but found LowerID (fred)"
 
         formatError(
             ParseError(
-                Token(TToken.TSymbol, L1, "fred"),
+                Token(TToken.TLowerID, L1, "fred"),
                 setOf(TToken.TLiteralInt)
             )
-        ) shouldBe "Parse Error: (10, 11): Expected Literal Int but found Symbol (fred)"
+        ) shouldBe "Parse Error: (10, 11): Expected Literal Int but found LowerID (fred)"
     }
 
     "UnknownSymbolError" {

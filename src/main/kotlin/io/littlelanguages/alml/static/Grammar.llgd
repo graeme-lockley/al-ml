@@ -5,8 +5,13 @@ Program: Expressions;
 Expressions: Expression {";" Expression};
 
 Expression
-  : "let" Symbol {Symbol} "=" Expression
+  : "let" LowerID {TypedIdentifier} [":" Type] "=" Expression
   | CallExpression
+  ;
+
+TypedIdentifier
+  : "(" LowerID ":" Type ")"
+  | LowerID
   ;
 
 CallExpression
@@ -19,7 +24,7 @@ IfExpression
   ;
 
 LambdaExpression
-  : "\" Symbol {Symbol} "->" Expression
+  : "\" TypedIdentifier {TypedIdentifier} [":" Type]"->" Expression
   | RelationalExpression
   ;
 
@@ -34,15 +39,34 @@ AdditiveExpression
   ;
 
 MultiplicativeExpression
-  : Term {("*" | "/") Term}
+  : TypedTerm {("*" | "/") TypedTerm}
+  ;
+
+TypedTerm
+  : Term [":" Type]
   ;
 
 Term
   : "(" [Expression] ")"
   | LiteralInt
   | LiteralString
-  | Symbol
+  | UpperID
+  | LowerID
   | "try" Term Term
   | "signal" Term
   | "{" Expression {";" Expression} "}"
+  ;
+
+Type
+  : ADTType {"->" ADTType}
+  ;
+
+ADTType
+  : UpperID {ADTType}
+  | TermType
+  ;
+
+TermType
+  : LowerID
+  | "(" [Type] ")"
   ;

@@ -1,8 +1,5 @@
 package io.littlelanguages.alml.bin
 
-import io.littlelanguages.data.Either
-import io.littlelanguages.data.Left
-import io.littlelanguages.data.Right
 import io.littlelanguages.alml.*
 import io.littlelanguages.alml.compiler.CompileState
 import io.littlelanguages.alml.compiler.builtinBindings
@@ -15,6 +12,9 @@ import io.littlelanguages.alml.static.Scanner
 import io.littlelanguages.alml.static.TToken
 import io.littlelanguages.alml.static.Token
 import io.littlelanguages.alml.static.parse
+import io.littlelanguages.data.Either
+import io.littlelanguages.data.Left
+import io.littlelanguages.data.Right
 import io.littlelanguages.scanpiler.Location
 import io.littlelanguages.scanpiler.LocationCoordinate
 import io.littlelanguages.scanpiler.LocationRange
@@ -57,6 +57,7 @@ fun formatTToken(token: TToken): String =
         TToken.TBangEqual -> "'!='"
         TToken.TBackslash -> "'\\'"
         TToken.TBar -> "'|'"
+        TToken.TColon -> "':'"
         TToken.TDash -> "'-'"
         TToken.TDashGreaterThan -> "'->'"
         TToken.TElse -> "'else'"
@@ -71,6 +72,7 @@ fun formatTToken(token: TToken): String =
         TToken.TLet -> "'let'"
         TToken.TLiteralInt -> "Literal Int"
         TToken.TLiteralString -> "Literal String"
+        TToken.TLowerID -> "LowerID"
         TToken.TLParen -> "'('"
         TToken.TPlus -> "'+'"
         TToken.TRCurly -> "'}'"
@@ -79,8 +81,8 @@ fun formatTToken(token: TToken): String =
         TToken.TSignal -> "'signal'"
         TToken.TSlash -> "'/'"
         TToken.TStar -> "'*'"
-        TToken.TSymbol -> "Symbol"
         TToken.TTry -> "'try'"
+        TToken.TUpperID -> "UpperID"
         TToken.TEOS -> "End Of Stream"
         TToken.TERROR -> "<Error Token>"
     }
@@ -89,7 +91,8 @@ fun formatToken(token: Token): String =
     when (token.tToken) {
         TToken.TLiteralInt,
         TToken.TLiteralString,
-        TToken.TSymbol -> "${formatTToken(token.tToken)} (${token.lexeme})"
+        TToken.TLowerID,
+        TToken.TUpperID -> "${formatTToken(token.tToken)} (${token.lexeme})"
         else -> formatTToken(token.tToken)
     }
 

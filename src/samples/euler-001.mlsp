@@ -13,9 +13,9 @@ let multiple? m n = {
 };
 
 let or a b =
-  if a -> #t
-   | b -> #t
-  else #f;
+  if a -> True
+   | b -> True
+  else False;
 
 let range min max =
   if min < max -> pair min (range min + 1 max)

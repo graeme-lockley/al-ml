@@ -18,7 +18,20 @@ sealed class Expression(open val position: Location) : Yamlable, Locationable {
 }
 
 
-data class Symbol(
+data class TypedIdentifier(
+    val position: Location,
+    val id: Identifier,
+    val type: Type?
+) : Yamlable, Locationable {
+    override fun yaml(): Any {
+        TODO("Not yet implemented")
+    }
+
+    override fun position(): Location =
+        position
+}
+
+data class Identifier(
     override val position: Location,
     val name: String
 ) : Expression(position) {
@@ -76,36 +89,44 @@ data class BlockExpression(
 
 data class ConstValue(
     override val position: Location,
-    val symbol: Symbol,
+    val identifier: Identifier,
+    val type: Type?,
     val expression: Expression
 ) : Expression(position) {
-    override fun yaml(): Any =
-        singletonMap(
-            "ConstValue",
-            mapOf(
-                Pair("symbol", symbol.yaml()),
-                Pair("expression", expression.yaml()),
-                Pair("position", position.yaml())
-            )
+    override fun yaml(): Any {
+        val value = mapOf(
+            Pair("identifier", identifier.yaml()),
+            Pair("expression", expression.yaml()),
+            Pair("position", position.yaml())
         )
+
+        return singletonMap(
+            "ConstValue",
+            if (type == null) value else value + Pair("type", type.yaml())
+        )
+    }
 }
 
 data class ConstProcedure(
     override val position: Location,
-    val symbol: Symbol,
-    val parameters: List<Symbol>,
+    val identifier: Identifier,
+    val parameters: List<TypedIdentifier>,
+    val returnType: Type?,
     val expression: Expression
 ) : Expression(position) {
-    override fun yaml(): Any =
-        singletonMap(
-            "ConstProcedure",
-            mapOf(
-                Pair("symbol", symbol.yaml()),
-                Pair("parameters", parameters.map { it.yaml() }),
-                Pair("expression", expression.yaml()),
-                Pair("position", position.yaml())
-            )
+    override fun yaml(): Any {
+        val value = mapOf(
+            Pair("identifier", identifier.yaml()),
+            Pair("parameters", parameters.map { it.yaml() }),
+            Pair("expression", expression.yaml()),
+            Pair("position", position.yaml())
         )
+
+        return singletonMap(
+            "ConstProcedure",
+            if (returnType == null) value else value + Pair("return-type", returnType.yaml())
+        )
+    }
 }
 
 data class IfExpression(
@@ -113,40 +134,37 @@ data class IfExpression(
     val ifThenExpressions: List<Tuple2<Expression, Expression>>,
     val elseExpression: Expression?
 ) : Expression(position) {
-    override fun yaml(): Any =
-        if (elseExpression == null)
-            singletonMap(
-                "If",
-                mapOf(
-                    Pair("if-expressions", ifThenExpressions.map { Pair(it.a.yaml(), it.b.yaml()) }),
-                    Pair("position", position.yaml())
-                )
-            )
-        else
-            singletonMap(
-                "If",
-                mapOf(
-                    Pair("if-expressions", ifThenExpressions.map { Pair(it.a.yaml(), it.b.yaml()) }),
-                    Pair("else-expression", elseExpression.yaml()),
-                    Pair("position", position.yaml())
-                )
-            )
+    override fun yaml(): Any {
+        val value = mapOf(
+            Pair("if-expressions", ifThenExpressions.map { Pair(it.a.yaml(), it.b.yaml()) }),
+            Pair("position", position.yaml())
+        )
+
+        return singletonMap(
+            "If",
+            if (elseExpression == null) value else value + Pair("else-expression", elseExpression.yaml())
+        )
+    }
 }
 
 data class ProcExpression(
     override val position: Location,
-    val parameters: List<Symbol>,
+    val parameters: List<TypedIdentifier>,
+    val returnType: Type?,
     val expression: Expression
 ) : Expression(position) {
-    override fun yaml(): Any =
-        singletonMap(
-            "proc",
-            mapOf(
-                Pair("parameters", parameters.map { it.yaml() }),
-                Pair("expression", expression.yaml()),
-                Pair("position", position.yaml())
-            )
+    override fun yaml(): Any {
+        val value = mapOf(
+            Pair("parameters", parameters.map { it.yaml() }),
+            Pair("expression", expression.yaml()),
+            Pair("position", position.yaml())
         )
+
+        return singletonMap(
+            "proc",
+            if (returnType == null) value else value + Pair("return-type", returnType.yaml())
+        )
+    }
 }
 
 data class SignalExpression(
@@ -174,6 +192,22 @@ data class TryExpression(
             mapOf(
                 Pair("body", body.yaml()),
                 Pair("catch", catch.yaml()),
+                Pair("position", position.yaml())
+            )
+        )
+}
+
+data class TypedExpression(
+    override val position: Location,
+    val expression: Expression,
+    val type: Type
+) : Expression(position) {
+    override fun yaml(): Any =
+        singletonMap(
+            "Try",
+            mapOf(
+                Pair("expression", expression.yaml()),
+                Pair("type", type.yaml()),
                 Pair("position", position.yaml())
             )
         )
@@ -259,3 +293,51 @@ data class GreaterThan(override val position: Location) : BinaryOperator(positio
 data class GreaterEquals(override val position: Location) : BinaryOperator(position) {
     override fun yaml(): Any = "GreaterEquals"
 }
+
+sealed class Type(
+    open val position: Location
+) : Yamlable, Locationable {
+    override fun position(): Location = position
+}
+
+data class FunctionType(
+    override val position: Location,
+    val signature: List<Type>
+) : Type(position) {
+    override fun yaml(): Any =
+        singletonMap(
+            "FunctionType", mapOf(
+                Pair("signature", signature.map { it.yaml() }),
+                Pair("position", position.yaml())
+            )
+        )
+}
+
+data class AbstractDataType(
+    override val position: Location,
+    val identifier: Identifier,
+    val arguments: List<Type>
+) : Type(position) {
+    override fun yaml(): Any =
+        singletonMap(
+            "AbstractDataType", mapOf(
+                Pair("identifier", identifier.yaml()),
+                Pair("arguments", arguments.map { it.yaml() }),
+                Pair("position", position.yaml())
+            )
+        )
+}
+
+data class VariableType(
+    override val position: Location,
+    val identifier: Identifier
+) : Type(position) {
+    override fun yaml(): Any =
+        singletonMap(
+            "VariableType", mapOf(
+                Pair("identifier", identifier.yaml()),
+                Pair("position", position.yaml())
+            )
+        )
+}
+

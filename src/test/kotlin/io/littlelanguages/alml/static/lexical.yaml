@@ -9,12 +9,13 @@
 - name: Symbols
   input: hello if string? some-exciting-name' - -123a
   output:
-    - Symbol 0:1:1-4:1:5 [hello]
+    - LowerID 0:1:1-4:1:5 [hello]
     - If 6:1:7-7:1:8 [if]
-    - Symbol 9:1:10-15:1:16 [string?]
-    - Symbol 17:1:18-35:1:36 [some-exciting-name']
+    - LowerID 9:1:10-15:1:16 [string?]
+    - LowerID 17:1:18-35:1:36 [some-exciting-name']
     - Dash 37:1:38 [-]
-    - Symbol 39:1:40-43:1:44 [-123a]
+    - LiteralInt 39:1:40-42:1:43 [-123]
+    - LowerID 43:1:44 [a]
     - EOS 44:1:45 []
 - name: Literal Integers
   input: 1 12 123
@@ -41,8 +42,8 @@
     abc // some or other comment
     def
   output:
-    - Symbol 0:1:1-2:1:3 [abc]
-    - Symbol 29:2:1-31:2:3 [def]
+    - LowerID 0:1:1-2:1:3 [abc]
+    - LowerID 29:2:1-31:2:3 [def]
     - EOS 33:3:1 []
 - name: Single-line starting at beginning of file
   input: |
@@ -50,5 +51,5 @@
     // ..and another comment
     def
   output:
-    - Symbol 41:3:1-43:3:3 [def]
+    - LowerID 41:3:1-43:3:3 [def]
     - EOS 45:4:1 []

@@ -543,12 +543,12 @@ private class VariableArityExternalPositionProcedure(
     }
 }
 
-private class VFalseExternalValue : ExternalValueBinding<CompileState, LLVMValueRef>("#f") {
+private class VFalseExternalValue : ExternalValueBinding<CompileState, LLVMValueRef>("False") {
     override fun compile(state: CompileState, lineNumber: Int): LLVMValueRef =
         state.functionBuilder.buildVFalse()
 }
 
-private class VTrueExternalValue : ExternalValueBinding<CompileState, LLVMValueRef>("#t") {
+private class VTrueExternalValue : ExternalValueBinding<CompileState, LLVMValueRef>("True") {
     override fun compile(state: CompileState, lineNumber: Int): LLVMValueRef =
         state.functionBuilder.buildVTrue()
 }

@@ -6,11 +6,11 @@
           println 42
         output: |
           42
-      - name: "Hello #t"
+      - name: "Hello True"
         input: |
-          println #t
+          println True
         output: |
-          #t
+          True
       - name: "Hello ()"
         input: |
           println ()
@@ -34,11 +34,11 @@
           tests:
             - name: Boolean
               input: |
-                println #t;
-                println #f
+                println True;
+                println False
               output: |
-                #t
-                #f
+                True
+                False
             - name: Integer
               input: |
                 println 123;
@@ -105,280 +105,280 @@
                   - name: ()
                     input: |
                       println () == ();
-                      println () == #t;
+                      println () == True;
                       println () == 123;
                       println () == "hello";
                       println () == (pair 1 2)
                     output: |
-                      #t
-                      #f
-                      #f
-                      #f
-                      #f
+                      True
+                      False
+                      False
+                      False
+                      False
                   - name: boolean
                     input: |
-                      println #t == ();
-                      println #t == #t;
-                      println #t == #f;
-                      println #t == 123;
-                      println #t == "hello";
-                      println #t == (pair 1 2)
+                      println True == ();
+                      println True == True;
+                      println True == False;
+                      println True == 123;
+                      println True == "hello";
+                      println True == (pair 1 2)
                     output: |
-                      #f
-                      #t
-                      #f
-                      #f
-                      #f
-                      #f
+                      False
+                      True
+                      False
+                      False
+                      False
+                      False
                   - name: integer
                     input: |
                       println 123 == ();
-                      println 123 == #t;
+                      println 123 == True;
                       println 123 == 123;
                       println 456 == 123;
                       println 123 == "hello";
                       println 123 == (pair 1 2)
                     output: |
-                      #f
-                      #f
-                      #t
-                      #f
-                      #f
-                      #f
+                      False
+                      False
+                      True
+                      False
+                      False
+                      False
                   - name: string
                     input: |
                       println "hello" == ();
-                      println "hello" == #t;
+                      println "hello" == True;
                       println "hello" == 123;
                       println "hello" == "hello";
                       println "hello" == "world";
                       println "hello" == (pair 1 2)
                     output: |
-                      #f
-                      #f
-                      #f
-                      #t
-                      #f
-                      #f
+                      False
+                      False
+                      False
+                      True
+                      False
+                      False
                   - name: pair
                     input: |
                       println (pair 1 2) == ();
-                      println (pair 1 2) == #t;
+                      println (pair 1 2) == True;
                       println (pair 1 2) == 123;
                       println (pair 1 2) == "hello";
                       println (pair 1 2) == (pair 1 2);
                       println (pair 1 3) == (pair 1 2)
                     output: |
-                      #f
-                      #f
-                      #f
-                      #f
-                      #t
-                      #f
+                      False
+                      False
+                      False
+                      False
+                      True
+                      False
             - scenario:
                 name: not equals
                 tests:
                   - name: ()
                     input: |
                       println () != ();
-                      println () != #t;
+                      println () != True;
                       println () != 123;
                       println () != "hello";
                       println () != (pair 1 2)
                     output: |
-                      #f
-                      #t
-                      #t
-                      #t
-                      #t
+                      False
+                      True
+                      True
+                      True
+                      True
                   - name: boolean
                     input: |
-                      println #t != ();
-                      println #t != #t;
-                      println #t != #f;
-                      println #t != 123;
-                      println #t != "hello";
-                      println #t != (pair 1 2)
+                      println True != ();
+                      println True != True;
+                      println True != False;
+                      println True != 123;
+                      println True != "hello";
+                      println True != (pair 1 2)
                     output: |
-                      #t
-                      #f
-                      #t
-                      #t
-                      #t
-                      #t
+                      True
+                      False
+                      True
+                      True
+                      True
+                      True
                   - name: integer
                     input: |
                       println 123 != ();
-                      println 123 != #t;
+                      println 123 != True;
                       println 123 != 123;
                       println 456 != 123;
                       println 123 != "hello";
                       println 123 != (pair 1 2)
                     output: |
-                      #t
-                      #t
-                      #f
-                      #t
-                      #t
-                      #t
+                      True
+                      True
+                      False
+                      True
+                      True
+                      True
                   - name: string
                     input: |
                       println "hello" != ();
-                      println "hello" != #t;
+                      println "hello" != True;
                       println "hello" != 123;
                       println "hello" != "hello";
                       println "hello" != "world";
                       println "hello" != (pair 1 2)
                     output: |
-                      #t
-                      #t
-                      #t
-                      #f
-                      #t
-                      #t
+                      True
+                      True
+                      True
+                      False
+                      True
+                      True
                   - name: pair
                     input: |
                       println (pair 1 2) != ();
-                      println (pair 1 2) != #t;
+                      println (pair 1 2) != True;
                       println (pair 1 2) != 123;
                       println (pair 1 2) != "hello";
                       println (pair 1 2) != (pair 1 2);
                       println (pair 1 3) != (pair 1 2)
                     output: |
-                      #t
-                      #t
-                      #t
-                      #t
-                      #f
-                      #t
+                      True
+                      True
+                      True
+                      True
+                      False
+                      True
             - scenario:
                 name: less than
                 tests:
                   - name: boolean
                     input: |
-                      println #f < #f;
-                      println #f < #t;
-                      println #t < #f;
-                      println #t < #t
+                      println False < False;
+                      println False < True;
+                      println True < False;
+                      println True < True
                     output: |
-                      #f
-                      #t
-                      #f
-                      #f
+                      False
+                      True
+                      False
+                      False
                   - name: integer
                     input: |
                       println 1 < 1;
                       println 1 < 2;
                       println 2 < 1
                     output: |
-                      #f
-                      #t
-                      #f
+                      False
+                      True
+                      False
                   - name: string
                     input: |
                       println "a" < "a";
                       println "a" < "b";
                       println "b" < "a"
                     output: |
-                      #f
-                      #t
-                      #f
+                      False
+                      True
+                      False
             - scenario:
                 name: less equal
                 tests:
                   - name: boolean
                     input: |
-                      println #f <= #f;
-                      println #f <= #t;
-                      println #t <= #f;
-                      println #t <= #t
+                      println False <= False;
+                      println False <= True;
+                      println True <= False;
+                      println True <= True
                     output: |
-                      #t
-                      #t
-                      #f
-                      #t
+                      True
+                      True
+                      False
+                      True
                   - name: integer
                     input: |
                       println 1 <= 1;
                       println 1 <= 2;
                       println 2 <= 1
                     output: |
-                      #t
-                      #t
-                      #f
+                      True
+                      True
+                      False
                   - name: string
                     input: |
                       println "a" <= "a";
                       println "a" <= "b";
                       println "b" <= "a"
                     output: |
-                      #t
-                      #t
-                      #f
+                      True
+                      True
+                      False
             - scenario:
                 name: greater than
                 tests:
                   - name: boolean
                     input: |
-                      println #f > #f;
-                      println #f > #t;
-                      println #t > #f;
-                      println #t > #t
+                      println False > False;
+                      println False > True;
+                      println True > False;
+                      println True > True
                     output: |
-                      #f
-                      #f
-                      #t
-                      #f
+                      False
+                      False
+                      True
+                      False
                   - name: integer
                     input: |
                       println 1 > 1;
                       println 1 > 2;
                       println 2 > 1
                     output: |
-                      #f
-                      #f
-                      #t
+                      False
+                      False
+                      True
                   - name: string
                     input: |
                       println "a" > "a";
                       println "a" > "b";
                       println "b" > "a"
                     output: |
-                      #f
-                      #f
-                      #t
+                      False
+                      False
+                      True
             - scenario:
                 name: greater equal
                 tests:
                   - name: boolean
                     input: |
-                      println #f >= #f;
-                      println #f >= #t;
-                      println #t >= #f;
-                      println #t >= #t
+                      println False >= False;
+                      println False >= True;
+                      println True >= False;
+                      println True >= True
                     output: |
-                      #t
-                      #f
-                      #t
-                      #t
+                      True
+                      False
+                      True
+                      True
                   - name: integer
                     input: |
                       println 1 >= 1;
                       println 1 >= 2;
                       println 2 >= 1
                     output: |
-                      #t
-                      #f
-                      #t
+                      True
+                      False
+                      True
                   - name: string
                     input: |
                       println "a" >= "a";
                       println "a" >= "b";
                       println "b" >= "a"
                     output: |
-                      #t
-                      #f
-                      #t
+                      True
+                      False
+                      True
       - scenario:
           name: Forms
           tests:
@@ -442,68 +442,68 @@
             - name: null?
               input: |
                 println (null? ());
-                println (null? #t);
+                println (null? True);
                 println (null? 123);
                 println (null? "hello");
                 println (null? (pair 1 2))
               output: |
-                #t
-                #f
-                #f
-                #f
-                #f
+                True
+                False
+                False
+                False
+                False
             - name: boolean?
               input: |
                 println (boolean? ());
-                println (boolean? #t);
+                println (boolean? True);
                 println (boolean? 123);
                 println (boolean? "hello");
                 println (boolean? (pair 1 2))
               output: |
-                #f
-                #t
-                #f
-                #f
-                #f
+                False
+                True
+                False
+                False
+                False
             - name: integer?
               input: |
                 println (integer? ());
-                println (integer? #t);
+                println (integer? True);
                 println (integer? 123);
                 println (integer? "hello");
                 println (integer? (pair 1 2))
               output: |
-                #f
-                #f
-                #t
-                #f
-                #f
+                False
+                False
+                True
+                False
+                False
             - name: string?
               input: |
                 println (string? ());
-                println (string? #t);
+                println (string? True);
                 println (string? 123);
                 println (string? "hello");
                 println (string? (pair 1 2))
               output: |
-                #f
-                #f
-                #f
-                #t
-                #f
+                False
+                False
+                False
+                True
+                False
             - name: pair?
               input: |
                 println (pair? ());
-                println (pair? #t);
+                println (pair? True);
                 println (pair? 123);
                 println (pair? "hello");
                 println (pair? (pair 1 2))
               output: |
-                #f
-                #f
-                #f
-                #f
-                #t
+                False
+                False
+                False
+                False
+                True
             - name: exit
               input: |
                 let some-message = "This is my message";
@@ -519,7 +519,7 @@
           tests:
             - name: if
               input: |
-                if #t ->
+                if True ->
                   { println "Hello"
                   ; println "World"
                   }
@@ -548,7 +548,7 @@
       - name: "Toplevel value declaration"
         input: |
           let v1 = 1;
-          let v2 = #t;
+          let v2 = True;
           let v3 = "Hello world";
           let v4 = ();
           let v5 = pair 1 2;
@@ -560,7 +560,7 @@
           println v5
         output: |
           1
-          #t
+          True
           Hello world
           ()
           (1 . 2)
@@ -726,7 +726,7 @@
               let n0-nested-nested c = {
                 let c' = c + 1;
 
-                let n0-all _ =
+                let n0-all ignore =
                   pair a (pair a' (pair b (pair b' (pair c (pair c' ())))));
 
                 n0-all
@@ -843,7 +843,7 @@
           println (apair? result)
         output: |
           (1 2 3)
-          #t
+          True
       - name: "builtin procedure of variable arity"
         input: |
           let call op = {

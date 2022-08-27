@@ -9,8 +9,8 @@ let append e lst =
   else pair (car lst) (append e (cdr lst));
 
 let divisible-by? n lst =
-  if null? lst -> #f
-   | multiple? n (car lst) -> #t
+  if null? lst -> False
+   | multiple? n (car lst) -> True
   else divisible-by? n (cdr lst);
 
 let primes min max = {

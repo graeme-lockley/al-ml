@@ -14,20 +14,42 @@ fun parse(scanner: Scanner): Either<Errors, Program> = try {
 }
 
 class ParseVisitor :
-    Visitor<Program, List<Expression>, Expression, Expression, Expression, Expression, Expression, BinaryOperator, Expression, Expression, Expression> {
+    Visitor<
+            Program,
+            List<Expression>,
+            Expression,
+            TypedIdentifier,
+            Expression,
+            Expression,
+            Expression,
+            Expression,
+            BinaryOperator,
+            Expression,
+            Expression,
+            Expression,
+            Expression,
+            Type,
+            Type,
+            Type> {
     override fun visitProgram(a: List<Expression>): Program = Program(a)
 
     override fun visitExpressions(a1: Expression, a2: List<Tuple2<Token, Expression>>): List<Expression> =
         listOf(a1) + a2.map { it.b }
 
-    override fun visitExpression1(a1: Token, a2: Token, a3: List<Token>, a4: Token, a5: Expression): Expression =
+    override fun visitExpression1(a1: Token, a2: Token, a3: List<TypedIdentifier>, a4: Tuple2<Token, Type>?, a5: Token, a6: Expression): Expression =
         if (a3.isEmpty())
-            ConstValue(a1.location + a5.position(), Symbol(a2.location, a2.lexeme), a5)
+            ConstValue(a1.location + a6.position(), Identifier(a2.location, a2.lexeme), a4?.b, a6)
         else
-            ConstProcedure(a1.location + a5.position(), Symbol(a2.location, a2.lexeme), a3.map { Symbol(it.location, it.lexeme) }, a5)
+            ConstProcedure(a1.location + a6.position(), Identifier(a2.location, a2.lexeme), a3, a4?.b, a6)
 
     override fun visitExpression2(a: Expression): Expression =
         a
+
+    override fun visitTypedIdentifier1(a1: Token, a2: Token, a3: Token, a4: Type, a5: Token): TypedIdentifier =
+        TypedIdentifier(a1.location + a5.location, Identifier(a2.location, a2.lexeme), a4)
+
+    override fun visitTypedIdentifier2(a: Token): TypedIdentifier =
+        TypedIdentifier(a.location, Identifier(a.location, a.lexeme), null)
 
     override fun visitIfExpression1(
         a1: Token,
@@ -46,8 +68,15 @@ class ParseVisitor :
     override fun visitIfExpression2(a: Expression): Expression =
         a
 
-    override fun visitLambdaExpression1(a1: Token, a2: Token, a3: List<Token>, a4: Token, a5: Expression): Expression =
-        ProcExpression(a1.location + a5.position(), listOf(Symbol(a2.location, a2.lexeme)) + a3.map { Symbol(it.location, it.lexeme) }, a5)
+    override fun visitLambdaExpression1(
+        a1: Token,
+        a2: TypedIdentifier,
+        a3: List<TypedIdentifier>,
+        a4: Tuple2<Token, Type>?,
+        a5: Token,
+        a6: Expression
+    ): Expression =
+        ProcExpression(a1.location + a6.position(), listOf(a2) + a3, a4?.b, a6)
 
     override fun visitLambdaExpression2(a: Expression): Expression =
         a
@@ -72,6 +101,9 @@ class ParseVisitor :
 
     override fun visitRelationalOp6(a: Token): BinaryOperator =
         GreaterEquals(a.location)
+
+    override fun visitTypedTerm(a1: Expression, a2: Tuple2<Token, Type>?): Expression =
+        if (a2 == null) a1 else TypedExpression(a1.position() + a2.b.position(), a1, a2.b)
 
     override fun visitMultiplicativeExpression(a1: Expression, a2: List<Tuple2<Union2<Token, Token>, Expression>>): Expression =
         a2.fold(
@@ -110,22 +142,34 @@ class ParseVisitor :
         LiteralString(a.location, a.lexeme)
 
     override fun visitTerm4(a: Token): Expression =
-        Symbol(a.location, a.lexeme)
+        Identifier(a.location, a.lexeme)
 
-    override fun visitTerm5(a1: Token, a2: Expression, a3: Expression): Expression =
+    override fun visitTerm5(a: Token): Expression =
+        Identifier(a.location, a.lexeme)
+
+    override fun visitTerm6(a1: Token, a2: Expression, a3: Expression): Expression =
         TryExpression(a1.location + a3.position(), a2, a3)
 
-    override fun visitTerm6(a1: Token, a2: Expression): Expression =
+    override fun visitTerm7(a1: Token, a2: Expression): Expression =
         SignalExpression(a1.location + a2.position(), a2)
 
-    override fun visitTerm7(a1: Token, a2: Expression, a3: List<Tuple2<Token, Expression>>, a4: Token): Expression =
+    override fun visitTerm8(a1: Token, a2: Expression, a3: List<Tuple2<Token, Expression>>, a4: Token): Expression =
         if (a3.isEmpty()) a2 else BlockExpression(a1.location + a4.location, listOf(a2) + a3.map { it.b })
 
-//    override fun visitExpressionBody(a1: Expression, a2: List<Expression>): Expression {
-//        val es = listOf(a1) + a2
-//
-//        return SExpression(locationOf(es[0].position, es.drop(1)), es)
-//    }
+    override fun visitType(a1: Type, a2: List<Tuple2<Token, Type>>): Type =
+        if (a2.isEmpty()) a1 else FunctionType(a1.position + a2.last().b.position(), listOf(a1) + a2.map { it.b })
+
+    override fun visitADTType1(a1: Token, a2: List<Type>): Type =
+        AbstractDataType(if (a2.isEmpty()) a1.location else a1.location + a2.last().position(), Identifier(a1.location, a1.lexeme), a2)
+
+    override fun visitADTType2(a: Type): Type =
+        a
+
+    override fun visitTermType1(a: Token): Type =
+        VariableType(a.location, Identifier(a.location, a.lexeme))
+
+    override fun visitTermType2(a1: Token, a2: Type?, a3: Token): Type =
+        a2 ?: AbstractDataType(a1.location + a3.location, Identifier(a1.location + a3.location, "()"), emptyList())
 }
 
 
