@@ -5,7 +5,7 @@ import io.littlelanguages.data.Yamlable
 import io.littlelanguages.alml.ArgumentMismatchError
 import io.littlelanguages.alml.Errors
 import io.littlelanguages.alml.dynamic.tst.Expressionss
-import io.littlelanguages.alml.static.ast.SExpression
+import io.littlelanguages.alml.static.ast.ApplyExpression
 
 sealed interface Binding<S, T> : Yamlable {
     val name: String
@@ -57,7 +57,7 @@ abstract class ExternalProcedureBinding<S, T>(
     override fun yaml(): Any =
         singletonMap("external-procedure", name)
 
-    fun validateArguments(e: SExpression, name: String, arguments: Expressionss<S, T>): Errors? =
+    fun validateArguments(e: ApplyExpression, name: String, arguments: Expressionss<S, T>): Errors? =
         when (arity) {
             null -> null
             arguments.size -> null

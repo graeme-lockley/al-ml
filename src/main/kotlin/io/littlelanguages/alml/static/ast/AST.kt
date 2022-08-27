@@ -45,7 +45,7 @@ data class Identifier(
         )
 }
 
-data class SExpression(
+data class ApplyExpression(
     override val position: Location,
     val expressions: List<Expression>
 ) : Expression(position) {
@@ -87,7 +87,7 @@ data class BlockExpression(
         )
 }
 
-data class ConstValue(
+data class LetValue(
     override val position: Location,
     val identifier: Identifier,
     val type: Type?,
@@ -107,7 +107,7 @@ data class ConstValue(
     }
 }
 
-data class ConstProcedure(
+data class LetFunction(
     override val position: Location,
     val identifier: Identifier,
     val parameters: List<TypedIdentifier>,
@@ -147,7 +147,7 @@ data class IfExpression(
     }
 }
 
-data class ProcExpression(
+data class LambdaExpression(
     override val position: Location,
     val parameters: List<TypedIdentifier>,
     val returnType: Type?,

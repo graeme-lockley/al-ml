@@ -38,9 +38,9 @@ class ParseVisitor :
 
     override fun visitExpression1(a1: Token, a2: Token, a3: List<TypedIdentifier>, a4: Tuple2<Token, Type>?, a5: Token, a6: Expression): Expression =
         if (a3.isEmpty())
-            ConstValue(a1.location + a6.position(), Identifier(a2.location, a2.lexeme), a4?.b, a6)
+            LetValue(a1.location + a6.position(), Identifier(a2.location, a2.lexeme), a4?.b, a6)
         else
-            ConstProcedure(a1.location + a6.position(), Identifier(a2.location, a2.lexeme), a3, a4?.b, a6)
+            LetFunction(a1.location + a6.position(), Identifier(a2.location, a2.lexeme), a3, a4?.b, a6)
 
     override fun visitExpression2(a: Expression): Expression =
         a
@@ -76,7 +76,7 @@ class ParseVisitor :
         a5: Token,
         a6: Expression
     ): Expression =
-        ProcExpression(a1.location + a6.position(), listOf(a2) + a3, a4?.b, a6)
+        LambdaExpression(a1.location + a6.position(), listOf(a2) + a3, a4?.b, a6)
 
     override fun visitLambdaExpression2(a: Expression): Expression =
         a
@@ -130,7 +130,7 @@ class ParseVisitor :
         }
 
     override fun visitCallExpression(a1: Expression, a2: List<Expression>): Expression =
-        if (a2.isEmpty()) a1 else SExpression(locationOf(a1.position, a2), listOf(a1) + a2)
+        if (a2.isEmpty()) a1 else ApplyExpression(locationOf(a1.position, a2), listOf(a1) + a2)
 
     override fun visitTerm1(a1: Token, a2: Expression?, a3: Token): Expression =
         a2 ?: LiteralUnit(a1.location + a3.location)

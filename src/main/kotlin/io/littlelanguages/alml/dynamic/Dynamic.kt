@@ -63,10 +63,10 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
             is io.littlelanguages.alml.static.ast.BlockExpression ->
                 expressionsToTST(e.expressions)
 
-            is io.littlelanguages.alml.static.ast.ConstProcedure ->
+            is io.littlelanguages.alml.static.ast.LetFunction ->
                 listOf(procedureToTST(e.identifier.name, e.parameters.map { it.id }, e.expression).first)
 
-            is io.littlelanguages.alml.static.ast.ConstValue -> {
+            is io.littlelanguages.alml.static.ast.LetValue -> {
                 val name = e.identifier.name
                 val expression = e.expression
 
@@ -91,13 +91,13 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
                     if (e.elseExpression == null) null else expressionToTST(e.elseExpression)
                 )
 
-            is io.littlelanguages.alml.static.ast.ProcExpression -> {
+            is io.littlelanguages.alml.static.ast.LambdaExpression -> {
                 val tst = procedureToTST(nextName(), e.parameters.map { it.id }, e.expression)
 
                 listOf(tst.first, SymbolReferenceExpression(tst.second, e.position.line()))
             }
 
-            is io.littlelanguages.alml.static.ast.SExpression -> {
+            is io.littlelanguages.alml.static.ast.ApplyExpression -> {
                 val first = e.expressions[0]
 
                 if (first is io.littlelanguages.alml.static.ast.Identifier) {
