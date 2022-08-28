@@ -1,4 +1,4 @@
-package io.littlelanguages.alml.dynamic
+package io.littlelanguages.alml.dynamic.typing
 
 import io.littlelanguages.data.Yamlable
 import io.littlelanguages.scanpiler.Location
@@ -8,7 +8,7 @@ typealias Var =
 
 sealed class Type(
     open val position: Location?
-): Yamlable {
+) : Yamlable {
     abstract fun apply(s: Substitution): Type
 
     abstract fun ftv(): Set<Var>
@@ -72,6 +72,8 @@ data class TVar(
     override val position: Location?,
     val variable: Var
 ) : Type(position) {
+    constructor(variable: Var) : this(null, variable)
+
     override fun apply(s: Substitution) =
         s[variable] ?: this
 
@@ -80,22 +82,6 @@ data class TVar(
 
     override fun toString(): String =
         "'$variable"
-}
-
-data class Substitution(val state: Map<Var, Type> = emptyMap()) {
-    constructor(key: Var, value: Type) : this(mapOf(Pair(key, value)))
-
-    operator fun plus(other: Substitution): Substitution =
-        Substitution(other.state.mapValues { it.value.apply(this) } + state)
-
-    operator fun get(key: Var): Type? =
-        state[key]
-
-    operator fun minus(keys: List<Var>): Substitution =
-        Substitution(state - keys.toSet())
-
-    override fun toString(): String =
-        state.entries.map { "'${it.key} ${it.value}" }.sorted().joinToString(", ")
 }
 
 private fun combine(a: Location?, b: Location?): Location? =
@@ -122,3 +108,4 @@ val typeBool =
 
 val typeString =
     TCon("String")
+

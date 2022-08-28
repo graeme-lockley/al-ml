@@ -1,6 +1,7 @@
 package io.littlelanguages.alml.dynamic.tst
 
 import io.littlelanguages.alml.dynamic.*
+import io.littlelanguages.alml.dynamic.typing.*
 import io.littlelanguages.alml.static.ast.BinaryOperator
 import io.littlelanguages.alml.static.ast.Operators
 import io.littlelanguages.data.Yamlable
