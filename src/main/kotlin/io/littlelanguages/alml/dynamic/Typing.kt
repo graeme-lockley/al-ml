@@ -1,4 +1,4 @@
-package io.littlelanguages.alml.dynamic.tst
+package io.littlelanguages.alml.dynamic
 
 import io.littlelanguages.scanpiler.Location
 

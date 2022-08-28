@@ -286,7 +286,7 @@ private class CompileExpression(val compileState: CompileState) {
                 functionBuilder.buildPhi(functionBuilder.structValueP, listOf(e2op, e3op), listOf(fromThen, fromElse))
             }
 
-            is LiteralInt ->
+            is LiteralS32 ->
                 functionBuilder.buildFromLiteralInt(e.value)
 
             is LiteralString ->

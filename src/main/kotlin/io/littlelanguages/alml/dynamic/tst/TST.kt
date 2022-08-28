@@ -1,8 +1,8 @@
 package io.littlelanguages.alml.dynamic.tst
 
-import io.littlelanguages.alml.dynamic.Binding
-import io.littlelanguages.alml.dynamic.ProcedureBinding
+import io.littlelanguages.alml.dynamic.*
 import io.littlelanguages.alml.static.ast.BinaryOperator
+import io.littlelanguages.alml.static.ast.Operators
 import io.littlelanguages.data.Yamlable
 
 data class Program<S, T>(val values: List<String>, val declarations: List<Declaration<S, T>>) : Yamlable {
@@ -19,6 +19,9 @@ sealed interface Declaration<S, T> : Yamlable
 
 data class Procedure<S, T>(val name: String, val parameters: List<String>, val depth: Int, val offsets: Int, val es: Expressions<S, T>) :
     Declaration<S, T>, Expression<S, T> {
+    override fun typeOf(): Type =
+        typeUnit
+
     override fun yaml(): Any =
         singletonMap(
             "procedure", mapOf(
@@ -35,13 +38,12 @@ typealias Expressions<S, T> = List<Expression<S, T>>
 typealias Expressionss<S, T> = List<List<Expression<S, T>>>
 
 interface Expression<S, T> : Yamlable {
-    fun typeOf(): Type? =
-        null
+    fun typeOf(): Type?
 }
 
 data class AssignExpression<S, T>(val symbol: Binding<S, T>, val es: Expressions<S, T>) : Expression<S, T> {
     override fun typeOf(): Type? =
-        es.last().typeOf()
+        symbol.typeOf()
 
     override fun yaml(): Any =
         singletonMap(
@@ -58,6 +60,9 @@ data class BinaryOpExpression<S, T>(
     val right: Expressions<S, T>,
     val lineNumber: Int
 ) : Expression<S, T> {
+    override fun typeOf(): Type =
+        op.typeOf()
+
     override fun yaml(): Any =
         singletonMap(
             "binary-op-expression",
@@ -70,8 +75,25 @@ data class BinaryOpExpression<S, T>(
         )
 }
 
+fun BinaryOperator.typeOf(): Type =
+    when (this.operator) {
+        Operators.Plus,
+        Operators.Minus,
+        Operators.Multiply,
+        Operators.Divide -> typeS32
+        Operators.Equals,
+        Operators.NotEquals,
+        Operators.LessThan,
+        Operators.LessEquals,
+        Operators.GreaterThan,
+        Operators.GreaterEquals -> typeBool
+    }
+
 data class CallProcedureExpression<S, T>(val procedure: ProcedureBinding<S, T>, val es: List<Expressions<S, T>>, val lineNumber: Int) :
     Expression<S, T> {
+    override fun typeOf(): Type? =
+        procedure.typeOf()
+
     override fun yaml(): Any =
         singletonMap(
             "call-procedure", mapOf(
@@ -83,6 +105,9 @@ data class CallProcedureExpression<S, T>(val procedure: ProcedureBinding<S, T>, 
 }
 
 data class CallValueExpression<S, T>(val operand: Expressions<S, T>, val es: Expressions<S, T>, val lineNumber: Int) : Expression<S, T> {
+    override fun typeOf(): Type? =
+        operand.lastOrNull()?.typeOf()
+
     override fun yaml(): Any =
         singletonMap(
             "call-value", mapOf(
@@ -93,6 +118,9 @@ data class CallValueExpression<S, T>(val operand: Expressions<S, T>, val es: Exp
 }
 
 data class IfExpression<S, T>(val e1: Expressions<S, T>, val e2: Expressions<S, T>, val e3: Expressions<S, T>) : Expression<S, T> {
+    override fun typeOf(): Type? =
+        e2.lastOrNull()?.typeOf() ?: e3.lastOrNull()?.typeOf()
+
     override fun yaml(): Any =
         singletonMap(
             "if", mapOf(
@@ -104,6 +132,9 @@ data class IfExpression<S, T>(val e1: Expressions<S, T>, val e2: Expressions<S, 
 }
 
 data class SignalExpression<S, T>(val es: Expressions<S, T>, val lineNumber: Int) : Expression<S, T> {
+    override fun typeOf(): Type =
+        typeUnit
+
     override fun yaml(): Any =
         singletonMap(
             "signal", es.map { it.yaml() }
@@ -111,12 +142,18 @@ data class SignalExpression<S, T>(val es: Expressions<S, T>, val lineNumber: Int
 }
 
 data class IdentifierExpression<S, T>(val symbol: Binding<S, T>, val lineNumber: Int) : Expression<S, T> {
+    override fun typeOf(): Type? =
+        symbol.typeOf()
+
     override fun yaml(): Any =
         symbol.yaml()
 }
 
 data class TryExpression<S, T>(val body: IdentifierExpression<S, T>, val catch: IdentifierExpression<S, T>, val lineNumber: Int) :
     Expression<S, T> {
+    override fun typeOf(): Type? =
+        body.typeOf() ?: catch.typeOf()
+
     override fun yaml(): Any =
         singletonMap(
             "try", mapOf(
@@ -126,16 +163,25 @@ data class TryExpression<S, T>(val body: IdentifierExpression<S, T>, val catch: 
         )
 }
 
-data class LiteralInt<S, T>(val value: Int) : Expression<S, T> {
+data class LiteralS32<S, T>(val value: Int) : Expression<S, T> {
+    override fun typeOf(): Type =
+        typeS32
+
     override fun yaml(): Any =
         value
 }
 
 data class LiteralString<S, T>(val value: String) : Expression<S, T> {
+    override fun typeOf(): Type =
+        typeString
+
     override fun yaml(): Any =
         value
 }
 
 class LiteralUnit<S, T> : Expression<S, T> {
+    override fun typeOf(): Type =
+        typeUnit
+
     override fun yaml(): Any = "()"
 }

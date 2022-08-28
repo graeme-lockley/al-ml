@@ -136,7 +136,7 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
             }
 
             is io.littlelanguages.alml.static.ast.LiteralInt ->
-                listOf(LiteralInt(e.value.toInt()))
+                listOf(LiteralS32(e.value.toInt()))
 
             is io.littlelanguages.alml.static.ast.LiteralString ->
                 listOf(translateLiteralString(e))

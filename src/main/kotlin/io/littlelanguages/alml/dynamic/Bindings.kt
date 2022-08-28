@@ -1,14 +1,17 @@
 package io.littlelanguages.alml.dynamic
 
-import io.littlelanguages.data.NestedMap
-import io.littlelanguages.data.Yamlable
 import io.littlelanguages.alml.ArgumentMismatchError
 import io.littlelanguages.alml.Errors
 import io.littlelanguages.alml.dynamic.tst.Expressionss
 import io.littlelanguages.alml.static.ast.ApplyExpression
+import io.littlelanguages.data.NestedMap
+import io.littlelanguages.data.Yamlable
 
 sealed interface Binding<S, T> : Yamlable {
     val name: String
+
+    fun typeOf(): Type? =
+        null
 }
 
 data class TopLevelValueBinding<S, T>(override val name: String) : Binding<S, T> {
