@@ -1,0 +1,19 @@
+- name: Hello World
+  input: |
+    (println "Hello world")
+  output:
+    program:
+      values: [ ]
+      procedures:
+        - procedure:
+            name: _main
+            parameters: [ ]
+            depth: 0
+            offsets: 0
+            es:
+              - call-procedure:
+                  procedure:
+                    external-procedure: println
+                  es:
+                    - [ 'Hello world' ]
+                  line-number: 1

@@ -21,24 +21,35 @@ typealias S = String
 typealias T = String
 
 class DynamicTests : FunSpec({
-    context("Conformance Tests") {
+    context("Dynamic Tests") {
         val content = File("./src/test/kotlin/io/littlelanguages/alml/dynamic/dynamic.yaml").readText()
 
         val scenarios: Any = yaml.load(content)
-
-        val builtinBindings: List<ExternalProcedureBinding<S, T>> = listOf(
-            DummyVariableArityExternalProcedure("+"),
-            DummyVariableArityExternalProcedure("-"),
-            DummyVariableArityExternalProcedure("*"),
-            DummyVariableArityExternalProcedure("/"),
-            DummyVariableArityExternalProcedure("println")
-        )
 
         if (scenarios is List<*>) {
             parserConformanceTest(builtinBindings, this, scenarios)
         }
     }
 })
+class TypingTests : FunSpec({
+    context("Typing Tests") {
+        val content = File("./src/test/kotlin/io/littlelanguages/alml/dynamic/typing.yaml").readText()
+
+        val scenarios: Any = yaml.load(content)
+
+        if (scenarios is List<*>) {
+            parserConformanceTest(builtinBindings, this, scenarios)
+        }
+    }
+})
+
+val builtinBindings: List<ExternalProcedureBinding<S, T>> = listOf(
+    DummyVariableArityExternalProcedure("+"),
+    DummyVariableArityExternalProcedure("-"),
+    DummyVariableArityExternalProcedure("*"),
+    DummyVariableArityExternalProcedure("/"),
+    DummyVariableArityExternalProcedure("println")
+)
 
 private class DummyVariableArityExternalProcedure(
     override val name: String
