@@ -85,22 +85,22 @@ class ParseVisitor :
         if (a2 == null) a1 else BinaryOpExpression(a1.position() + a2.b.position(), a1, a2.a, a2.b)
 
     override fun visitRelationalOp1(a: Token): BinaryOperator =
-        Equals(a.location)
+        BinaryOperator(a.location, Operators.Equals)
 
     override fun visitRelationalOp2(a: Token): BinaryOperator =
-        NotEquals(a.location)
+        BinaryOperator(a.location, Operators.NotEquals)
 
     override fun visitRelationalOp3(a: Token): BinaryOperator =
-        LessThan(a.location)
+        BinaryOperator(a.location, Operators.LessThan)
 
     override fun visitRelationalOp4(a: Token): BinaryOperator =
-        LessEquals(a.location)
+        BinaryOperator(a.location, Operators.LessEquals)
 
     override fun visitRelationalOp5(a: Token): BinaryOperator =
-        GreaterThan(a.location)
+        BinaryOperator(a.location, Operators.GreaterThan)
 
     override fun visitRelationalOp6(a: Token): BinaryOperator =
-        GreaterEquals(a.location)
+        BinaryOperator(a.location, Operators.GreaterEquals)
 
     override fun visitTypedTerm(a1: Expression, a2: Tuple2<Token, Type>?): Expression =
         if (a2 == null) a1 else TypedExpression(a1.position() + a2.b.position(), a1, a2.b)
@@ -112,7 +112,10 @@ class ParseVisitor :
             BinaryOpExpression(
                 acc.position() + opExpr.b.position(),
                 acc,
-                if (opExpr.a.isA()) Multiply(opExpr.a.a().location) else Divide(opExpr.a.b().location),
+                if (opExpr.a.isA()) BinaryOperator(opExpr.a.a().location, Operators.Multiply) else BinaryOperator(
+                    opExpr.a.b().location,
+                    Operators.Divide
+                ),
                 opExpr.b
             )
         }
@@ -124,7 +127,7 @@ class ParseVisitor :
             BinaryOpExpression(
                 acc.position() + opExpr.b.position(),
                 acc,
-                if (opExpr.a.isA()) Plus(opExpr.a.a().location) else Minus(opExpr.a.b().location),
+                if (opExpr.a.isA()) BinaryOperator(opExpr.a.a().location, Operators.Plus) else BinaryOperator(opExpr.a.b().location, Operators.Minus),
                 opExpr.b
             )
         }

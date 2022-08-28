@@ -94,7 +94,7 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
             is io.littlelanguages.alml.static.ast.LambdaExpression -> {
                 val tst = procedureToTST(nextName(), e.parameters.map { it.id }, e.expression)
 
-                listOf(tst.first, SymbolReferenceExpression(tst.second, e.position.line()))
+                listOf(tst.first, IdentifierExpression(tst.second, e.position.line()))
             }
 
             is io.littlelanguages.alml.static.ast.ApplyExpression -> {
@@ -125,7 +125,7 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
                         else ->
                             listOf(
                                 CallValueExpression(
-                                    listOf(SymbolReferenceExpression(binding, e.position.line())),
+                                    listOf(IdentifierExpression(binding, e.position.line())),
                                     arguments.flatten(),
                                     e.position.line()
                                 )
@@ -156,8 +156,8 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
                 else
                     listOf(body.first) + catch.dropLast(1) + listOf(
                         TryExpression(
-                            SymbolReferenceExpression(body.second, e.position.line()),
-                            catch.last() as SymbolReferenceExpression<S, T>,
+                            IdentifierExpression(body.second, e.position.line()),
+                            catch.last() as IdentifierExpression<S, T>,
                             e.position.line()
                         )
                     )
@@ -169,7 +169,7 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
                 if (binding == null)
                     reportError(UnknownSymbolError(e.name, e.position))
                 else
-                    listOf(SymbolReferenceExpression(binding, e.position.line()))
+                    listOf(IdentifierExpression(binding, e.position.line()))
             }
 
             is io.littlelanguages.alml.static.ast.TypedExpression ->
@@ -295,5 +295,5 @@ private fun <S, T> isProcedure(es: List<Expression<S, T>>): Boolean =
     else {
         val e = es.last()
 
-        e is SymbolReferenceExpression && (e.symbol is ProcedureBinding || e.symbol is ProcedureValueBinding)
+        e is IdentifierExpression && (e.symbol is ProcedureBinding || e.symbol is ProcedureValueBinding)
     }

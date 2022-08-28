@@ -34,9 +34,15 @@ data class Procedure<S, T>(val name: String, val parameters: List<String>, val d
 typealias Expressions<S, T> = List<Expression<S, T>>
 typealias Expressionss<S, T> = List<List<Expression<S, T>>>
 
-interface Expression<S, T> : Yamlable
+interface Expression<S, T> : Yamlable {
+    fun typeOf(): Type? =
+        null
+}
 
 data class AssignExpression<S, T>(val symbol: Binding<S, T>, val es: Expressions<S, T>) : Expression<S, T> {
+    override fun typeOf(): Type? =
+        es.last().typeOf()
+
     override fun yaml(): Any =
         singletonMap(
             "assign", mapOf(
@@ -104,12 +110,12 @@ data class SignalExpression<S, T>(val es: Expressions<S, T>, val lineNumber: Int
         )
 }
 
-data class SymbolReferenceExpression<S, T>(val symbol: Binding<S, T>, val lineNumber: Int) : Expression<S, T> {
+data class IdentifierExpression<S, T>(val symbol: Binding<S, T>, val lineNumber: Int) : Expression<S, T> {
     override fun yaml(): Any =
         symbol.yaml()
 }
 
-data class TryExpression<S, T>(val body: SymbolReferenceExpression<S, T>, val catch: SymbolReferenceExpression<S, T>, val lineNumber: Int) :
+data class TryExpression<S, T>(val body: IdentifierExpression<S, T>, val catch: IdentifierExpression<S, T>, val lineNumber: Int) :
     Expression<S, T> {
     override fun yaml(): Any =
         singletonMap(

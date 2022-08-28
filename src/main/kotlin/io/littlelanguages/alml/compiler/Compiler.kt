@@ -8,16 +8,7 @@ import io.littlelanguages.alml.compiler.llvm.Module
 import io.littlelanguages.alml.compiler.llvm.VerifyError
 import io.littlelanguages.alml.dynamic.*
 import io.littlelanguages.alml.dynamic.tst.*
-import io.littlelanguages.alml.dynamic.tst.BinaryOpExpression
-import io.littlelanguages.alml.dynamic.tst.Expression
-import io.littlelanguages.alml.dynamic.tst.IfExpression
-import io.littlelanguages.alml.dynamic.tst.LiteralInt
-import io.littlelanguages.alml.dynamic.tst.LiteralString
-import io.littlelanguages.alml.dynamic.tst.LiteralUnit
-import io.littlelanguages.alml.dynamic.tst.Program
-import io.littlelanguages.alml.dynamic.tst.SignalExpression
-import io.littlelanguages.alml.dynamic.tst.TryExpression
-import io.littlelanguages.alml.static.ast.*
+import io.littlelanguages.alml.static.ast.Operators.*
 import io.littlelanguages.data.Either
 import io.littlelanguages.data.Right
 import org.bytedeco.javacpp.PointerPointer
@@ -231,17 +222,17 @@ private class CompileExpression(val compileState: CompileState) {
             }
 
             is BinaryOpExpression -> {
-                val procedure = when (e.op) {
-                    is Plus -> plusBinding
-                    is Minus -> minusBinding
-                    is Multiply -> multiplyBinding
-                    is Divide -> divideBinding
-                    is Equals -> equalsBinding
-                    is NotEquals -> notEqualsBinding
-                    is GreaterEquals -> greaterEqualsBinding
-                    is GreaterThan -> greaterThanBinding
-                    is LessEquals -> lessEqualsBinding
-                    is LessThan -> lessThanBinding
+                val procedure = when (e.op.operator) {
+                    Plus -> plusBinding
+                    Minus -> minusBinding
+                    Multiply -> multiplyBinding
+                    Divide -> divideBinding
+                    Equals -> equalsBinding
+                    NotEquals -> notEqualsBinding
+                    GreaterEquals -> greaterEqualsBinding
+                    GreaterThan -> greaterThanBinding
+                    LessEquals -> lessEqualsBinding
+                    LessThan -> lessThanBinding
                 }
 
                 procedure.compile(compileState, e.lineNumber, listOf(e.left, e.right))
@@ -307,7 +298,7 @@ private class CompileExpression(val compileState: CompileState) {
             is Procedure ->
                 null
 
-            is SymbolReferenceExpression -> {
+            is IdentifierExpression -> {
                 val symbol = e.symbol
                 val result = functionBuilder.getBindingValue(symbol.name)
                 if (result == null) {

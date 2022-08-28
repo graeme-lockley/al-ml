@@ -250,48 +250,17 @@ data class LiteralUnit(
         )
 }
 
-sealed class BinaryOperator(open val position: Location) : Yamlable, Locationable {
+class BinaryOperator(private val position: Location, val operator: Operators) : Yamlable, Locationable {
     override fun position(): Location = position
+
+    override fun yaml(): Any =
+        operator.name
 }
 
-data class Plus(override val position: Location) : BinaryOperator(position) {
-    override fun yaml(): Any = "Plus"
-}
-
-data class Minus(override val position: Location) : BinaryOperator(position) {
-    override fun yaml(): Any = "Minus"
-}
-
-data class Multiply(override val position: Location) : BinaryOperator(position) {
-    override fun yaml(): Any = "Multiply"
-}
-
-data class Divide(override val position: Location) : BinaryOperator(position) {
-    override fun yaml(): Any = "Divide"
-}
-
-data class Equals(override val position: Location) : BinaryOperator(position) {
-    override fun yaml(): Any = "Equals"
-}
-
-data class NotEquals(override val position: Location) : BinaryOperator(position) {
-    override fun yaml(): Any = "NotEquals"
-}
-
-data class LessThan(override val position: Location) : BinaryOperator(position) {
-    override fun yaml(): Any = "LessThan"
-}
-
-data class LessEquals(override val position: Location) : BinaryOperator(position) {
-    override fun yaml(): Any = "LessEquals"
-}
-
-data class GreaterThan(override val position: Location) : BinaryOperator(position) {
-    override fun yaml(): Any = "GreaterThan"
-}
-
-data class GreaterEquals(override val position: Location) : BinaryOperator(position) {
-    override fun yaml(): Any = "GreaterEquals"
+enum class Operators {
+    Plus, Minus, Multiply, Divide,
+    Equals, NotEquals,
+    LessThan, LessEquals, GreaterThan, GreaterEquals
 }
 
 sealed class Type(
