@@ -1,6 +1,6 @@
 - name: Hello World
   input: |
-    (println "Hello world")
+    println "Hello world"
   output:
     program:
       values: [ ]
