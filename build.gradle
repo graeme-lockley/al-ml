@@ -15,7 +15,7 @@ test {
 
 ext {
     vASM = '9.2'
-    vKotest = '4.6.1'
+    vKotest = '5.4.2'
     vKotlin = '1.5.21'
     vLLVMPlatform = '12.0.1-1.5.6'
     vPicoCLI = '4.6.1'
