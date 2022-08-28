@@ -91,6 +91,23 @@ private fun combine(a: Location?, b: Location?): Location? =
         else -> a + b
     }
 
+fun similar(t1: Type, t2: Type): Boolean =
+    when {
+        t1 is TCon && t2 is TCon ->
+            t1.name == t2.name &&
+                    t1.arguments.zip(t2.arguments).fold(true) { a, b -> a && similar(b.first, b.second) }
+
+        t1 is TVar && t2 is TVar ->
+            t1.variable == t2.variable
+
+        t1 is TArr && t2 is TArr ->
+            similar(t1.domain, t2.domain) && similar(t1.range, t2.range)
+
+        else ->
+            false
+    }
+
+
 val nullSubstitution =
     Substitution()
 
