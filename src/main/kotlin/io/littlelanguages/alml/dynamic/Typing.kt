@@ -1,5 +1,6 @@
 package io.littlelanguages.alml.dynamic
 
+import io.littlelanguages.data.Yamlable
 import io.littlelanguages.scanpiler.Location
 
 typealias Var =
@@ -7,10 +8,13 @@ typealias Var =
 
 sealed class Type(
     open val position: Location?
-) {
+): Yamlable {
     abstract fun apply(s: Substitution): Type
 
     abstract fun ftv(): Set<Var>
+
+    override fun yaml(): Any =
+        this.toString()
 }
 
 data class TArr(

@@ -67,6 +67,7 @@
                               depth: 0
                               offset: 1
                         line-number: 1
+                        type: S32
               - procedure:
                   name: _main
                   parameters: [ ]
@@ -118,6 +119,7 @@
                                     depth: 0
                                     offset: 1
                               line-number: 2
+                              type: S32
                     - binary-op-expression:
                         left:
                           - procedure-value:
@@ -131,6 +133,7 @@
                               depth: 0
                               offset: 2
                         line-number: 3
+                        type: S32
               - procedure:
                   name: _main
                   parameters: [ ]
@@ -184,6 +187,7 @@
                                     depth: 0
                                     offset: 1
                               line-number: 2
+                              type: S32
                     - procedure:
                         name: g
                         parameters:
@@ -213,6 +217,7 @@
                                                 depth: 0
                                                 offset: 1
                                           line-number: 5
+                                          type: S32
                                     op: Plus
                                     right:
                                       - procedure-value:
@@ -220,6 +225,7 @@
                                           depth: 0
                                           offset: 2
                                     line-number: 5
+                                    type: S32
                           - binary-op-expression:
                               left:
                                 - procedure-value:
@@ -233,6 +239,7 @@
                                     depth: 1
                                     offset: 0
                               line-number: 7
+                              type: S32
                     - call-procedure:
                         procedure:
                           declared-procedure:
@@ -313,7 +320,9 @@
                                                       depth: 0
                                                       offset: 1
                                                 line-number: 1
+                                                type: S32
                                           line-number: 1
+                                          type: S32
                                     op: Plus
                                     right:
                                       - binary-op-expression:
@@ -329,7 +338,9 @@
                                                 depth: 0
                                                 offset: 2
                                           line-number: 1
+                                          type: S32
                                     line-number: 1
+                                    type: S32
                           - declared-procedure:
                               name: __n0
                               parameter-count: 3
@@ -447,6 +458,7 @@
                               depth: 0
                               offset: 1
                         line-number: 1
+                        type: S32
               - procedure:
                   name: _main
                   parameters: [ ]
@@ -556,6 +568,7 @@
                                     depth: 0
                                     offset: 2
                               line-number: 7
+                              type: S32
       - name: Top-level declaration with embedded declaration
         input: |
           let a = { let b = 1
@@ -594,6 +607,7 @@
                               right:
                                 - 1
                               line-number: 2
+                              type: S32
       - name: Top-level declaration with embedded replacement declaration
         input: |
           let b = 1;
@@ -641,6 +655,7 @@
                               right:
                                 - 1
                               line-number: 3
+                              type: S32
                     - assign:
                         symbol:
                           toplevel-value: c
@@ -751,6 +766,7 @@
                                           depth: 0
                                           offset: 0
                                     line-number: 3
+                                    type: S32
                           - binary-op-expression:
                               left:
                                 - procedure-value:
@@ -764,6 +780,7 @@
                                     depth: 0
                                     offset: 1
                               line-number: 4
+                              type: S32
                     - procedure:
                         name: __n1
                         parameters:
