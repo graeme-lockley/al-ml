@@ -1,6 +1,6 @@
 package io.littlelanguages.alml.dynamic.typing
 
-data class Constraints<S, T>(val state: List<Constraint> = emptyList()) {
+data class Constraints<S, T>(private val state: List<Constraint> = emptyList()) {
     operator fun plus(constraint: Constraint): Constraints<S, T> =
         Constraints(state + constraint)
 
