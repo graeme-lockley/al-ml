@@ -137,7 +137,8 @@ private class DeclareProcedures(private val module: Module) {
             is IfExpression -> {
                 addFunctionsFromExpressions(e.e1)
                 addFunctionsFromExpressions(e.e2)
-                addFunctionsFromExpressions(e.e3)
+                if (e.e3 != null)
+                    addFunctionsFromExpressions(e.e3)
             }
 
             is Procedure ->
@@ -260,6 +261,7 @@ private class CompileExpression(val compileState: CompileState) {
             }
 
             is IfExpression -> {
+                // TODO: Optimise for the scenario where e.e3 == null
                 val e1op = compileScopedExpressionsForce(e.e1)
                 val falseOp = functionBuilder.buildVFalse()
 
@@ -277,7 +279,8 @@ private class CompileExpression(val compileState: CompileState) {
                 val fromThen = functionBuilder.getCurrentBasicBlock()
 
                 functionBuilder.positionAtEnd(ifElse)
-                val e3op = compileScopedExpressionsForce(e.e3)
+                val e3op = if (e.e3 == null) functionBuilder.buildVNull() else compileScopedExpressionsForce(e.e3)
+
                 functionBuilder.buildBr(ifEnd)
                 val fromElse = functionBuilder.getCurrentBasicBlock()
 

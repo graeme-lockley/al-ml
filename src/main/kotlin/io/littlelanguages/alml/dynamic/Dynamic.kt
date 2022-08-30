@@ -226,8 +226,9 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
             elseExpression ?: listOf(LiteralUnit())
         else {
             val ifThen = ifThenExpressions[0]
+            val remainder = ifThenExpressions.drop(1)
 
-            listOf(IfExpression(ifThen.a, ifThen.b, ifToTST(ifThenExpressions.drop(1), elseExpression)))
+            listOf(IfExpression(ifThen.a, ifThen.b, if (remainder.isEmpty() && elseExpression == null) null else ifToTST(remainder, elseExpression)))
         }
 
     private fun reportError(error: Errors): List<Expression<S, T>> {
@@ -267,6 +268,7 @@ fun <S, T> translateLiteralString(e: io.littlelanguages.alml.static.ast.LiteralS
                         sb.append(eValue.subSequence(lp, elp).toString().toInt(16).toChar())
                         lp = elp - 2
                     }
+
                     else -> sb.append(c)
                 }
                 lp += 2
