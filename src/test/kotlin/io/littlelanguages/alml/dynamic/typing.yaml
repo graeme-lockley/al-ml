@@ -1,9 +1,11 @@
 - name: Identity
   input: |
-    let identity x = x
+    let identity x = x;
+    let someValue = identity 10
   output:
     program:
-      values: [ ]
+      values:
+        - someValue
       procedures:
         - procedure:
             name: identity
@@ -20,4 +22,17 @@
             parameters: [ ]
             depth: 0
             offsets: 0
-            es: [ ]
+            es:
+              - assign:
+                  symbol:
+                    toplevel-value: someValue
+                  es:
+                    - call-procedure:
+                        procedure:
+                          declared-procedure:
+                            name: identity
+                            parameter-count: 1
+                            depth: 0
+                        es:
+                          - - 10
+                        line-number: 2
