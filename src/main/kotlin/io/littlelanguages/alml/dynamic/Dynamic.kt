@@ -36,7 +36,7 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
     }
 
     private fun program(es: List<io.littlelanguages.alml.static.ast.Expression>): Program<S, T> {
-        val declarations = mutableListOf<Declaration<S, T>>()
+        val declarations = mutableListOf<Procedure<S, T>>()
         val expressions = mutableListOf<Expression<S, T>>()
         val names = mutableListOf<String>()
 

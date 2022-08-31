@@ -52,17 +52,12 @@ class Compiler(private val module: Module) {
         }
     }
 
-    private fun declareProcedures(declarations: List<Declaration<CompileState, LLVMValueRef>>): List<Declaration<CompileState, LLVMValueRef>> =
+    private fun declareProcedures(declarations: List<Procedure<CompileState, LLVMValueRef>>): List<Procedure<CompileState, LLVMValueRef>> =
         DeclareProcedures(module).apply(declarations)
 
-    private fun compile(declaration: Declaration<CompileState, LLVMValueRef>) {
-        if (declaration is Procedure)
-            if (declaration.name == "_main")
-                compileMainProcedure(declaration)
-            else
-                compileProcedure(declaration)
-        else
-            TODO(declaration.toString())
+    private fun compile(declaration: Procedure<CompileState, LLVMValueRef>) {
+        if (declaration.name == "_main") compileMainProcedure(declaration)
+        else compileProcedure(declaration)
     }
 
     private fun compileMainProcedure(declaration: Procedure<CompileState, LLVMValueRef>) {
@@ -81,9 +76,7 @@ class Compiler(private val module: Module) {
 
     private fun compileProcedureBody(functionBuilder: FunctionBuilder, declaration: Procedure<CompileState, LLVMValueRef>): LLVMValueRef? {
         val frame = functionBuilder.buildMkFrame(
-            if (declaration.isTopLevel()) functionBuilder.buildVNull() else functionBuilder.getParam(0),
-            declaration.offsets,
-            "_frame"
+            if (declaration.isTopLevel()) functionBuilder.buildVNull() else functionBuilder.getParam(0), declaration.offsets, "_frame"
         )
 
         declaration.parameters.forEachIndexed { index, name ->
@@ -104,9 +97,9 @@ class Compiler(private val module: Module) {
 }
 
 private class DeclareProcedures(private val module: Module) {
-    private val functions = mutableListOf<Declaration<CompileState, LLVMValueRef>>()
+    private val functions = mutableListOf<Procedure<CompileState, LLVMValueRef>>()
 
-    fun apply(declarations: List<Declaration<CompileState, LLVMValueRef>>): List<Declaration<CompileState, LLVMValueRef>> {
+    fun apply(declarations: List<Procedure<CompileState, LLVMValueRef>>): List<Procedure<CompileState, LLVMValueRef>> {
         declarations.forEach { addFunction(it) }
 
         return functions
@@ -122,44 +115,32 @@ private class DeclareProcedures(private val module: Module) {
 
     private fun addFunctionsFromExpression(e: Expression<CompileState, LLVMValueRef>) {
         when (e) {
-            is AssignExpression ->
-                addFunctionsFromExpressions(e.es)
+            is AssignExpression -> addFunctionsFromExpressions(e.es)
 
-            is CallProcedureExpression ->
-                when (e.procedure) {
-                    is ExternalProcedureBinding ->
-                        addFunctionsFromExpressionss(e.es)
+            is CallProcedureExpression -> when (e.procedure) {
+                is ExternalProcedureBinding -> addFunctionsFromExpressionss(e.es)
 
-                    is DeclaredProcedureBinding ->
-                        addFunctionsFromExpressionss(e.es)
-                }
+                is DeclaredProcedureBinding -> addFunctionsFromExpressionss(e.es)
+            }
 
             is IfExpression -> {
                 addFunctionsFromExpressions(e.e1)
                 addFunctionsFromExpressions(e.e2)
-                if (e.e3 != null)
-                    addFunctionsFromExpressions(e.e3)
+                if (e.e3 != null) addFunctionsFromExpressions(e.e3)
             }
 
-            is Procedure ->
-                addFunction(e)
+            is Procedure -> addFunction(e)
         }
     }
 
-    private fun addFunction(declaration: Declaration<CompileState, LLVMValueRef>) {
-        if (declaration is Procedure) {
-            addProcedureToCompile(declaration)
-            if (declaration.name == "_main")
-                module.addFunctionHeader(declaration.name, emptyList(), module.i32)
-            else
-                module.addFunctionHeader(
-                    declaration.name,
-                    List(declaration.parameters.size + if (declaration.isTopLevel()) 0 else 1) { module.structValueP },
-                    module.structValueP
-                )
+    private fun addFunction(declaration: Procedure<CompileState, LLVMValueRef>) {
+        addProcedureToCompile(declaration)
+        if (declaration.name == "_main") module.addFunctionHeader(declaration.name, emptyList(), module.i32)
+        else module.addFunctionHeader(
+            declaration.name, List(declaration.parameters.size + if (declaration.isTopLevel()) 0 else 1) { module.structValueP }, module.structValueP
+        )
 
-            addFunctionsFromExpressions(declaration.es)
-        }
+        addFunctionsFromExpressions(declaration.es)
     }
 
     private fun addProcedureToCompile(declaration: Procedure<CompileState, LLVMValueRef>) {
@@ -168,8 +149,7 @@ private class DeclareProcedures(private val module: Module) {
 
 }
 
-private fun <S, T> Procedure<S, T>.isTopLevel(): Boolean =
-    this.depth == 0
+private fun <S, T> Procedure<S, T>.isTopLevel(): Boolean = this.depth == 0
 
 private fun compileExpression(compileState: CompileState, e: Expression<CompileState, LLVMValueRef>): LLVMValueRef? =
     CompileExpression(compileState).compileExpression(e)
@@ -199,231 +179,174 @@ private class CompileExpression(val compileState: CompileState) {
         return op
     }
 
-    fun compileExpressionForce(e: Expression<CompileState, LLVMValueRef>): LLVMValueRef =
-        compileExpression(e) ?: functionBuilder.buildVNull()
+    fun compileExpressionForce(e: Expression<CompileState, LLVMValueRef>): LLVMValueRef = compileExpression(e) ?: functionBuilder.buildVNull()
 
-    fun compileExpression(e: Expression<CompileState, LLVMValueRef>): LLVMValueRef? =
-        when (e) {
-            is AssignExpression -> {
-                val symbol = e.symbol
-                val operand = compileScopedExpressionsForce(e.es)
-                when (symbol) {
-                    is TopLevelValueBinding ->
-                        functionBuilder.buildStore(operand, functionBuilder.getNamedGlobal(symbol.name)!!)
+    fun compileExpression(e: Expression<CompileState, LLVMValueRef>): LLVMValueRef? = when (e) {
+        is AssignExpression -> {
+            val symbol = e.symbol
+            val operand = compileScopedExpressionsForce(e.es)
+            when (symbol) {
+                is TopLevelValueBinding -> functionBuilder.buildStore(operand, functionBuilder.getNamedGlobal(symbol.name)!!)
 
-                    is ProcedureValueBinding ->
-                        functionBuilder.buildSetFrameValue(functionBuilder.getBindingValue("_frame")!!, symbol.offset + 1, operand)
-
-                    else ->
-                        TODO(e.toString())
-                }
-                functionBuilder.addBindingToScope(symbol.name, operand)
-
-                null
-            }
-
-            is BinaryOpExpression -> {
-                val procedure = when (e.op.operator) {
-                    Plus -> plusBinding
-                    Minus -> minusBinding
-                    Multiply -> multiplyBinding
-                    Divide -> divideBinding
-                    Equals -> equalsBinding
-                    NotEquals -> notEqualsBinding
-                    GreaterEquals -> greaterEqualsBinding
-                    GreaterThan -> greaterThanBinding
-                    LessEquals -> lessEqualsBinding
-                    LessThan -> lessThanBinding
-                }
-
-                procedure.compile(compileState, e.lineNumber, listOf(e.left, e.right))
-            }
-
-            is CallProcedureExpression ->
-                when (val procedure = e.procedure) {
-                    is ExternalProcedureBinding ->
-                        procedure.compile(compileState, e.lineNumber, e.es)
-
-                    is DeclaredProcedureBinding -> {
-                        val functionRef = functionBuilder.getNamedFunction(procedure.name)!!
-                        val arguments = e.es.map { compileExpressionsForce(it) }
-                        val fullArguments = if (procedure.isToplevel()) arguments else listOf(getFrame(procedure.depth)) + arguments
-
-                        functionBuilder.buildCall(functionRef, fullArguments)
-                    }
-                }
-
-            is CallValueExpression -> {
-                val op = compileScopedExpressionsForce(e.operand)
-                val es = e.es.map { compileScopedExpressionForce(it) }
-
-                functionBuilder.buildCallClosure(getFileName(functionBuilder), e.lineNumber, op, es)
-            }
-
-            is IfExpression -> {
-                // TODO: Optimise for the scenario where e.e3 == null
-                val e1op = compileScopedExpressionsForce(e.e1)
-                val falseOp = functionBuilder.buildVFalse()
-
-                val e1Compare = functionBuilder.buildICmp(LLVM.LLVMIntNE, e1op, falseOp)
-
-                val ifThen = functionBuilder.appendBasicBlock()
-                val ifElse = functionBuilder.appendBasicBlock()
-                val ifEnd = functionBuilder.appendBasicBlock()
-
-                functionBuilder.buildCondBr(e1Compare, ifThen, ifElse)
-
-                functionBuilder.positionAtEnd(ifThen)
-                val e2op = compileScopedExpressionsForce(e.e2)
-                functionBuilder.buildBr(ifEnd)
-                val fromThen = functionBuilder.getCurrentBasicBlock()
-
-                functionBuilder.positionAtEnd(ifElse)
-                val e3op = if (e.e3 == null) functionBuilder.buildVNull() else compileScopedExpressionsForce(e.e3)
-
-                functionBuilder.buildBr(ifEnd)
-                val fromElse = functionBuilder.getCurrentBasicBlock()
-
-                functionBuilder.positionAtEnd(ifEnd)
-
-                functionBuilder.buildPhi(functionBuilder.structValueP, listOf(e2op, e3op), listOf(fromThen, fromElse))
-            }
-
-            is LiteralS32 ->
-                functionBuilder.buildFromLiteralInt(e.value)
-
-            is LiteralString ->
-                functionBuilder.buildFromLiteralString(e.value)
-
-            is LiteralUnit ->
-                functionBuilder.buildVNull()
-
-            is Procedure ->
-                null
-
-            is IdentifierExpression -> {
-                val symbol = e.symbol
-                val result = functionBuilder.getBindingValue(symbol.name)
-                if (result == null) {
-                    val newResult =
-                        when (symbol) {
-                            is ParameterBinding ->
-                                if (compileState.depth == symbol.depth)
-                                    functionBuilder.getParam(symbol.offset + if (compileState.depth == 0) 0 else 1)
-                                else if (compileState.depth > symbol.depth)
-                                    functionBuilder.buildGetFrameValue(
-                                        functionBuilder.getParam(0),
-                                        compileState.depth - symbol.depth - 1,
-                                        symbol.offset + 1
-                                    )
-                                else
-                                    TODO("depth mismatch")
-
-                            is FixedArityExternalProcedure ->
-                                functionBuilder.buildFromNativeProcedure(
-                                    getFileName(functionBuilder),
-                                    e.lineNumber,
-                                    symbol.externalName,
-                                    symbol.arity
-                                )
-
-                            is ExternalValueBinding ->
-                                symbol.compile(compileState)!!
-
-                            is ProcedureValueBinding ->
-                                if (compileState.depth == symbol.depth)
-                                    functionBuilder.buildGetFrameValue(
-                                        functionBuilder.getBindingValue("_frame")!!,
-                                        0,
-                                        symbol.offset + 1
-                                    )
-                                else
-                                    functionBuilder.buildGetFrameValue(
-                                        functionBuilder.getParam(0),
-                                        compileState.depth - symbol.depth - 1,
-                                        symbol.offset + 1
-                                    )
-
-                            is DeclaredProcedureBinding ->
-                                if (symbol.depth == 0)
-                                    functionBuilder.buildFromNativeProcedure(
-                                        getFileName(functionBuilder),
-                                        e.lineNumber,
-                                        symbol.name,
-                                        symbol.parameterCount
-                                    )
-                                else
-                                    functionBuilder.buildFromDynamicProcedure(
-                                        symbol.name,
-                                        symbol.parameterCount,
-                                        getFrame(symbol.depth)
-                                    )
-
-                            is TopLevelValueBinding ->
-                                functionBuilder.buildLoad(functionBuilder.getNamedGlobal(symbol.name)!!)
-
-                            is VariableArityExternalProcedure ->
-                                functionBuilder.buildFromNativeVarArgProcedure(symbol.externalName)
-
-                            is VariableArityExternalPositionProcedure ->
-                                functionBuilder.buildFromNativeVarArgPositionProcedure(
-                                    getFileName(functionBuilder),
-                                    e.lineNumber,
-                                    symbol.externalName
-                                )
-
-                            else ->
-                                TODO(e.toString())
-                        }
-
-                    functionBuilder.addBindingToScope(symbol.name, newResult)
-                    newResult
-                } else
-                    result
-
-            }
-
-            is SignalExpression -> {
-                functionBuilder.buildExceptionSignal(
-                    getFileName(functionBuilder),
-                    e.lineNumber,
-                    compileScopedExpressionsForce(e.es)
+                is ProcedureValueBinding -> functionBuilder.buildSetFrameValue(
+                    functionBuilder.getBindingValue("_frame")!!,
+                    symbol.offset + 1,
+                    operand
                 )
 
-                null
+                else -> TODO(e.toString())
             }
+            functionBuilder.addBindingToScope(symbol.name, operand)
 
-            is TryExpression ->
-                functionBuilder.buildExceptionTry(
-                    getFileName(functionBuilder),
-                    e.lineNumber,
-                    compileExpressionForce(e.body),
-                    compileExpressionForce(e.catch)
-                )
-
-            else ->
-                TODO(e.toString())
+            null
         }
 
-    private fun getFrame(depth: Int): LLVMValueRef =
-        if (compileState.depth == depth)
-            functionBuilder.getParam(0)
-        else if (compileState.depth < depth)
-            functionBuilder.getBindingValue("_frame")!!
-        else
-            functionBuilder.buildGetFrameValue(
-                functionBuilder.getBindingValue("_frame")!!,
-                compileState.depth - depth,
-                0
+        is BinaryOpExpression -> {
+            val procedure = when (e.op.operator) {
+                Plus -> plusBinding
+                Minus -> minusBinding
+                Multiply -> multiplyBinding
+                Divide -> divideBinding
+                Equals -> equalsBinding
+                NotEquals -> notEqualsBinding
+                GreaterEquals -> greaterEqualsBinding
+                GreaterThan -> greaterThanBinding
+                LessEquals -> lessEqualsBinding
+                LessThan -> lessThanBinding
+            }
+
+            procedure.compile(compileState, e.lineNumber, listOf(e.left, e.right))
+        }
+
+        is CallProcedureExpression -> when (val procedure = e.procedure) {
+            is ExternalProcedureBinding -> procedure.compile(compileState, e.lineNumber, e.es)
+
+            is DeclaredProcedureBinding -> {
+                val functionRef = functionBuilder.getNamedFunction(procedure.name)!!
+                val arguments = e.es.map { compileExpressionsForce(it) }
+                val fullArguments = if (procedure.isToplevel()) arguments else listOf(getFrame(procedure.depth)) + arguments
+
+                functionBuilder.buildCall(functionRef, fullArguments)
+            }
+        }
+
+        is CallValueExpression -> {
+            val op = compileScopedExpressionsForce(e.operand)
+            val es = e.es.map { compileScopedExpressionForce(it) }
+
+            functionBuilder.buildCallClosure(getFileName(functionBuilder), e.lineNumber, op, es)
+        }
+
+        is IfExpression -> {
+            // TODO: Optimise for the scenario where e.e3 == null
+            val e1op = compileScopedExpressionsForce(e.e1)
+            val falseOp = functionBuilder.buildVFalse()
+
+            val e1Compare = functionBuilder.buildICmp(LLVM.LLVMIntNE, e1op, falseOp)
+
+            val ifThen = functionBuilder.appendBasicBlock()
+            val ifElse = functionBuilder.appendBasicBlock()
+            val ifEnd = functionBuilder.appendBasicBlock()
+
+            functionBuilder.buildCondBr(e1Compare, ifThen, ifElse)
+
+            functionBuilder.positionAtEnd(ifThen)
+            val e2op = compileScopedExpressionsForce(e.e2)
+            functionBuilder.buildBr(ifEnd)
+            val fromThen = functionBuilder.getCurrentBasicBlock()
+
+            functionBuilder.positionAtEnd(ifElse)
+            val e3op = if (e.e3 == null) functionBuilder.buildVNull() else compileScopedExpressionsForce(e.e3)
+
+            functionBuilder.buildBr(ifEnd)
+            val fromElse = functionBuilder.getCurrentBasicBlock()
+
+            functionBuilder.positionAtEnd(ifEnd)
+
+            functionBuilder.buildPhi(functionBuilder.structValueP, listOf(e2op, e3op), listOf(fromThen, fromElse))
+        }
+
+        is LiteralS32 -> functionBuilder.buildFromLiteralInt(e.value)
+
+        is LiteralString -> functionBuilder.buildFromLiteralString(e.value)
+
+        is LiteralUnit -> functionBuilder.buildVNull()
+
+        is Procedure -> null
+
+        is IdentifierExpression -> {
+            val symbol = e.symbol
+            val result = functionBuilder.getBindingValue(symbol.name)
+            if (result == null) {
+                val newResult = when (symbol) {
+                    is ParameterBinding -> if (compileState.depth == symbol.depth) functionBuilder.getParam(symbol.offset + if (compileState.depth == 0) 0 else 1)
+                    else if (compileState.depth > symbol.depth) functionBuilder.buildGetFrameValue(
+                        functionBuilder.getParam(0), compileState.depth - symbol.depth - 1, symbol.offset + 1
+                    )
+                    else TODO("depth mismatch")
+
+                    is FixedArityExternalProcedure -> functionBuilder.buildFromNativeProcedure(
+                        getFileName(functionBuilder), e.lineNumber, symbol.externalName, symbol.arity
+                    )
+
+                    is ExternalValueBinding -> symbol.compile(compileState)!!
+
+                    is ProcedureValueBinding -> if (compileState.depth == symbol.depth) functionBuilder.buildGetFrameValue(
+                        functionBuilder.getBindingValue("_frame")!!, 0, symbol.offset + 1
+                    )
+                    else functionBuilder.buildGetFrameValue(
+                        functionBuilder.getParam(0), compileState.depth - symbol.depth - 1, symbol.offset + 1
+                    )
+
+                    is DeclaredProcedureBinding -> if (symbol.depth == 0) functionBuilder.buildFromNativeProcedure(
+                        getFileName(functionBuilder), e.lineNumber, symbol.name, symbol.parameterCount
+                    )
+                    else functionBuilder.buildFromDynamicProcedure(
+                        symbol.name, symbol.parameterCount, getFrame(symbol.depth)
+                    )
+
+                    is TopLevelValueBinding -> functionBuilder.buildLoad(functionBuilder.getNamedGlobal(symbol.name)!!)
+
+                    is VariableArityExternalProcedure -> functionBuilder.buildFromNativeVarArgProcedure(symbol.externalName)
+
+                    is VariableArityExternalPositionProcedure -> functionBuilder.buildFromNativeVarArgPositionProcedure(
+                        getFileName(functionBuilder), e.lineNumber, symbol.externalName
+                    )
+
+                    else -> TODO(e.toString())
+                }
+
+                functionBuilder.addBindingToScope(symbol.name, newResult)
+                newResult
+            } else result
+
+        }
+
+        is SignalExpression -> {
+            functionBuilder.buildExceptionSignal(
+                getFileName(functionBuilder), e.lineNumber, compileScopedExpressionsForce(e.es)
             )
+
+            null
+        }
+
+        is TryExpression -> functionBuilder.buildExceptionTry(
+            getFileName(functionBuilder), e.lineNumber, compileExpressionForce(e.body), compileExpressionForce(e.catch)
+        )
+
+        else -> TODO(e.toString())
+    }
+
+    private fun getFrame(depth: Int): LLVMValueRef = if (compileState.depth == depth) functionBuilder.getParam(0)
+    else if (compileState.depth < depth) functionBuilder.getBindingValue("_frame")!!
+    else functionBuilder.buildGetFrameValue(
+        functionBuilder.getBindingValue("_frame")!!, compileState.depth - depth, 0
+    )
 }
 
-private fun getFileName(functionBuilder: FunctionBuilder): LLVMValueRef =
-    LLVM.LLVMConstInBoundsGEP(
-        functionBuilder.getNamedGlobal("_filename")!!,
-        PointerPointer(functionBuilder.c0i64, functionBuilder.c0i64),
-        2
-    )
+private fun getFileName(functionBuilder: FunctionBuilder): LLVMValueRef = LLVM.LLVMConstInBoundsGEP(
+    functionBuilder.getNamedGlobal("_filename")!!, PointerPointer(functionBuilder.c0i64, functionBuilder.c0i64), 2
+)
 
 private val plusBinding = VariableArityExternalProcedure("+", "_plus_variable")
 private val minusBinding = VariableArityExternalProcedure("-", "_minus_variable")
@@ -465,17 +388,13 @@ val builtinBindings = listOf(
 )
 
 private class FixedArityExternalProcedure(
-    override val name: String,
-    override val arity: Int,
-    val externalName: String
+    override val name: String, override val arity: Int, val externalName: String
 ) : ExternalProcedureBinding<CompileState, LLVMValueRef>(name, arity) {
     override fun compile(state: CompileState, lineNumber: Int, arguments: Expressionss<CompileState, LLVMValueRef>): LLVMValueRef {
         val builder = state.functionBuilder
 
         val namedFunction = builder.getNamedFunction(
-            externalName,
-            List(arguments.size) { builder.structValueP },
-            builder.structValueP
+            externalName, List(arguments.size) { builder.structValueP }, builder.structValueP
         )
 
         return builder.buildCall(namedFunction, arguments.map { compileScopedExpressionsForce(state, it) })
@@ -483,71 +402,55 @@ private class FixedArityExternalProcedure(
 }
 
 private class FixedArityExternalPositionProcedure(
-    override val name: String,
-    override val arity: Int,
-    val externalName: String
+    override val name: String, override val arity: Int, val externalName: String
 ) : ExternalProcedureBinding<CompileState, LLVMValueRef>(name, arity) {
     override fun compile(state: CompileState, lineNumber: Int, arguments: Expressionss<CompileState, LLVMValueRef>): LLVMValueRef {
         val builder = state.functionBuilder
 
         val namedFunction = builder.getNamedFunction(
-            externalName,
-            listOf(builder.i8P, builder.i32) + List(arguments.size) { builder.structValueP },
-            builder.structValueP
+            externalName, listOf(builder.i8P, builder.i32) + List(arguments.size) { builder.structValueP }, builder.structValueP
         )
 
-        return builder.buildCall(
-            namedFunction,
-            listOf(
-                getFileName(builder),
-                LLVM.LLVMConstInt(builder.i32, lineNumber.toLong(), 0)
-            ) + arguments.map { compileScopedExpressionsForce(state, it) })
+        return builder.buildCall(namedFunction, listOf(
+            getFileName(builder), LLVM.LLVMConstInt(builder.i32, lineNumber.toLong(), 0)
+        ) + arguments.map { compileScopedExpressionsForce(state, it) })
     }
 }
 
 private class VariableArityExternalProcedure(
-    override val name: String,
-    val externalName: String
+    override val name: String, val externalName: String
 ) : ExternalProcedureBinding<CompileState, LLVMValueRef>(name, null) {
     override fun compile(state: CompileState, lineNumber: Int, arguments: Expressionss<CompileState, LLVMValueRef>): LLVMValueRef {
         val builder = state.functionBuilder
 
-        return builder.buildCall(
-            builder.getNamedFunction(externalName, listOf(builder.i32), builder.structValueP, true),
-            listOf(LLVM.LLVMConstInt(builder.i32, arguments.size.toLong(), 0)) + arguments.map { compileScopedExpressionsForce(state, it) }
-        )
+        return builder.buildCall(builder.getNamedFunction(externalName, listOf(builder.i32), builder.structValueP, true),
+            listOf(LLVM.LLVMConstInt(builder.i32, arguments.size.toLong(), 0)) + arguments.map { compileScopedExpressionsForce(state, it) })
     }
 }
 
 private class VariableArityExternalPositionProcedure(
-    override val name: String,
-    val externalName: String
+    override val name: String, val externalName: String
 ) : ExternalProcedureBinding<CompileState, LLVMValueRef>(name, null) {
     override fun compile(state: CompileState, lineNumber: Int, arguments: Expressionss<CompileState, LLVMValueRef>): LLVMValueRef {
         val builder = state.functionBuilder
 
-        return builder.buildCall(
-            builder.getNamedFunction(externalName, listOf(builder.i8P, builder.i32, builder.i32), builder.structValueP, true),
+        return builder.buildCall(builder.getNamedFunction(externalName, listOf(builder.i8P, builder.i32, builder.i32), builder.structValueP, true),
             listOf(
                 getFileName(builder),
                 LLVM.LLVMConstInt(builder.i32, lineNumber.toLong(), 0),
                 LLVM.LLVMConstInt(builder.i32, arguments.size.toLong(), 0)
-            ) + arguments.map { compileScopedExpressionsForce(state, it) }
-        )
+            ) + arguments.map { compileScopedExpressionsForce(state, it) })
     }
 }
 
 private class VFalseExternalValue : ExternalValueBinding<CompileState, LLVMValueRef>("False") {
-    override fun compile(state: CompileState, lineNumber: Int): LLVMValueRef =
-        state.functionBuilder.buildVFalse()
+    override fun compile(state: CompileState, lineNumber: Int): LLVMValueRef = state.functionBuilder.buildVFalse()
 }
 
 private class VTrueExternalValue : ExternalValueBinding<CompileState, LLVMValueRef>("True") {
-    override fun compile(state: CompileState, lineNumber: Int): LLVMValueRef =
-        state.functionBuilder.buildVTrue()
+    override fun compile(state: CompileState, lineNumber: Int): LLVMValueRef = state.functionBuilder.buildVTrue()
 }
 
 private class VNullExternalValue : ExternalValueBinding<CompileState, LLVMValueRef>("()") {
-    override fun compile(state: CompileState, lineNumber: Int): LLVMValueRef =
-        state.functionBuilder.buildVNull()
+    override fun compile(state: CompileState, lineNumber: Int): LLVMValueRef = state.functionBuilder.buildVNull()
 }

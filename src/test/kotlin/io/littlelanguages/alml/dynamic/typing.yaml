@@ -36,3 +36,17 @@
                         es:
                           - - 10
                         line-number: 2
+- scenario:
+    name: if
+    tests:
+      - name: with else
+        input:
+          if (1) -> "hello" else "world"
+        constraints:
+          - S32 ~ Bool
+          - String ~ String
+      - name: without else
+        input:
+          if (1) -> "hello"
+        constraints:
+          - S32 ~ Bool

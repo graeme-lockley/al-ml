@@ -3,14 +3,14 @@ package io.littlelanguages.alml.dynamic
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.scopes.FunSpecContainerContext
 import io.kotest.matchers.shouldBe
-import io.littlelanguages.data.Either
-import io.littlelanguages.data.Left
-import io.littlelanguages.data.Right
 import io.littlelanguages.alml.Errors
 import io.littlelanguages.alml.dynamic.tst.Expressionss
 import io.littlelanguages.alml.dynamic.tst.Program
 import io.littlelanguages.alml.static.Scanner
 import io.littlelanguages.alml.static.parse
+import io.littlelanguages.data.Either
+import io.littlelanguages.data.Left
+import io.littlelanguages.data.Right
 import org.yaml.snakeyaml.Yaml
 import java.io.File
 import java.io.StringReader
@@ -31,6 +31,7 @@ class DynamicTests : FunSpec({
         }
     }
 })
+
 class TypingTests : FunSpec({
     context("Typing Tests") {
         val content = File("./src/test/kotlin/io/littlelanguages/alml/dynamic/typing.yaml").readText()
@@ -69,16 +70,37 @@ suspend fun parserConformanceTest(builtinBindings: List<Binding<S, T>>, ctx: Fun
             val name = s["name"] as String
             val input = s["input"] as String
             val output = s["output"]
+            val constraints = s["constraints"]
 
             ctx.test(name) {
-                val rhs =
-                    output.toString()
+                val lhs =
+                    translate(builtinBindings, input)
 
-                when (val lhs = translate(builtinBindings, input)) {
-                    is Left ->
-                        lhs.left.map { it.yaml() }.toString() shouldBe rhs
-                    is Right ->
-                        lhs.right.yaml().toString() shouldBe rhs
+                if (output != null) {
+                    val rhs =
+                        output.toString()
+
+                    when (lhs) {
+                        is Left ->
+                            lhs.left.map { it.yaml() }.toString() shouldBe rhs
+
+                        is Right ->
+                            lhs.right.yaml().toString() shouldBe rhs
+                    }
+                }
+
+                if (constraints != null) {
+                    val ait = AssignInferredType<S, T>()
+
+                    when (lhs) {
+                        is Left -> lhs.left.map { it.yaml() }.toString() shouldBe ""
+
+                        is Right -> {
+                            ait.program(lhs.right)
+
+                            ait.constraints.state.map { it.toString() } shouldBe constraints
+                        }
+                    }
                 }
             }
         } else {
