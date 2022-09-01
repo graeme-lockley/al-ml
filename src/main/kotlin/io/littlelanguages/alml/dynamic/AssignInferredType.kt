@@ -14,6 +14,11 @@ import io.littlelanguages.alml.dynamic.typing.*
         ---
         Block e1; ...; en (n > 0): Tn
 
+    CallProcedure e a1 ... an:
+        L, e: T1 -> ... -> Tn -> Tr |- a1: T1 ... an: Tn
+        ---
+        CallProcedure e a1 ... an: Tr
+
     If e1 e2:
         L |- e1: Bool  L |- e2: S
         ---
@@ -27,12 +32,19 @@ import io.littlelanguages.alml.dynamic.typing.*
     LiteralS32:
         ---
         L |- n: S32
+
     LiteralString:
         ---
         L |- s: String
+
     LiteralUnit:
         ---
         L |- (): Unit
+
+    Signal e:
+        L |- e: String
+        ---
+        L |- Signal e: Unit
  */
 class AssignInferredType<S, T> {
     var constraints = Constraints<S, T>()
@@ -63,7 +75,6 @@ class AssignInferredType<S, T> {
                     val e3Type = expressions(e.e3)
 
                     addConstraint(e1Type, typeBool)
-
                     addConstraint(e2Type, e3Type)
 
                     e2Type
@@ -78,7 +89,16 @@ class AssignInferredType<S, T> {
             is LiteralUnit ->
                 typeUnit
 
-            else -> TODO(e.toString())
+            is SignalExpression -> {
+                val eType = expressions(e.es)
+
+                addConstraint(eType, typeString)
+
+                typeUnit
+            }
+
+            else ->
+                typeError
         }
 
     private fun addConstraint(t1: Type, t2: Type) {

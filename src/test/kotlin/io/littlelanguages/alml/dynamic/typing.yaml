@@ -36,17 +36,27 @@
                         es:
                           - - 10
                         line-number: 2
+- name: call procedure
+  input: |
+    let add b = \c -> b + c;
+    (add 10) 20
+  constraints: [ ]
+- name: signal expression
+  input: |
+    signal "DivideByZero"
+  constraints:
+    - String ~ String
 - scenario:
     name: if
     tests:
       - name: with else
-        input:
+        input: |
           if (1) -> "hello" else "world"
         constraints:
           - S32 ~ Bool
           - String ~ String
       - name: without else
-        input:
+        input: |
           if (1) -> "hello"
         constraints:
           - S32 ~ Bool
