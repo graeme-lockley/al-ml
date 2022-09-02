@@ -6,7 +6,7 @@ class VarPump {
     private var counter =
         0
 
-    fun fresh(location: Location?): TVar {
+    fun fresh(location: Location? = null): TVar {
         val result =
             counter
 
