@@ -5,6 +5,11 @@ import io.littlelanguages.alml.dynamic.typing.*
 
 /*
  Type inference rules:
+    Program i1...in d1..dm:
+        L, i1: T1, ..., in: Tn |-
+        ---
+        Program i1...in d1..dm: Unit
+
     Block e1; ...; en (n = 0):
         ---
         L |- e1; ...; en: Unit
@@ -45,11 +50,19 @@ import io.littlelanguages.alml.dynamic.typing.*
         L |- e: String
         ---
         L |- Signal e: Unit
+
+    Try i1 i2:
+        L, i1: T, i2: String -> T |-
+        ---
+        Try i1 i2: T
  */
 class AssignInferredType<S, T> {
+    private var environment = Environment<S, T>()
     var constraints = Constraints<S, T>()
+    private val pump = VarPump()
 
     fun program(p: Program<S, T>) {
+        p.values.forEach { environment += Pair(it, pump.fresh()) }
         p.declarations.forEach { expressions(it.es) }
     }
 
@@ -61,6 +74,9 @@ class AssignInferredType<S, T> {
 
     fun expression(e: Expression<S, T>): Type =
         when (e) {
+            is IdentifierExpression ->
+                environment.type(e.symbol.name) ?: typeError
+
             is IfExpression ->
                 if (e.e3 == null) {
                     val e1Type = expressions(e.e1)

@@ -2,13 +2,19 @@ package io.littlelanguages.alml.dynamic.typing
 
 import io.littlelanguages.alml.dynamic.Binding
 
-data class Environment<S, T>(private val valueBindings: Map<String, Binding<S, T>>) {
+data class Environment<S, T>(
+    private val valueBindings: Map<String, Binding<S, T>> = emptyMap(),
+    private val typeBindings: Map<String, Type> = emptyMap()
+) {
     fun value(name: String): Binding<S, T>? =
         valueBindings[name]
 
+    fun type(name: String): Type? =
+        typeBindings[name]
+
 
     fun removeValue(name: String): Environment<S, T> =
-        Environment(valueBindings - name)
+        Environment(valueBindings - name, typeBindings)
 
 
 //    fun variable(name: String): Scheme? {
@@ -31,7 +37,10 @@ data class Environment<S, T>(private val valueBindings: Map<String, Binding<S, T
 //    }
 
     fun newValue(name: String, value: Binding<S, T>): Environment<S, T> =
-        Environment(valueBindings + Pair(name, value))
+        Environment(valueBindings + Pair(name, value), typeBindings)
+
+    operator fun plus(binding: Pair<String, Type>): Environment<S, T> =
+        Environment(valueBindings, typeBindings + binding)
 
     fun containsValue(name: String): Boolean =
         valueBindings.contains(name)

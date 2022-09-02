@@ -60,3 +60,9 @@
           if (1) -> "hello"
         constraints:
           - S32 ~ Bool
+- name: reference top-level value
+  input: |
+    let name = "Hello";
+    if name -> name
+  constraints:
+    - "'0 ~ Bool"
