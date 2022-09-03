@@ -57,13 +57,28 @@ import io.littlelanguages.alml.dynamic.typing.*
         Try i1 i2: T
  */
 class AssignInferredType<S, T> {
-    private var environment = Environment<S, T>()
+    var environment = Environment<S, T>()
     var constraints = Constraints<S, T>()
     private val pump = VarPump()
 
     fun program(p: Program<S, T>) {
-        p.values.forEach { environment += Pair(it, pump.fresh()) }
+        addDeclarationValueTypesIntoEnvironment(p)
         p.declarations.forEach { expressions(it.es) }
+    }
+
+    private fun addDeclarationValueTypesIntoEnvironment(p: Program<S, T>) {
+        val names = mutableSetOf<String>()
+
+        p.declarations.find { it.name == "_main" }?.es?.forEach {
+            if (it is AssignExpression && it.typeOf() != null) {
+                val name = it.symbol.name
+
+                environment += Pair(name, it.typeOf()!!)
+                names.add(name)
+            }
+        }
+
+        p.values.forEach { if (!names.contains(it)) environment += Pair(it, pump.fresh()) }
     }
 
     fun expressions(es: Expressions<S, T>): Type {
@@ -117,7 +132,8 @@ class AssignInferredType<S, T> {
                 typeError
         }
 
-    private fun addConstraint(t1: Type, t2: Type) {
-        constraints += Constraint(t1, t2)
+    private fun addConstraint(t1: Type?, t2: Type?) {
+        if (t1 != null && t2 != null)
+            constraints += Constraint(t1, t2)
     }
 }

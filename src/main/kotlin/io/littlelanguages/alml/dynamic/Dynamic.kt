@@ -2,6 +2,10 @@ package io.littlelanguages.alml.dynamic
 
 import io.littlelanguages.alml.*
 import io.littlelanguages.alml.dynamic.tst.*
+import io.littlelanguages.alml.dynamic.typing.TArr
+import io.littlelanguages.alml.dynamic.typing.TCon
+import io.littlelanguages.alml.dynamic.typing.Type
+import io.littlelanguages.alml.dynamic.typing.typeUnit
 import io.littlelanguages.data.Either
 import io.littlelanguages.data.Left
 import io.littlelanguages.data.Right
@@ -68,13 +72,14 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
 
             is io.littlelanguages.alml.static.ast.LetValue -> {
                 val name = e.identifier.name
+                val type = e.type
                 val expression = e.expression
 
                 if (bindings.inCurrentNesting(name))
                     reportError(DuplicateNameError(name, e.identifier.position))
                 else {
                     val binding = when {
-                        toplevelValue && isToplevel() -> TopLevelValueBinding<S, T>(name)
+                        toplevelValue && isToplevel() -> TopLevelValueBinding<S, T>(name, typeToTST(type))
                         else -> ProcedureValueBinding(name, max(depth, 0), offset++)
                     }
 
@@ -230,6 +235,28 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
 
             listOf(IfExpression(ifThen.a, ifThen.b, if (remainder.isEmpty() && elseExpression == null) null else ifToTST(remainder, elseExpression)))
         }
+
+    private fun typeToTST(
+        type: io.littlelanguages.alml.static.ast.Type?
+    ): Type? =
+        if (type == null)
+            null
+        else
+            when (type) {
+                is io.littlelanguages.alml.static.ast.AbstractDataType -> TCon(
+                    type.position,
+                    type.identifier.name,
+                    type.arguments.map { typeToTST(it)!! }
+                )
+
+                is io.littlelanguages.alml.static.ast.FunctionType -> {
+                    val types = type.signature.map { typeToTST(it)!! }
+
+                    if (types.isEmpty()) typeUnit else types.dropLast(1).foldRight(types.last()) { a, b -> TArr(a, b) }
+                }
+
+                is io.littlelanguages.alml.static.ast.VariableType -> TODO()
+            }
 
     private fun reportError(error: Errors): List<Expression<S, T>> {
         errors.add(error)

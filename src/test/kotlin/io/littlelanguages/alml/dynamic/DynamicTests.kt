@@ -71,6 +71,7 @@ suspend fun parserConformanceTest(builtinBindings: List<Binding<S, T>>, ctx: Fun
             val input = s["input"] as String
             val output = s["output"]
             val constraints = s["constraints"]
+            val environment = s["environment"]
 
             ctx.test(name) {
                 val lhs =
@@ -99,6 +100,20 @@ suspend fun parserConformanceTest(builtinBindings: List<Binding<S, T>>, ctx: Fun
                             ait.program(lhs.right)
 
                             ait.constraints.state.map { it.toString() } shouldBe constraints
+                        }
+                    }
+                }
+
+                if (environment != null) {
+                    val ait = AssignInferredType<S, T>()
+
+                    when (lhs) {
+                        is Left -> lhs.left.map { it.yaml() }.toString() shouldBe ""
+
+                        is Right -> {
+                            ait.program(lhs.right)
+
+                            ait.environment.types().map { it.toString() } shouldBe environment
                         }
                     }
                 }

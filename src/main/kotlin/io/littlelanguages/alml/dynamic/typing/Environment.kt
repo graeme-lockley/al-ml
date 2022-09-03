@@ -12,6 +12,7 @@ data class Environment<S, T>(
     fun type(name: String): Type? =
         typeBindings[name]
 
+    fun types() = typeBindings.entries.toList()
 
     fun removeValue(name: String): Environment<S, T> =
         Environment(valueBindings - name, typeBindings)

@@ -16,7 +16,10 @@ sealed interface Binding<S, T> : Yamlable {
         null
 }
 
-data class TopLevelValueBinding<S, T>(override val name: String) : Binding<S, T> {
+data class TopLevelValueBinding<S, T>(override val name: String, val type: Type?) : Binding<S, T> {
+    override fun typeOf(): Type? =
+        type
+
     override fun yaml(): Any =
         singletonMap("toplevel-value", mapOfNameType(name, typeOf()))
 }

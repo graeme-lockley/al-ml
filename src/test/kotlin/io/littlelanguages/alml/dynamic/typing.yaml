@@ -66,3 +66,13 @@
     if name -> name
   constraints:
     - "'0 ~ Bool"
+  environment:
+    - "name='0"
+- name: reference typed top-level value
+  input: |
+    let name: String = "Hello";
+    if name -> name
+  constraints:
+    - String ~ Bool
+  environment:
+    - name=String

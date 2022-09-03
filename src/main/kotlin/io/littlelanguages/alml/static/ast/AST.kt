@@ -23,9 +23,14 @@ data class TypedIdentifier(
     val id: Identifier,
     val type: Type?
 ) : Yamlable, Locationable {
-    override fun yaml(): Any {
-        TODO("Not yet implemented")
-    }
+    override fun yaml(): Any = if (type == null) id.yaml() else singletonMap(
+        "TypedIdentifier",
+        mapOf(
+            Pair("identifier", id.yaml()),
+            Pair("type", type.yaml()),
+            Pair("position", position.yaml())
+        )
+    )
 
     override fun position(): Location =
         position
@@ -204,7 +209,7 @@ data class TypedExpression(
 ) : Expression(position) {
     override fun yaml(): Any =
         singletonMap(
-            "Try",
+            "Typed",
             mapOf(
                 Pair("expression", expression.yaml()),
                 Pair("type", type.yaml()),
@@ -309,4 +314,3 @@ data class VariableType(
             )
         )
 }
-
