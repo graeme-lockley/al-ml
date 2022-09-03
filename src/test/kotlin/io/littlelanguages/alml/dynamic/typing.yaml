@@ -36,11 +36,6 @@
                         es:
                           - - 10
                         line-number: 2
-- name: call procedure
-  input: |
-    let add b = \c -> b + c;
-    (add 10) 20
-  constraints: [ ]
 - name: signal expression
   input: |
     signal "DivideByZero"
@@ -60,19 +55,37 @@
           if (1) -> "hello"
         constraints:
           - S32 ~ Bool
-- name: reference top-level value
-  input: |
-    let name = "Hello";
-    if name -> name
-  constraints:
-    - "'0 ~ Bool"
-  environment:
-    - "name='0"
-- name: reference typed top-level value
-  input: |
-    let name: String = "Hello";
-    if name -> name
-  constraints:
-    - String ~ Bool
-  environment:
-    - name=String
+- scenario:
+    name: reference top-level value
+    tests:
+      - name: untyped
+        input: |
+          let name = "Hello";
+          if name -> name
+        constraints:
+          - "'0 ~ String"
+          - "'0 ~ Bool"
+        environment:
+          - "name='0"
+      - name: typed
+        input: |
+          let name: String = "Hello";
+          if name -> name
+        constraints:
+          - String ~ String
+          - String ~ Bool
+        environment:
+          - name=String
+- scenario:
+    name: reference top-level procedure
+    tests:
+      - name: untyped
+        input: |
+          let identity a = a;
+          let x = identity 1
+        constraints:
+          - "'1 -> '0 ~ S32 -> '3"
+          - "'2 ~ '3"
+        environment:
+          - "identity='1 -> '0"
+          - "x='2"

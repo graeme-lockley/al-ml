@@ -34,6 +34,7 @@ data class TArr(
         when (domain) {
             is TArr ->
                 "($domain) -> $range"
+
             else ->
                 "$domain -> $range"
         }
@@ -66,6 +67,9 @@ data class TCon(
             else ->
                 "$name ${arguments.joinToString(" ") { it.toString() }}"
         }
+
+    override fun equals(other: Any?): Boolean =
+        other is TCon && name == other.name && arguments == other.arguments
 }
 
 data class TVar(
@@ -82,6 +86,9 @@ data class TVar(
 
     override fun toString(): String =
         "'$variable"
+
+    override fun equals(other: Any?): Boolean =
+        other is TVar && variable == other.variable
 }
 
 private fun combine(a: Location?, b: Location?): Location? =

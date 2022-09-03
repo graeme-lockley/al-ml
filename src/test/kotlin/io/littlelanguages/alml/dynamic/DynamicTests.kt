@@ -6,6 +6,8 @@ import io.kotest.matchers.shouldBe
 import io.littlelanguages.alml.Errors
 import io.littlelanguages.alml.dynamic.tst.Expressionss
 import io.littlelanguages.alml.dynamic.tst.Program
+import io.littlelanguages.alml.dynamic.typing.Type
+import io.littlelanguages.alml.dynamic.typing.typeBool
 import io.littlelanguages.alml.static.Scanner
 import io.littlelanguages.alml.static.parse
 import io.littlelanguages.data.Either
@@ -44,7 +46,9 @@ class TypingTests : FunSpec({
     }
 })
 
-val builtinBindings: List<ExternalProcedureBinding<S, T>> = listOf(
+val builtinBindings: List<Binding<S, T>> = listOf(
+    DummyExternalValueBinding("True"),
+    DummyExternalValueBinding("False"),
     DummyVariableArityExternalProcedure("+"),
     DummyVariableArityExternalProcedure("-"),
     DummyVariableArityExternalProcedure("*"),
@@ -57,6 +61,17 @@ private class DummyVariableArityExternalProcedure(
 ) : ExternalProcedureBinding<S, T>(name, null) {
     override fun compile(state: S, lineNumber: Int, arguments: Expressionss<S, T>): T? = null
 }
+
+private class DummyExternalValueBinding<S, T>(
+    override val name: String
+) : ExternalValueBinding<S, T>(name) {
+    override fun typeOf(): Type = typeBool
+
+    override fun yaml(): Any = 0
+
+    override fun compile(state: S, lineNumber: Int): T? = null
+}
+
 
 fun translate(builtinBindings: List<Binding<S, T>>, input: String): Either<List<Errors>, Program<S, T>> =
     parse(Scanner(StringReader(input))) mapLeft { listOf(it) } andThen { translate(builtinBindings, it) }
@@ -91,7 +106,7 @@ suspend fun parserConformanceTest(builtinBindings: List<Binding<S, T>>, ctx: Fun
                 }
 
                 if (constraints != null) {
-                    val ait = AssignInferredType<S, T>()
+                    val ait = AssignInferredType<S, T>(false)
 
                     when (lhs) {
                         is Left -> lhs.left.map { it.yaml() }.toString() shouldBe ""
@@ -105,7 +120,7 @@ suspend fun parserConformanceTest(builtinBindings: List<Binding<S, T>>, ctx: Fun
                 }
 
                 if (environment != null) {
-                    val ait = AssignInferredType<S, T>()
+                    val ait = AssignInferredType<S, T>(false)
 
                     when (lhs) {
                         is Left -> lhs.left.map { it.yaml() }.toString() shouldBe ""
