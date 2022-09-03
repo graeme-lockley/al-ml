@@ -1,7 +1,7 @@
 package io.littlelanguages.alml.dynamic
 
 import io.littlelanguages.alml.dynamic.tst.*
-import io.littlelanguages.alml.dynamic.typing.*
+import io.littlelanguages.alml.typed.typing.*
 
 /*
  Type inference rules:
@@ -56,7 +56,9 @@ import io.littlelanguages.alml.dynamic.typing.*
         ---
         Try i1 i2: T
  */
-class AssignInferredType<S, T>(val optimiseContraints: Boolean = true) {
+class AssignInferredType<S, T>(
+    private val optimiseConstraints: Boolean = true
+) {
     var environment = Environment<S, T>()
     var constraints = Constraints<S, T>()
     private val pump = VarPump()
@@ -166,7 +168,7 @@ class AssignInferredType<S, T>(val optimiseContraints: Boolean = true) {
 
     private fun addConstraint(t1: Type?, t2: Type?) {
         if (t1 != null && t2 != null)
-            if (optimiseContraints && t1 != t2 || !optimiseContraints)
+            if (optimiseConstraints && t1 != t2 || !optimiseConstraints)
                 constraints += Constraint(t1, t2)
     }
 }

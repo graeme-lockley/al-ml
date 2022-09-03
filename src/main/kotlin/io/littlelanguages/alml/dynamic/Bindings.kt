@@ -4,8 +4,8 @@ import io.littlelanguages.alml.ArgumentMismatchError
 import io.littlelanguages.alml.Errors
 import io.littlelanguages.alml.dynamic.tst.Expressionss
 import io.littlelanguages.alml.dynamic.tst.mapOfType
-import io.littlelanguages.alml.dynamic.typing.Type
 import io.littlelanguages.alml.static.ast.ApplyExpression
+import io.littlelanguages.alml.typed.typing.Type
 import io.littlelanguages.data.NestedMap
 import io.littlelanguages.data.Yamlable
 

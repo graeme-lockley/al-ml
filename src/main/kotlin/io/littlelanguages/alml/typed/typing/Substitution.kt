@@ -1,4 +1,4 @@
-package io.littlelanguages.alml.dynamic.typing
+package io.littlelanguages.alml.typed.typing
 
 data class Substitution(val state: Map<Var, Type> = emptyMap()) {
     constructor(key: Var, value: Type) : this(mapOf(Pair(key, value)))

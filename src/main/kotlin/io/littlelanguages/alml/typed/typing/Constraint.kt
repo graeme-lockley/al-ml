@@ -1,4 +1,4 @@
-package io.littlelanguages.alml.dynamic.typing
+package io.littlelanguages.alml.typed.typing
 
 data class Constraint(val t1: Type, val t2: Type) {
     fun apply(substitution: Substitution): Constraint =

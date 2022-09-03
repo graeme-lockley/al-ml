@@ -1,4 +1,4 @@
-package io.littlelanguages.alml.dynamic.typing
+package io.littlelanguages.alml.typed.typing
 
 data class Scheme<S, T>(val parameters: List<Var>, val type: Type) {
     fun apply(s: Substitution): Scheme<S, T> =

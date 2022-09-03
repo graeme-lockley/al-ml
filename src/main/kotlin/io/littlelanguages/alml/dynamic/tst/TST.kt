@@ -2,9 +2,9 @@ package io.littlelanguages.alml.dynamic.tst
 
 import io.littlelanguages.alml.dynamic.Binding
 import io.littlelanguages.alml.dynamic.ProcedureBinding
-import io.littlelanguages.alml.dynamic.typing.*
 import io.littlelanguages.alml.static.ast.BinaryOperator
 import io.littlelanguages.alml.static.ast.Operators
+import io.littlelanguages.alml.typed.typing.*
 import io.littlelanguages.data.Yamlable
 
 data class Program<S, T>(val values: List<String>, val declarations: List<Procedure<S, T>>) : Yamlable {

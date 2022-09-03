@@ -1,4 +1,4 @@
-package io.littlelanguages.alml.dynamic.typing
+package io.littlelanguages.alml.typed.typing
 
 import io.littlelanguages.data.Yamlable
 import io.littlelanguages.scanpiler.Location

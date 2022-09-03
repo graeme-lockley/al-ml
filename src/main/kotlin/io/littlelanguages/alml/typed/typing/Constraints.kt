@@ -1,4 +1,4 @@
-package io.littlelanguages.alml.dynamic.typing
+package io.littlelanguages.alml.typed.typing
 
 data class Constraints<S, T>(val state: List<Constraint> = emptyList()) {
     operator fun plus(constraint: Constraint): Constraints<S, T> =

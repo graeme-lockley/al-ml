@@ -2,10 +2,10 @@ package io.littlelanguages.alml.dynamic
 
 import io.littlelanguages.alml.*
 import io.littlelanguages.alml.dynamic.tst.*
-import io.littlelanguages.alml.dynamic.typing.TArr
-import io.littlelanguages.alml.dynamic.typing.TCon
-import io.littlelanguages.alml.dynamic.typing.Type
-import io.littlelanguages.alml.dynamic.typing.typeUnit
+import io.littlelanguages.alml.typed.typing.TArr
+import io.littlelanguages.alml.typed.typing.TCon
+import io.littlelanguages.alml.typed.typing.Type
+import io.littlelanguages.alml.typed.typing.typeUnit
 import io.littlelanguages.data.Either
 import io.littlelanguages.data.Left
 import io.littlelanguages.data.Right
@@ -19,8 +19,7 @@ fun <S, T> translate(builtinBindings: List<Binding<S, T>>, p: io.littlelanguages
     Translator(builtinBindings, p).apply()
 
 private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io.littlelanguages.alml.static.ast.Program) {
-    val errors =
-        mutableListOf<Errors>()
+    val errors = mutableListOf<Errors>()
 
     var nameGenerator = 0
 
@@ -45,13 +44,10 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
         val names = mutableListOf<String>()
 
         es.flatMap { expressionToTST(it, true) }.forEach {
-            if (it is Procedure<S, T>)
-                declarations.add(it)
-            else
-                expressions.add(it)
+            if (it is Procedure<S, T>) declarations.add(it)
+            else expressions.add(it)
 
-            if (it is AssignExpression<S, T>)
-                names.add(it.symbol.name)
+            if (it is AssignExpression<S, T>) names.add(it.symbol.name)
         }
 
         declarations.add(Procedure("_main", emptyList(), 0, offset, expressions))
@@ -59,127 +55,112 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
         return Program(names, declarations)
     }
 
-    private fun expressionToTST(e: io.littlelanguages.alml.static.ast.Expression, toplevelValue: Boolean = false): List<Expression<S, T>> =
-        when (e) {
-            is io.littlelanguages.alml.static.ast.BinaryOpExpression ->
-                listOf(BinaryOpExpression(expressionToTST(e.left), e.op, expressionToTST(e.right), e.op.position().line()))
+    private fun expressionToTST(e: io.littlelanguages.alml.static.ast.Expression, toplevelValue: Boolean = false): List<Expression<S, T>> = when (e) {
+        is io.littlelanguages.alml.static.ast.BinaryOpExpression -> listOf(
+            BinaryOpExpression(
+                expressionToTST(e.left),
+                e.op,
+                expressionToTST(e.right),
+                e.op.position().line()
+            )
+        )
 
-            is io.littlelanguages.alml.static.ast.BlockExpression ->
-                expressionsToTST(e.expressions)
+        is io.littlelanguages.alml.static.ast.BlockExpression -> expressionsToTST(e.expressions)
 
-            is io.littlelanguages.alml.static.ast.LetFunction ->
-                listOf(procedureToTST(e.identifier.name, e.parameters.map { it.id }, e.expression).first)
+        is io.littlelanguages.alml.static.ast.LetFunction -> listOf(procedureToTST(e.identifier.name, e.parameters.map { it.id }, e.expression).first)
 
-            is io.littlelanguages.alml.static.ast.LetValue -> {
-                val name = e.identifier.name
-                val type = e.type
-                val expression = e.expression
+        is io.littlelanguages.alml.static.ast.LetValue -> {
+            val name = e.identifier.name
+            val type = e.type
+            val expression = e.expression
 
-                if (bindings.inCurrentNesting(name))
-                    reportError(DuplicateNameError(name, e.identifier.position))
-                else {
-                    val binding = when {
-                        toplevelValue && isToplevel() -> TopLevelValueBinding<S, T>(name, typeToTST(type))
-                        else -> ProcedureValueBinding(name, max(depth, 0), offset++)
-                    }
-
-                    bindings.add(name, binding)
-                    val rhs = expressionToTST(expression)
-
-                    listOf(AssignExpression(binding, rhs))
+            if (bindings.inCurrentNesting(name)) reportError(DuplicateNameError(name, e.identifier.position))
+            else {
+                val binding = when {
+                    toplevelValue && isToplevel() -> TopLevelValueBinding<S, T>(name, typeToTST(type))
+                    else -> ProcedureValueBinding(name, max(depth, 0), offset++)
                 }
+
+                bindings.add(name, binding)
+                val rhs = expressionToTST(expression)
+
+                listOf(AssignExpression(binding, rhs))
             }
+        }
 
-            is io.littlelanguages.alml.static.ast.IfExpression ->
-                ifToTST(
-                    e.ifThenExpressions.map { Tuple2(expressionToTST(it.a), expressionToTST(it.b)) },
-                    if (e.elseExpression == null) null else expressionToTST(e.elseExpression)
-                )
+        is io.littlelanguages.alml.static.ast.IfExpression -> ifToTST(
+            e.ifThenExpressions.map { Tuple2(expressionToTST(it.a), expressionToTST(it.b)) },
+            if (e.elseExpression == null) null else expressionToTST(e.elseExpression)
+        )
 
-            is io.littlelanguages.alml.static.ast.LambdaExpression -> {
-                val tst = procedureToTST(nextName(), e.parameters.map { it.id }, e.expression)
+        is io.littlelanguages.alml.static.ast.LambdaExpression -> {
+            val tst = procedureToTST(nextName(), e.parameters.map { it.id }, e.expression)
 
-                listOf(tst.first, IdentifierExpression(tst.second, e.position.line()))
-            }
+            listOf(tst.first, IdentifierExpression(tst.second, e.position.line()))
+        }
 
-            is io.littlelanguages.alml.static.ast.ApplyExpression -> {
-                val first = e.expressions[0]
+        is io.littlelanguages.alml.static.ast.ApplyExpression -> {
+            val first = e.expressions[0]
 
-                if (first is io.littlelanguages.alml.static.ast.Identifier) {
-                    val arguments = e.expressions.drop(1).map { expressionToTST(it) }
+            if (first is io.littlelanguages.alml.static.ast.Identifier) {
+                val arguments = e.expressions.drop(1).map { expressionToTST(it) }
 
-                    when (val binding = bindings.get(first.name)) {
-                        null ->
-                            reportError(UnknownSymbolError(first.name, first.position))
+                when (val binding = bindings.get(first.name)) {
+                    null -> reportError(UnknownSymbolError(first.name, first.position))
 
-                        is DeclaredProcedureBinding ->
-                            if (binding.parameterCount == arguments.size)
-                                listOf(CallProcedureExpression(binding, arguments, e.position.line()))
-                            else
-                                reportError(ArgumentMismatchError(first.name, binding.parameterCount, arguments.size, e.position))
-
-                        is ExternalProcedureBinding ->
-                            when (val error = binding.validateArguments(e, first.name, arguments)) {
-                                null ->
-                                    listOf(CallProcedureExpression(binding, arguments, e.position.line()))
-
-                                else ->
-                                    reportError(error)
-                            }
-
-                        else ->
-                            listOf(
-                                CallValueExpression(
-                                    listOf(IdentifierExpression(binding, e.position.line())),
-                                    arguments.flatten(),
-                                    e.position.line()
-                                )
-                            )
-                    }
-                } else
-                    listOf(CallValueExpression(expressionToTST(e.expressions[0]), expressionsToTST(e.expressions.drop(1)), e.position.line()))
-            }
-
-            is io.littlelanguages.alml.static.ast.LiteralInt ->
-                listOf(LiteralS32(e.value.toInt()))
-
-            is io.littlelanguages.alml.static.ast.LiteralString ->
-                listOf(translateLiteralString(e))
-
-            is io.littlelanguages.alml.static.ast.LiteralUnit ->
-                listOf(LiteralUnit())
-
-            is io.littlelanguages.alml.static.ast.SignalExpression ->
-                listOf(SignalExpression(expressionToTST(e.expression), e.position.line()))
-
-            is io.littlelanguages.alml.static.ast.TryExpression -> {
-                val body = procedureToTST(nextName(), emptyList(), e.body)
-                val catch = expressionToTST(e.catch)
-
-                if (!isProcedure(catch))
-                    reportError(ExpressionNotProcedureError(e.catch.position()))
-                else
-                    listOf(body.first) + catch.dropLast(1) + listOf(
-                        TryExpression(
-                            IdentifierExpression(body.second, e.position.line()),
-                            catch.last() as IdentifierExpression<S, T>,
+                    is DeclaredProcedureBinding -> if (binding.parameterCount == arguments.size) listOf(
+                        CallProcedureExpression(
+                            binding,
+                            arguments,
                             e.position.line()
                         )
                     )
-            }
+                    else reportError(ArgumentMismatchError(first.name, binding.parameterCount, arguments.size, e.position))
 
-            is io.littlelanguages.alml.static.ast.Identifier -> {
-                val binding = bindings.get(e.name)
+                    is ExternalProcedureBinding -> when (val error = binding.validateArguments(e, first.name, arguments)) {
+                        null -> listOf(CallProcedureExpression(binding, arguments, e.position.line()))
 
-                if (binding == null)
-                    reportError(UnknownSymbolError(e.name, e.position))
-                else
-                    listOf(IdentifierExpression(binding, e.position.line()))
-            }
+                        else -> reportError(error)
+                    }
 
-            is io.littlelanguages.alml.static.ast.TypedExpression ->
-                expressionToTST(e.expression)
+                    else -> listOf(
+                        CallValueExpression(
+                            listOf(IdentifierExpression(binding, e.position.line())), arguments.flatten(), e.position.line()
+                        )
+                    )
+                }
+            } else listOf(CallValueExpression(expressionToTST(e.expressions[0]), expressionsToTST(e.expressions.drop(1)), e.position.line()))
         }
+
+        is io.littlelanguages.alml.static.ast.LiteralInt -> listOf(LiteralS32(e.value.toInt()))
+
+        is io.littlelanguages.alml.static.ast.LiteralString -> listOf(translateLiteralString(e))
+
+        is io.littlelanguages.alml.static.ast.LiteralUnit -> listOf(LiteralUnit())
+
+        is io.littlelanguages.alml.static.ast.SignalExpression -> listOf(SignalExpression(expressionToTST(e.expression), e.position.line()))
+
+        is io.littlelanguages.alml.static.ast.TryExpression -> {
+            val body = procedureToTST(nextName(), emptyList(), e.body)
+            val catch = expressionToTST(e.catch)
+
+            if (!isProcedure(catch)) reportError(ExpressionNotProcedureError(e.catch.position()))
+            else listOf(body.first) + catch.dropLast(1) + listOf(
+                TryExpression(
+                    IdentifierExpression(body.second, e.position.line()), catch.last() as IdentifierExpression<S, T>, e.position.line()
+                )
+            )
+        }
+
+        is io.littlelanguages.alml.static.ast.Identifier -> {
+            val binding = bindings.get(e.name)
+
+            if (binding == null) reportError(UnknownSymbolError(e.name, e.position))
+            else listOf(IdentifierExpression(binding, e.position.line()))
+        }
+
+        is io.littlelanguages.alml.static.ast.TypedExpression -> expressionToTST(e.expression)
+    }
 
     private fun expressionsToTST(es: List<io.littlelanguages.alml.static.ast.Expression>): List<Expression<S, T>> {
         bindings.open()
@@ -190,9 +171,7 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
     }
 
     private fun procedureToTST(
-        name: String,
-        parameters: List<io.littlelanguages.alml.static.ast.Identifier>,
-        expression: io.littlelanguages.alml.static.ast.Expression
+        name: String, parameters: List<io.littlelanguages.alml.static.ast.Identifier>, expression: io.littlelanguages.alml.static.ast.Expression
     ): Pair<Procedure<S, T>, DeclaredProcedureBinding<S, T>> {
         val parameterNames = mutableListOf<String>()
 
@@ -207,8 +186,7 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
             val parameterName = symbol.name
 
             parameterNames.add(parameterName)
-            if (bindings.inCurrentNesting(parameterName))
-                reportError(DuplicateParameterNameError(parameterName, symbol.position()))
+            if (bindings.inCurrentNesting(parameterName)) reportError(DuplicateParameterNameError(parameterName, symbol.position()))
             bindings.add(parameterName, ParameterBinding(parameterName, depth, index))
         }
         bindings.open()
@@ -224,50 +202,38 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
     }
 
     private fun ifToTST(
-        ifThenExpressions: List<Tuple2<Expressions<S, T>, Expressions<S, T>>>,
-        elseExpression: Expressions<S, T>?
-    ): List<Expression<S, T>> =
-        if (ifThenExpressions.isEmpty())
-            elseExpression ?: listOf(LiteralUnit())
-        else {
-            val ifThen = ifThenExpressions[0]
-            val remainder = ifThenExpressions.drop(1)
+        ifThenExpressions: List<Tuple2<Expressions<S, T>, Expressions<S, T>>>, elseExpression: Expressions<S, T>?
+    ): List<Expression<S, T>> = if (ifThenExpressions.isEmpty()) elseExpression ?: listOf(LiteralUnit())
+    else {
+        val ifThen = ifThenExpressions[0]
+        val remainder = ifThenExpressions.drop(1)
 
-            listOf(IfExpression(ifThen.a, ifThen.b, if (remainder.isEmpty() && elseExpression == null) null else ifToTST(remainder, elseExpression)))
-        }
+        listOf(IfExpression(ifThen.a, ifThen.b, if (remainder.isEmpty() && elseExpression == null) null else ifToTST(remainder, elseExpression)))
+    }
 
     private fun typeToTST(
         type: io.littlelanguages.alml.static.ast.Type?
-    ): Type? =
-        if (type == null)
-            null
-        else
-            when (type) {
-                is io.littlelanguages.alml.static.ast.AbstractDataType -> TCon(
-                    type.position,
-                    type.identifier.name,
-                    type.arguments.map { typeToTST(it)!! }
-                )
+    ): Type? = if (type == null) null
+    else when (type) {
+        is io.littlelanguages.alml.static.ast.AbstractDataType -> TCon(type.position, type.identifier.name, type.arguments.map { typeToTST(it)!! })
 
-                is io.littlelanguages.alml.static.ast.FunctionType -> {
-                    val types = type.signature.map { typeToTST(it)!! }
+        is io.littlelanguages.alml.static.ast.FunctionType -> {
+            val types = type.signature.map { typeToTST(it)!! }
 
-                    if (types.isEmpty()) typeUnit else types.dropLast(1).foldRight(types.last()) { a, b -> TArr(a, b) }
-                }
+            if (types.isEmpty()) typeUnit else types.dropLast(1).foldRight(types.last()) { a, b -> TArr(a, b) }
+        }
 
-                is io.littlelanguages.alml.static.ast.VariableType -> TODO()
-            }
+        is io.littlelanguages.alml.static.ast.VariableType -> TODO()
+    }
 
     private fun reportError(error: Errors): List<Expression<S, T>> {
         errors.add(error)
         return listOf()
     }
 
-    private fun isToplevel(): Boolean =
-        depth == -1
+    private fun isToplevel(): Boolean = depth == -1
 
-    private fun nextName() =
-        "__n${nameGenerator++}"
+    private fun nextName() = "__n${nameGenerator++}"
 }
 
 fun <S, T> translateLiteralString(e: io.littlelanguages.alml.static.ast.LiteralString): LiteralString<S, T> {
@@ -278,8 +244,7 @@ fun <S, T> translateLiteralString(e: io.littlelanguages.alml.static.ast.LiteralS
 
     while (true) {
         when {
-            lp >= eLength || eValue[lp] == '"' ->
-                return LiteralString(sb.toString())
+            lp >= eLength || eValue[lp] == '"' -> return LiteralString(sb.toString())
 
             eValue[lp] == '\\' -> {
                 when (val c = eValue[lp + 1]) {
@@ -309,20 +274,16 @@ fun <S, T> translateLiteralString(e: io.littlelanguages.alml.static.ast.LiteralS
     }
 }
 
-private fun Char.isHexDigit(): Boolean =
-    this.isDigit() || this.uppercaseChar() in 'A'..'F'
+private fun Char.isHexDigit(): Boolean = this.isDigit() || this.uppercaseChar() in 'A'..'F'
 
-private fun Location.line(): Int =
-    when (this) {
-        is LocationCoordinate -> this.line
-        is LocationRange -> this.start.line
-    }
+private fun Location.line(): Int = when (this) {
+    is LocationCoordinate -> this.line
+    is LocationRange -> this.start.line
+}
 
-private fun <S, T> isProcedure(es: List<Expression<S, T>>): Boolean =
-    if (es.isEmpty())
-        false
-    else {
-        val e = es.last()
+private fun <S, T> isProcedure(es: List<Expression<S, T>>): Boolean = if (es.isEmpty()) false
+else {
+    val e = es.last()
 
-        e is IdentifierExpression && (e.symbol is ProcedureBinding || e.symbol is ProcedureValueBinding)
-    }
+    e is IdentifierExpression && (e.symbol is ProcedureBinding || e.symbol is ProcedureValueBinding)
+}

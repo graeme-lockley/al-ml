@@ -6,10 +6,10 @@ import io.kotest.matchers.shouldBe
 import io.littlelanguages.alml.Errors
 import io.littlelanguages.alml.dynamic.tst.Expressionss
 import io.littlelanguages.alml.dynamic.tst.Program
-import io.littlelanguages.alml.dynamic.typing.Type
-import io.littlelanguages.alml.dynamic.typing.typeBool
 import io.littlelanguages.alml.static.Scanner
 import io.littlelanguages.alml.static.parse
+import io.littlelanguages.alml.typed.typing.Type
+import io.littlelanguages.alml.typed.typing.typeBool
 import io.littlelanguages.data.Either
 import io.littlelanguages.data.Left
 import io.littlelanguages.data.Right

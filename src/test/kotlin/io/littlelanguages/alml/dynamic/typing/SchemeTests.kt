@@ -2,6 +2,7 @@ package io.littlelanguages.alml.dynamic.typing
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
+import io.littlelanguages.alml.typed.typing.*
 
 private typealias S = Int
 private typealias T = Int
