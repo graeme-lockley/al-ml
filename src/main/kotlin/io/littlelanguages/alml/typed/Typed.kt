@@ -50,7 +50,7 @@ private class Translator {
                 LambdaExpression(
                     expression.position,
                     expression.parameters.map { typedIdentifierToST(it) },
-                    if (expression.returnType == null) null else typeToST(expression.returnType),
+                    if (expression.returnType == null) null else typeToType(expression.returnType),
                     expressionToST(expression.expression)
                 )
 
@@ -59,7 +59,7 @@ private class Translator {
                     expression.position,
                     identifierToST(expression.identifier),
                     expression.parameters.map { typedIdentifierToST(it) },
-                    if (expression.returnType == null) null else typeToST(expression.returnType),
+                    if (expression.returnType == null) null else typeToType(expression.returnType),
                     expressionToST(expression.expression)
                 )
 
@@ -67,11 +67,11 @@ private class Translator {
                 LetValue(
                     expression.position,
                     identifierToST(expression.identifier),
-                    if (expression.type == null) null else typeToST(expression.type),
+                    if (expression.type == null) null else typeToType(expression.type),
                     expressionToST(expression.expression)
                 )
 
-            is io.littlelanguages.alml.static.ast.LiteralInt ->
+            is io.littlelanguages.alml.static.ast.LiteralS32 ->
                 LiteralInt(expression.position, expression.value)
 
             is io.littlelanguages.alml.static.ast.LiteralString ->
@@ -87,7 +87,7 @@ private class Translator {
                 TryExpression(expression.position, expressionToST(expression.body), expressionToST(expression.catch))
 
             is io.littlelanguages.alml.static.ast.TypedExpression ->
-                TypedExpression(expression.position, expressionToST(expression.expression), typeToST(expression.type))
+                TypedExpression(expression.position, expressionToST(expression.expression), typeToType(expression.type))
         }
 
     private fun binaryOperatorToST(op: io.littlelanguages.alml.static.ast.BinaryOperator): BinaryOperator {
@@ -111,18 +111,18 @@ private class Translator {
         TypedIdentifier(
             typedIdentifier.position,
             identifierToST(typedIdentifier.id),
-            if (typedIdentifier.type == null) null else typeToST(typedIdentifier.type)
+            if (typedIdentifier.type == null) null else typeToType(typedIdentifier.type)
         )
 
-    private fun typeToST(type: io.littlelanguages.alml.static.ast.Type): Type =
+    private fun typeToType(type: io.littlelanguages.alml.static.ast.Type): Type =
         when (type) {
             is io.littlelanguages.alml.static.ast.AbstractDataType -> TCon(
                 type.position,
                 type.identifier.name,
-                type.arguments.map { typeToST(it) })
+                type.arguments.map { typeToType(it) })
 
             is io.littlelanguages.alml.static.ast.FunctionType -> {
-                val types = type.signature.map { typeToST(it) }
+                val types = type.signature.map { typeToType(it) }
 
                 if (types.isEmpty()) typeUnit else types.dropLast(1).foldRight(types.last()) { a, b -> TArr(a, b) }
             }

@@ -139,7 +139,7 @@ class ParseVisitor :
         a2 ?: LiteralUnit(a1.location + a3.location)
 
     override fun visitTerm2(a: Token): Expression =
-        LiteralInt(a.location, a.lexeme)
+        LiteralS32(a.location, a.lexeme)
 
     override fun visitTerm3(a: Token): Expression =
         LiteralString(a.location, a.lexeme)

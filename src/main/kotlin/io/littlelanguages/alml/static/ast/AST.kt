@@ -218,13 +218,13 @@ data class TypedExpression(
         )
 }
 
-data class LiteralInt(
+data class LiteralS32(
     override val position: Location,
     val value: String
 ) : Expression(position) {
     override fun yaml(): Any =
         singletonMap(
-            "LiteralInt", mapOf(
+            "LiteralS32", mapOf(
                 Pair("value", value),
                 Pair("position", position.yaml())
             )

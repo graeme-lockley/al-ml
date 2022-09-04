@@ -62,7 +62,12 @@ private class DummyExternalValueBinding<S, T>(
 
 
 fun translate(builtinBindings: List<Binding<S, T>>, input: String): Either<List<Errors>, Program<S, T>> =
-    parse(Scanner(StringReader(input))) mapLeft { listOf(it) } andThen { io.littlelanguages.alml.typed.translate(it) } andThen { translate(builtinBindings, it) }
+    parse(Scanner(StringReader(input))) mapLeft { listOf(it) } andThen { io.littlelanguages.alml.typed.translate(it) } andThen {
+        translate(
+            builtinBindings,
+            it
+        )
+    }
 
 suspend fun parserConformanceTest(builtinBindings: List<Binding<S, T>>, ctx: FunSpecContainerContext, scenarios: List<*>) {
     scenarios.forEach { scenario ->
@@ -73,8 +78,6 @@ suspend fun parserConformanceTest(builtinBindings: List<Binding<S, T>>, ctx: Fun
             val name = s["name"] as String
             val input = s["input"] as String
             val output = s["output"]
-            val constraints = s["constraints"]
-            val environment = s["environment"]
 
             ctx.test(name) {
                 val lhs =
@@ -90,34 +93,6 @@ suspend fun parserConformanceTest(builtinBindings: List<Binding<S, T>>, ctx: Fun
 
                         is Right ->
                             lhs.right.yaml().toString() shouldBe rhs
-                    }
-                }
-
-                if (constraints != null) {
-                    val ait = AssignInferredType<S, T>(false)
-
-                    when (lhs) {
-                        is Left -> lhs.left.map { it.yaml() }.toString() shouldBe ""
-
-                        is Right -> {
-                            ait.program(lhs.right)
-
-                            ait.constraints.state.map { it.toString() } shouldBe constraints
-                        }
-                    }
-                }
-
-                if (environment != null) {
-                    val ait = AssignInferredType<S, T>(false)
-
-                    when (lhs) {
-                        is Left -> lhs.left.map { it.yaml() }.toString() shouldBe ""
-
-                        is Right -> {
-                            ait.program(lhs.right)
-
-                            ait.environment.types().map { it.toString() } shouldBe environment
-                        }
                     }
                 }
             }
