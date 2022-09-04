@@ -8,31 +8,31 @@ import io.littlelanguages.scanpiler.LocationCoordinate
 class LiteralStringTests : FunSpec({
     test("\"Hello World\"") {
         translateLiteralString<S, T>(
-            io.littlelanguages.alml.static.ast.LiteralString(LocationCoordinate(0, 0, 0), "\"Hello World\"")
+            io.littlelanguages.alml.typed.st.LiteralString(LocationCoordinate(0, 0, 0), "\"Hello World\"")
         ) shouldBe LiteralString("Hello World")
     }
 
     test("\"\\\"\"") {
         translateLiteralString<S, T>(
-            io.littlelanguages.alml.static.ast.LiteralString(LocationCoordinate(0, 0, 0), "\"\\\"\"")
+            io.littlelanguages.alml.typed.st.LiteralString(LocationCoordinate(0, 0, 0), "\"\\\"\"")
         ) shouldBe LiteralString("\"")
     }
 
     test("\"\\\"") {
         translateLiteralString<S, T>(
-            io.littlelanguages.alml.static.ast.LiteralString(LocationCoordinate(0, 0, 0), "\"\\\"")
+            io.littlelanguages.alml.typed.st.LiteralString(LocationCoordinate(0, 0, 0), "\"\\\"")
         ) shouldBe LiteralString("\"")
     }
 
     test("\"\\\" \\\\ \\t \\n \\r\"") {
         translateLiteralString<S, T>(
-            io.littlelanguages.alml.static.ast.LiteralString(LocationCoordinate(0, 0, 0), "\"\\\" \\\\ \\t \\n \\r\"")
+            io.littlelanguages.alml.typed.st.LiteralString(LocationCoordinate(0, 0, 0), "\"\\\" \\\\ \\t \\n \\r\"")
         ) shouldBe LiteralString("\" \\ \t \n \r")
     }
 
     test("\"\\x21\\x20\"") {
         translateLiteralString<S, T>(
-            io.littlelanguages.alml.static.ast.LiteralString(LocationCoordinate(0, 0, 0), "\"\\x21\\x20\"")
+            io.littlelanguages.alml.typed.st.LiteralString(LocationCoordinate(0, 0, 0), "\"\\x21\\x20\"")
         ) shouldBe LiteralString("! ")
     }
 })

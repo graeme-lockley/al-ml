@@ -7,7 +7,6 @@ import io.littlelanguages.alml.compiler.llvm.Context
 import io.littlelanguages.alml.compiler.llvm.Module
 import io.littlelanguages.alml.compiler.llvm.targetTriple
 import io.littlelanguages.alml.dynamic.Binding
-import io.littlelanguages.alml.dynamic.translate
 import io.littlelanguages.alml.static.Scanner
 import io.littlelanguages.alml.static.TToken
 import io.littlelanguages.alml.static.Token
@@ -30,7 +29,12 @@ import kotlin.system.exitProcess
 fun compile(builtinBindings: List<Binding<CompileState, LLVMValueRef>>, context: Context, input: File): Either<List<Errors>, Module> {
     val reader = FileReader(input)
 
-    val result = parse(Scanner(reader)) mapLeft { listOf(it) } andThen { translate(builtinBindings, it) } andThen {
+    val result = parse(Scanner(reader)) mapLeft { listOf(it) } andThen { io.littlelanguages.alml.typed.translate(it) } andThen {
+        io.littlelanguages.alml.dynamic.translate(
+            builtinBindings,
+            it
+        )
+    } andThen {
         io.littlelanguages.alml.compiler.compile(
             context,
             input.name,
@@ -93,6 +97,7 @@ fun formatToken(token: Token): String =
         TToken.TLiteralString,
         TToken.TLowerID,
         TToken.TUpperID -> "${formatTToken(token.tToken)} (${token.lexeme})"
+
         else -> formatTToken(token.tToken)
     }
 
@@ -145,6 +150,7 @@ fun compile(input: File, triple: String, output: File) {
             reportErrors(compiledResult.left)
             exitProcess(1)
         }
+
         is Right ->
             compiledResult.right.writeBitcodeToFile(output.absolutePath)
     }

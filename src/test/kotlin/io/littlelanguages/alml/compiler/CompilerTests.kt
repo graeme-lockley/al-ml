@@ -8,7 +8,6 @@ import io.littlelanguages.alml.compiler.llvm.Context
 import io.littlelanguages.alml.compiler.llvm.Module
 import io.littlelanguages.alml.compiler.llvm.targetTriple
 import io.littlelanguages.alml.dynamic.Binding
-import io.littlelanguages.alml.dynamic.translate
 import io.littlelanguages.alml.static.Scanner
 import io.littlelanguages.alml.static.parse
 import io.littlelanguages.data.Either
@@ -37,7 +36,12 @@ class CompilerTests : FunSpec({
 })
 
 fun compile(builtinBindings: List<Binding<CompileState, LLVMValueRef>>, context: Context, input: String): Either<List<Errors>, Module> =
-    parse(Scanner(StringReader(input))) mapLeft { listOf(it) } andThen { translate(builtinBindings, it) } andThen {
+    parse(Scanner(StringReader(input))) mapLeft { listOf(it) } andThen { io.littlelanguages.alml.typed.translate(it) } andThen {
+        io.littlelanguages.alml.dynamic.translate(
+            builtinBindings,
+            it
+        )
+    } andThen {
         compile(
             context,
             "./test.mlsp",

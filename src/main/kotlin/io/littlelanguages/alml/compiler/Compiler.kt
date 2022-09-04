@@ -8,7 +8,7 @@ import io.littlelanguages.alml.compiler.llvm.Module
 import io.littlelanguages.alml.compiler.llvm.VerifyError
 import io.littlelanguages.alml.dynamic.*
 import io.littlelanguages.alml.dynamic.tst.*
-import io.littlelanguages.alml.static.ast.Operators.*
+import io.littlelanguages.alml.typed.st.Operators.*
 import io.littlelanguages.data.Either
 import io.littlelanguages.data.Right
 import org.bytedeco.javacpp.PointerPointer
