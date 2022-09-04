@@ -37,7 +37,7 @@ data class Constraints(val state: List<Constraint> = emptyList()) {
         })
 
 
-    fun merge(env: Environment): Constraints {
+    fun merge(): Constraints {
         val constraints =
             state.toMutableList()
 
@@ -141,3 +141,5 @@ data class Constraints(val state: List<Constraint> = emptyList()) {
                 nullSubstitution
         }
 }
+
+val noConstraints = Constraints()

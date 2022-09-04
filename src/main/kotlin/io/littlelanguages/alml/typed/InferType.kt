@@ -1,8 +1,10 @@
 package io.littlelanguages.alml.typed
 
+import io.littlelanguages.alml.Errors
 import io.littlelanguages.alml.static.ast.*
 import io.littlelanguages.alml.typed.typing.*
 import io.littlelanguages.alml.typed.typing.Type
+import io.littlelanguages.data.Either
 
 /*
  Type inference rules:
@@ -58,12 +60,13 @@ import io.littlelanguages.alml.typed.typing.Type
         Try i1 i2: T
  */
 
-fun inferValueType(type: Type?, e: Expression): Type {
+fun inferValueType(type: Type?, e: Expression): Either<List<Errors>, Type> {
     val inferType = InferType()
     val resultType = inferType.expression(e)
+
     inferType.addConstraint(type, resultType)
 
-    return resultType
+    return unifies(inferType.pump, inferType.constraints, inferType.environment) map { resultType.apply(it) }
 }
 
 class InferType(
@@ -71,7 +74,7 @@ class InferType(
 ) {
     var environment = Environment()
     var constraints = Constraints()
-    private val pump = VarPump()
+    val pump = VarPump()
 
     init {
         environment += Pair("True", typeBool)

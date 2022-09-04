@@ -23,3 +23,10 @@
         identifier: aBool
         type: Bool
         expression: "True"
+- name: Top-level let assignment with type error
+  input: |
+    let anS32: S32 = "Hello World"
+  output:
+    - UnificationFailError:
+        t1: S32
+        t2: String

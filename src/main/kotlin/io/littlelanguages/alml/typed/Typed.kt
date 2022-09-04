@@ -2,11 +2,9 @@ package io.littlelanguages.alml.typed
 
 import io.littlelanguages.alml.Errors
 import io.littlelanguages.alml.typed.st.*
-import io.littlelanguages.alml.typed.typing.TArr
-import io.littlelanguages.alml.typed.typing.TCon
-import io.littlelanguages.alml.typed.typing.Type
-import io.littlelanguages.alml.typed.typing.typeUnit
+import io.littlelanguages.alml.typed.typing.*
 import io.littlelanguages.data.Either
+import io.littlelanguages.data.Left
 import io.littlelanguages.data.Right
 import io.littlelanguages.data.Tuple2
 
@@ -14,8 +12,13 @@ fun translate(p: io.littlelanguages.alml.static.ast.Program): Either<List<Errors
     Translator().apply(p)
 
 private class Translator {
-    fun apply(p: io.littlelanguages.alml.static.ast.Program): Either<List<Errors>, Program> =
-        Right(Program(expressionsToST(p.expressions)))
+    val errors = mutableListOf<Errors>()
+
+    fun apply(p: io.littlelanguages.alml.static.ast.Program): Either<List<Errors>, Program> {
+        val program = Program(expressionsToST(p.expressions))
+
+        return if (errors.isEmpty()) Right(program) else Left(errors)
+    }
 
     private fun expressionsToST(expressions: List<io.littlelanguages.alml.static.ast.Expression>): List<Expression> =
         expressions.map { expressionToST(it) }
@@ -64,7 +67,15 @@ private class Translator {
                 )
 
             is io.littlelanguages.alml.static.ast.LetValue -> {
-                val type = inferValueType(map(expression.type) { typeToType(it) }, expression.expression)
+                val type = when (val inferResult = inferValueType(map(expression.type) { typeToType(it) }, expression.expression)) {
+                    is Left -> {
+                        errors.addAll(inferResult.left)
+
+                        typeError
+                    }
+
+                    is Right -> inferResult.right
+                }
 
                 LetValue(
                     expression.position,
