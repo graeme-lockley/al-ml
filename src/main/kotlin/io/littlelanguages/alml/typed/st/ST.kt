@@ -28,8 +28,7 @@ data class TypedIdentifier(
         "TypedIdentifier",
         mapOf(
             Pair("identifier", id.yaml()),
-            Pair("type", type.yaml()),
-            Pair("position", position.yaml())
+            Pair("type", type.yaml())
         )
     )
 
@@ -42,13 +41,7 @@ data class Identifier(
     val name: String
 ) : Expression(position) {
     override fun yaml(): Any =
-        singletonMap(
-            "Symbol",
-            mapOf(
-                Pair("value", name),
-                Pair("position", position.yaml())
-            )
-        )
+        name
 }
 
 data class ApplyExpression(
@@ -57,7 +50,7 @@ data class ApplyExpression(
 ) : Expression(position) {
     override fun yaml(): Any =
         singletonMap(
-            "SExpression", expressions.map { it.yaml() }
+            "ApplyExpression", expressions.map { it.yaml() }
         )
 }
 
@@ -73,8 +66,7 @@ data class BinaryOpExpression(
             mapOf(
                 Pair("left", left.yaml()),
                 Pair("op", op.yaml()),
-                Pair("right", right.yaml()),
-                Pair("position", position.yaml())
+                Pair("right", right.yaml())
             )
         )
 }
@@ -87,8 +79,7 @@ data class BlockExpression(
         singletonMap(
             "Block",
             mapOf(
-                Pair("expressions", expressions.map { it.yaml() }),
-                Pair("position", position.yaml())
+                Pair("expressions", expressions.map { it.yaml() })
             )
         )
 }
@@ -102,8 +93,7 @@ data class LetValue(
     override fun yaml(): Any {
         val value = mapOf(
             Pair("identifier", identifier.yaml()),
-            Pair("expression", expression.yaml()),
-            Pair("position", position.yaml())
+            Pair("expression", expression.yaml())
         )
 
         return singletonMap(
@@ -124,8 +114,7 @@ data class LetFunction(
         val value = mapOf(
             Pair("identifier", identifier.yaml()),
             Pair("parameters", parameters.map { it.yaml() }),
-            Pair("expression", expression.yaml()),
-            Pair("position", position.yaml())
+            Pair("expression", expression.yaml())
         )
 
         return singletonMap(
@@ -142,8 +131,7 @@ data class IfExpression(
 ) : Expression(position) {
     override fun yaml(): Any {
         val value = mapOf(
-            Pair("if-expressions", ifThenExpressions.map { Pair(it.a.yaml(), it.b.yaml()) }),
-            Pair("position", position.yaml())
+            Pair("if-expressions", ifThenExpressions.map { Pair(it.a.yaml(), it.b.yaml()) })
         )
 
         return singletonMap(
@@ -162,8 +150,7 @@ data class LambdaExpression(
     override fun yaml(): Any {
         val value = mapOf(
             Pair("parameters", parameters.map { it.yaml() }),
-            Pair("expression", expression.yaml()),
-            Pair("position", position.yaml())
+            Pair("expression", expression.yaml())
         )
 
         return singletonMap(
@@ -181,8 +168,7 @@ data class SignalExpression(
         singletonMap(
             "Signal",
             mapOf(
-                Pair("expression", expression.yaml()),
-                Pair("position", position.yaml())
+                Pair("expression", expression.yaml())
             )
         )
 }
@@ -197,8 +183,7 @@ data class TryExpression(
             "Try",
             mapOf(
                 Pair("body", body.yaml()),
-                Pair("catch", catch.yaml()),
-                Pair("position", position.yaml())
+                Pair("catch", catch.yaml())
             )
         )
 }
@@ -213,8 +198,7 @@ data class TypedExpression(
             "Typed",
             mapOf(
                 Pair("expression", expression.yaml()),
-                Pair("type", type.yaml()),
-                Pair("position", position.yaml())
+                Pair("type", type.yaml())
             )
         )
 }
@@ -224,12 +208,7 @@ data class LiteralInt(
     val value: String
 ) : Expression(position) {
     override fun yaml(): Any =
-        singletonMap(
-            "LiteralInt", mapOf(
-                Pair("value", value),
-                Pair("position", position.yaml())
-            )
-        )
+        singletonMap("LiteralInt", value)
 }
 
 data class LiteralString(
@@ -237,23 +216,14 @@ data class LiteralString(
     val value: String
 ) : Expression(position) {
     override fun yaml(): Any =
-        singletonMap(
-            "LiteralString", mapOf(
-                Pair("value", value),
-                Pair("position", position.yaml())
-            )
-        )
+        singletonMap("LiteralString", value)
 }
 
 data class LiteralUnit(
     override val position: Location,
 ) : Expression(position) {
     override fun yaml(): Any =
-        singletonMap(
-            "LiteralUnit", mapOf(
-                Pair("position", position.yaml())
-            )
-        )
+        "LiteralUnit"
 }
 
 class BinaryOperator(private val position: Location, val operator: Operators) : Yamlable, Locationable {

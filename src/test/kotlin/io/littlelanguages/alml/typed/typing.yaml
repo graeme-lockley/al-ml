@@ -1,0 +1,17 @@
+- name: Identity
+  input: |
+    let identity x = x;
+    let someValue = identity 10
+  output:
+    - ConstProcedure:
+        identifier: identity
+        parameters:
+          - x
+        expression:
+          x
+    - ConstValue:
+        identifier: someValue
+        expression:
+          ApplyExpression:
+            - identity
+            - LiteralInt: 10
