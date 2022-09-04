@@ -63,13 +63,16 @@ private class Translator {
                     expressionToST(expression.expression)
                 )
 
-            is io.littlelanguages.alml.static.ast.LetValue ->
+            is io.littlelanguages.alml.static.ast.LetValue -> {
+                val type = inferValueType(map(expression.type) { typeToType(it) }, expression.expression)
+
                 LetValue(
                     expression.position,
                     identifierToST(expression.identifier),
-                    if (expression.type == null) null else typeToType(expression.type),
+                    type,
                     expressionToST(expression.expression)
                 )
+            }
 
             is io.littlelanguages.alml.static.ast.LiteralS32 ->
                 LiteralInt(expression.position, expression.value)
@@ -134,3 +137,6 @@ private class Translator {
     private fun identifierToST(identifier: io.littlelanguages.alml.static.ast.Identifier): Identifier =
         Identifier(identifier.position, identifier.name)
 }
+
+fun <S, T> map(value: S?, f: (S) -> T): T? =
+    if (value == null) null else f(value)

@@ -148,5 +148,5 @@ class LiteralUnit<S, T> : Expression<S, T> {
 fun mapOfType(type: Type?, vararg pairs: Pair<String, Any>): Map<String, Any> {
     val result = mapOf(*pairs)
 
-    return if (type == null) result else result + Pair("type", type.yaml())
+    return if (type == null || type == typeError) result else result + Pair("type", type.yaml())
 }

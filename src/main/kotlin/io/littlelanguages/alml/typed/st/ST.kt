@@ -87,18 +87,16 @@ data class BlockExpression(
 data class LetValue(
     override val position: Location,
     val identifier: Identifier,
-    val type: Type?,
+    val type: Type,
     val expression: Expression
 ) : Expression(position) {
     override fun yaml(): Any {
-        val value = mapOf(
-            Pair("identifier", identifier.yaml()),
-            Pair("expression", expression.yaml())
-        )
-
         return singletonMap(
-            "ConstValue",
-            if (type == null) value else value + Pair("type", type.yaml())
+            "ConstValue", mapOf(
+                Pair("identifier", identifier.yaml()),
+                Pair("type", type.yaml()),
+                Pair("expression", expression.yaml())
+            )
         )
     }
 }

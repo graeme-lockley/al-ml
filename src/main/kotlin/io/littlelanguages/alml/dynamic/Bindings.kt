@@ -6,6 +6,7 @@ import io.littlelanguages.alml.dynamic.tst.Expressionss
 import io.littlelanguages.alml.dynamic.tst.mapOfType
 import io.littlelanguages.alml.typed.st.ApplyExpression
 import io.littlelanguages.alml.typed.typing.Type
+import io.littlelanguages.alml.typed.typing.typeError
 import io.littlelanguages.data.NestedMap
 import io.littlelanguages.data.Yamlable
 
@@ -93,4 +94,4 @@ typealias Bindings<S, T> =
         NestedMap<String, Binding<S, T>>
 
 private fun mapOfNameType(name: String, type: Type?): Any =
-    if (type == null) name else mapOf(Pair("name", name), Pair("type", type.yaml()))
+    if (type == null || type == typeError) name else mapOf(Pair("name", name), Pair("type", type.yaml()))

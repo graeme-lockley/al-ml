@@ -11,6 +11,7 @@
           x
     - ConstValue:
         identifier: someValue
+        type: "*error*"
         expression:
           ApplyExpression:
             - identity

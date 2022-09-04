@@ -59,6 +59,11 @@ import io.littlelanguages.alml.typed.typing.*
         ---
         Try i1 i2: T
  */
+
+fun inferValueType(type: Type?, e: Expression): Type {
+    return type ?: typeError
+}
+
 class InferType<S, T>(
     private val optimiseConstraints: Boolean = true
 ) {
