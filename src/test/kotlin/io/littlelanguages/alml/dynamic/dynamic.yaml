@@ -36,9 +36,12 @@
                   es:
                     - assign:
                         symbol:
-                          toplevel-value: x
+                          toplevel-value:
+                            name: x
+                            type: S32
                         es:
                           - 10
+                        type: S32
       - name: Top-level procedure
         input: |
           let add a b = a + b
@@ -384,14 +387,19 @@
                   es:
                     - assign:
                         symbol:
-                          toplevel-value: x
+                          toplevel-value:
+                            name: x
+                            type: S32
                         es:
                           - 10
+                        type: S32
                     - call-procedure:
                         procedure:
                           external-procedure: println
                         es:
-                          - - toplevel-value: x
+                          - - toplevel-value:
+                                name: x
+                                type: S32
                         line-number: 3
       - name: Multiple top-level values
         input: |
@@ -413,20 +421,30 @@
                   es:
                     - assign:
                         symbol:
-                          toplevel-value: v1
+                          toplevel-value:
+                            name: v1
+                            type: S32
                         es:
                           - 1
+                        type: S32
                     - assign:
                         symbol:
-                          toplevel-value: v2
+                          toplevel-value:
+                            name: v2
+                            type: String
                         es:
                           - Hello world
+                        type: String
                     - call-procedure:
                         procedure:
                           external-procedure: println
                         es:
-                          - - toplevel-value: v1
-                          - - toplevel-value: v2
+                          - - toplevel-value:
+                                name: v1
+                                type: S32
+                          - - toplevel-value:
+                                name: v2
+                                type: String
                         line-number: 4
       - name: Top-level procedure
         input: |
@@ -521,9 +539,12 @@
                   es:
                     - assign:
                         symbol:
-                          toplevel-value: a
+                          toplevel-value:
+                            name: a
+                            type: S32
                         es:
                           - 9
+                        type: S32
                     - assign:
                         symbol:
                           toplevel-value: f
@@ -535,7 +556,9 @@
                                   depth: 0
                                   offset: 0
                               es:
-                                - toplevel-value: a
+                                - toplevel-value:
+                                    name: a
+                                    type: S32
                           - assign:
                               symbol:
                                 procedure-value:
@@ -630,9 +653,12 @@
                   es:
                     - assign:
                         symbol:
-                          toplevel-value: b
+                          toplevel-value:
+                            name: b
+                            type: S32
                         es:
                           - 1
+                        type: S32
                     - assign:
                         symbol:
                           toplevel-value: a
@@ -660,7 +686,9 @@
                         symbol:
                           toplevel-value: c
                         es:
-                          - toplevel-value: b
+                          - toplevel-value:
+                              name: b
+                              type: S32
 - scenario:
     name: Exceptions
     tests:

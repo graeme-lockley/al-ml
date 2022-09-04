@@ -99,7 +99,7 @@ class InferType(
                 typeUnit
 
             else ->
-                TODO(e.toString()) // typeError
+                typeError // TODO(e.toString()) // typeError
         }
 
     fun addConstraint(t1: Type?, t2: Type?) {
