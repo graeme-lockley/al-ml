@@ -1,5 +1,6 @@
 package io.littlelanguages.alml.typed.st
 
+import io.littlelanguages.alml.typed.typing.Type
 import io.littlelanguages.data.Tuple2
 import io.littlelanguages.data.Yamlable
 import io.littlelanguages.scanpiler.Location
@@ -266,51 +267,4 @@ enum class Operators {
     Plus, Minus, Multiply, Divide,
     Equals, NotEquals,
     LessThan, LessEquals, GreaterThan, GreaterEquals
-}
-
-sealed class Type(
-    open val position: Location
-) : Yamlable, Locationable {
-    override fun position(): Location = position
-}
-
-data class FunctionType(
-    override val position: Location,
-    val signature: List<Type>
-) : Type(position) {
-    override fun yaml(): Any =
-        singletonMap(
-            "FunctionType", mapOf(
-                Pair("signature", signature.map { it.yaml() }),
-                Pair("position", position.yaml())
-            )
-        )
-}
-
-data class AbstractDataType(
-    override val position: Location,
-    val identifier: Identifier,
-    val arguments: List<Type>
-) : Type(position) {
-    override fun yaml(): Any =
-        singletonMap(
-            "AbstractDataType", mapOf(
-                Pair("identifier", identifier.yaml()),
-                Pair("arguments", arguments.map { it.yaml() }),
-                Pair("position", position.yaml())
-            )
-        )
-}
-
-data class VariableType(
-    override val position: Location,
-    val identifier: Identifier
-) : Type(position) {
-    override fun yaml(): Any =
-        singletonMap(
-            "VariableType", mapOf(
-                Pair("identifier", identifier.yaml()),
-                Pair("position", position.yaml())
-            )
-        )
 }
