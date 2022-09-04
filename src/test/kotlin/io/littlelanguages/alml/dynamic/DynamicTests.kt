@@ -34,18 +34,6 @@ class DynamicTests : FunSpec({
     }
 })
 
-class TypingTests : FunSpec({
-    context("Typing Tests") {
-        val content = File("./src/test/kotlin/io/littlelanguages/alml/dynamic/typing.yaml").readText()
-
-        val scenarios: Any = yaml.load(content)
-
-        if (scenarios is List<*>) {
-            parserConformanceTest(builtinBindings, this, scenarios)
-        }
-    }
-})
-
 val builtinBindings: List<Binding<S, T>> = listOf(
     DummyExternalValueBinding("True"),
     DummyExternalValueBinding("False"),
