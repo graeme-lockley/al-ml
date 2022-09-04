@@ -1,7 +1,7 @@
 package io.littlelanguages.alml.typed.typing
 
-data class Scheme<S, T>(val parameters: List<Var>, val type: Type) {
-    fun apply(s: Substitution): Scheme<S, T> =
+data class Scheme(val parameters: List<Var>, val type: Type) {
+    fun apply(s: Substitution): Scheme =
         Scheme(parameters, type.apply(s - parameters))
 
 
@@ -19,7 +19,7 @@ data class Scheme<S, T>(val parameters: List<Var>, val type: Type) {
         return type.apply(substitution)
     }
 
-    fun normalize(): Scheme<S, T> {
+    fun normalize(): Scheme {
         val subs =
             Substitution(parameters.foldIndexed(emptyMap()) { a, b, c -> b.plus(Pair(c, TVar(type.position, a))) })
 
@@ -29,7 +29,7 @@ data class Scheme<S, T>(val parameters: List<Var>, val type: Type) {
         )
     }
 
-    fun isCompatibleWith(environment: Environment<S, T>, other: Scheme<S, T>): Boolean {
+    fun isCompatibleWith(environment: Environment, other: Scheme): Boolean {
         val normalizedThis =
             this.normalize()
 
@@ -40,7 +40,7 @@ data class Scheme<S, T>(val parameters: List<Var>, val type: Type) {
     }
 }
 
-fun <S, T> isCompatibleWith(environment: Environment<S, T>, t1: Type, t2: Type): Boolean =
+fun isCompatibleWith(environment: Environment, t1: Type, t2: Type): Boolean =
     when {
         t2 is TVar ->
             if (t1 is TVar)
@@ -60,7 +60,7 @@ fun <S, T> isCompatibleWith(environment: Environment<S, T>, t1: Type, t2: Type):
             false
     }
 
-fun <S, T> generalise(type: Type, substitution: Substitution = nullSubstitution): Scheme<S, T> {
+fun generalise(type: Type, substitution: Substitution = nullSubstitution): Scheme {
     val typeFtv: List<Int> =
         type.ftv().toList()
 

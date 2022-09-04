@@ -122,7 +122,7 @@ val typeError =
     TCon("*error*")
 
 val typeUnit =
-    TCon("()")
+    TCon("Unit")
 
 val typeS32 =
     TCon("S32")

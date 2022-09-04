@@ -1,10 +1,8 @@
 package io.littlelanguages.alml.typed
 
-import io.littlelanguages.alml.static.ast.Expression
-import io.littlelanguages.alml.static.ast.LiteralS32
-import io.littlelanguages.alml.static.ast.LiteralString
-import io.littlelanguages.alml.static.ast.LiteralUnit
+import io.littlelanguages.alml.static.ast.*
 import io.littlelanguages.alml.typed.typing.*
+import io.littlelanguages.alml.typed.typing.Type
 
 /*
  Type inference rules:
@@ -61,16 +59,24 @@ import io.littlelanguages.alml.typed.typing.*
  */
 
 fun inferValueType(type: Type?, e: Expression): Type {
-    return type ?: typeError
+    val inferType = InferType()
+    val resultType = inferType.expression(e)
+    inferType.addConstraint(type, resultType)
+
+    return resultType
 }
 
-class InferType<S, T>(
+class InferType(
     private val optimiseConstraints: Boolean = true
 ) {
-    var environment = Environment<S, T>()
-    var constraints = Constraints<S, T>()
+    var environment = Environment()
+    var constraints = Constraints()
     private val pump = VarPump()
 
+    init {
+        environment += Pair("True", typeBool)
+        environment += Pair("False", typeBool)
+    }
 
     fun expressions(es: List<Expression>): Type {
         val ts = es.map { expression(it) }
@@ -80,6 +86,9 @@ class InferType<S, T>(
 
     fun expression(e: Expression): Type =
         when (e) {
+            is Identifier ->
+                environment.type(e.name) ?: typeError
+
             is LiteralS32 ->
                 typeS32
 
@@ -93,7 +102,7 @@ class InferType<S, T>(
                 TODO(e.toString()) // typeError
         }
 
-    private fun addConstraint(t1: Type?, t2: Type?) {
+    fun addConstraint(t1: Type?, t2: Type?) {
         if (t1 != null && t2 != null)
             if (optimiseConstraints && t1 != t2 || !optimiseConstraints)
                 constraints += Constraint(t1, t2)

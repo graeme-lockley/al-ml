@@ -1,13 +1,13 @@
 package io.littlelanguages.alml.typed.typing
 
-data class Constraints<S, T>(val state: List<Constraint> = emptyList()) {
-    operator fun plus(constraint: Constraint): Constraints<S, T> =
+data class Constraints(val state: List<Constraint> = emptyList()) {
+    operator fun plus(constraint: Constraint): Constraints =
         Constraints(state + constraint)
 
-    operator fun plus(constraints: Constraints<S, T>): Constraints<S, T> =
+    operator fun plus(constraints: Constraints): Constraints =
         Constraints(state + constraints.state)
 
-    fun apply(substitution: Substitution): Constraints<S, T> =
+    fun apply(substitution: Substitution): Constraints =
         Constraints(state.map { it.apply(substitution) })
 
     fun isNotEmpty(): Boolean =
@@ -16,13 +16,13 @@ data class Constraints<S, T>(val state: List<Constraint> = emptyList()) {
     operator fun get(index: Int): Constraint =
         state[index]
 
-    fun drop(count: Int): Constraints<S, T> =
+    fun drop(count: Int): Constraints =
         Constraints(state.drop(count))
 
     override fun toString(): String =
         state.joinToString(", ") { it.toString() }
 
-    fun leftVar(): Constraints<S, T> =
+    fun leftVar(): Constraints =
         Constraints(state.map {
             when {
                 it.t1 is TVar ->
@@ -37,7 +37,7 @@ data class Constraints<S, T>(val state: List<Constraint> = emptyList()) {
         })
 
 
-    fun merge(env: Environment<S, T>): Constraints<S, T> {
+    fun merge(env: Environment): Constraints {
         val constraints =
             state.toMutableList()
 

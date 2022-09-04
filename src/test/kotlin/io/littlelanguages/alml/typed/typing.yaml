@@ -1,18 +1,25 @@
-- name: Identity
+- name: Top-level let literal assignment
   input: |
-    let identity x = x;
-    let someValue = identity 10
+    let anS32 = 123;
+    let aString = "Hello World";
+    let aUnit = ();
+    let aBool = True
   output:
-    - ConstProcedure:
-        identifier: identity
-        parameters:
-          - x
-        expression:
-          x
     - ConstValue:
-        identifier: someValue
-        type: "*error*"
+        identifier: anS32
+        type: S32
         expression:
-          ApplyExpression:
-            - identity
-            - LiteralInt: 10
+          LiteralInt: 123
+    - ConstValue:
+        identifier: aString
+        type: String
+        expression:
+          LiteralString: '"Hello World"'
+    - ConstValue:
+        identifier: aUnit
+        type: Unit
+        expression: LiteralUnit
+    - ConstValue:
+        identifier: aBool
+        type: Bool
+        expression: "True"
