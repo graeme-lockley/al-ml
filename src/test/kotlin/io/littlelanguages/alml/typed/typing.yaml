@@ -1,4 +1,4 @@
-- name: Top-level let literal assignment
+- name: Top-level let value literal assignment
   input: |
     let anS32 = 123;
     let aString = "Hello World";
@@ -23,7 +23,7 @@
         identifier: aBool
         type: Bool
         expression: "True"
-- name: Top-level let assignment with type error
+- name: Top-level let value assignment with type error
   input: |
     let anS32: S32 = "Hello World"
   output:
@@ -38,3 +38,17 @@
             name: String
             arguments: [ ]
             location: 17:1:18-29:1:30
+- name: Top-level let procedure declaration without free variables or type declarations
+  input: |
+    let add a b = a + b
+  output:
+    - ConstProcedure:
+        identifier: add
+        parameters:
+          - a
+          - b
+        expression:
+          BinaryOpExpression:
+            left: a
+            op: Plus
+            right: b

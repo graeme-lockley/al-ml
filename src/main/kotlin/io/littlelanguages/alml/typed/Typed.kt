@@ -13,6 +13,7 @@ fun translate(p: io.littlelanguages.alml.static.ast.Program): Either<List<Errors
 
 private class Translator {
     val errors = mutableListOf<Errors>()
+    var environment = initialEnvironment()
 
     fun apply(p: io.littlelanguages.alml.static.ast.Program): Either<List<Errors>, Program> {
         val program = Program(expressionsToST(p.expressions))
@@ -67,7 +68,7 @@ private class Translator {
                 )
 
             is io.littlelanguages.alml.static.ast.LetValue -> {
-                val type = when (val inferResult = inferValueType(map(expression.type) { typeToType(it) }, expression.expression)) {
+                val type = when (val inferResult = inferValueType(map(expression.type) { typeToType(it) }, expression.expression, environment)) {
                     is Left -> {
                         errors.addAll(inferResult.left)
 
@@ -76,6 +77,8 @@ private class Translator {
 
                     is Right -> inferResult.right
                 }
+
+                environment.add(expression.identifier.name, type)
 
                 LetValue(
                     expression.position,

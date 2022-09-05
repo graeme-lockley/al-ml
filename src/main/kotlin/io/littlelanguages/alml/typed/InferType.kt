@@ -60,26 +60,21 @@ import io.littlelanguages.data.Either
         Try i1 i2: T
  */
 
-fun inferValueType(type: Type?, e: Expression): Either<List<Errors>, Type> {
-    val inferType = InferType()
+fun inferValueType(type: Type?, e: Expression, environment: Environment = Environment()): Either<List<Errors>, Type> {
+    val inferType = InferType(environment)
     val resultType = inferType.expression(e)
 
     inferType.addConstraint(type, resultType)
 
-    return unifies(inferType.pump, inferType.constraints, inferType.environment) map { resultType.apply(it) }
+    return unifies(inferType.pump, inferType.constraints, environment) map { resultType.apply(it) }
 }
 
 class InferType(
+    private val environment: Environment,
     private val optimiseConstraints: Boolean = true
 ) {
-    var environment = Environment()
     var constraints = Constraints()
     val pump = VarPump()
-
-    init {
-        environment += Pair("True", typeBool)
-        environment += Pair("False", typeBool)
-    }
 
     fun expressions(es: List<Expression>): Type {
         val ts = es.map { expression(it) }
