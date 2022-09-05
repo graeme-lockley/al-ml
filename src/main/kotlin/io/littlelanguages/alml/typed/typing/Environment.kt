@@ -1,15 +1,15 @@
 package io.littlelanguages.alml.typed.typing
 
+import io.littlelanguages.data.NestedMap
+
 data class Environment(
-    private val typeBindings: MutableMap<String, Type> = mutableMapOf()
+    private val typeBindings: NestedMap<String, Type> = NestedMap()
 ) {
     fun type(name: String): Type? =
-        typeBindings[name]
-
-    fun types() = typeBindings.entries.toList()
+        typeBindings.get(name)
 
     fun add(name: String, type: Type) {
-        typeBindings[name] = type
+        typeBindings.add(name, type)
     }
 }
 
