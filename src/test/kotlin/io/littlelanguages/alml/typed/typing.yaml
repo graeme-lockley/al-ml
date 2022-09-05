@@ -28,5 +28,13 @@
     let anS32: S32 = "Hello World"
   output:
     - UnificationFailError:
-        t1: S32
-        t2: String
+        t1:
+          TCon:
+            name: S32
+            arguments: [ ]
+            location: 11:1:12-13:1:14
+        t2:
+          TCon:
+            name: String
+            arguments: [ ]
+            location: 17:1:18-29:1:30

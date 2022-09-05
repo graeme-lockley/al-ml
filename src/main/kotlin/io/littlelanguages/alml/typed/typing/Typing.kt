@@ -15,6 +15,10 @@ sealed class Type(
 
     override fun yaml(): Any =
         this.toString()
+
+    abstract fun fullYaml(): Any
+
+    abstract fun withPosition(position: Location): Type
 }
 
 data class TArr(
@@ -30,6 +34,15 @@ data class TArr(
     override fun ftv() =
         domain.ftv().plus(range.ftv())
 
+    override fun fullYaml(): Any =
+        singletonMap(
+            "TArr", mapOf(
+                Pair("domain", domain.fullYaml()),
+                Pair("range", range.fullYaml()),
+                Pair("location", position?.yaml() ?: "none")
+            )
+        )
+
     override fun toString(): String =
         when (domain) {
             is TArr ->
@@ -38,6 +51,9 @@ data class TArr(
             else ->
                 "$domain -> $range"
         }
+
+    override fun withPosition(position: Location): Type =
+        TArr(position, domain, range)
 }
 
 data class TCon(
@@ -56,6 +72,15 @@ data class TCon(
     override fun ftv() =
         arguments.fold(emptySet<Var>()) { ftvs, type -> ftvs + type.ftv() }
 
+    override fun fullYaml(): Any =
+        singletonMap(
+            "TCon", mapOf(
+                Pair("name", name),
+                Pair("arguments", arguments.map { it.fullYaml() }),
+                Pair("location", position?.yaml() ?: "none")
+            )
+        )
+
     override fun toString(): String =
         when {
             name == "Tuple${arguments.size}" ->
@@ -68,8 +93,8 @@ data class TCon(
                 "$name ${arguments.joinToString(" ") { it.toString() }}"
         }
 
-    override fun equals(other: Any?): Boolean =
-        other is TCon && name == other.name && arguments == other.arguments
+    override fun withPosition(position: Location): Type =
+        TCon(position, name, arguments)
 }
 
 data class TVar(
@@ -84,11 +109,19 @@ data class TVar(
     override fun ftv() =
         setOf(variable)
 
+    override fun fullYaml(): Any =
+        singletonMap(
+            "TVar", mapOf(
+                Pair("variable", variable),
+                Pair("location", position?.yaml() ?: "none")
+            )
+        )
+
     override fun toString(): String =
         "'$variable"
 
-    override fun equals(other: Any?): Boolean =
-        other is TVar && variable == other.variable
+    override fun withPosition(position: Location): Type =
+        TVar(position, variable)
 }
 
 private fun combine(a: Location?, b: Location?): Location? =

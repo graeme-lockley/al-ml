@@ -53,7 +53,7 @@ data class ExpressionNotProcedureError(val location: Location) : Errors {
 data class UnificationFail(
     val t1: Type, val t2: Type
 ) : Errors {
-    override fun yaml(): Any = singletonMap("UnificationFailError", mapOf(Pair("t1", t1.yaml()), Pair("t2", t2.yaml())))
+    override fun yaml(): Any = singletonMap("UnificationFailError", mapOf(Pair("t1", t1.fullYaml()), Pair("t2", t2.fullYaml())))
 }
 
 data class UnificationMismatch(

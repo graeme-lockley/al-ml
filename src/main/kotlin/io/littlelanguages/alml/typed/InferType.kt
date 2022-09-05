@@ -93,13 +93,13 @@ class InferType(
                 environment.type(e.name) ?: typeError
 
             is LiteralS32 ->
-                typeS32
+                typeS32.withPosition(e.position)
 
             is LiteralString ->
-                typeString
+                typeString.withPosition(e.position)
 
             is LiteralUnit ->
-                typeUnit
+                typeUnit.withPosition(e.position)
 
             else ->
                 typeError // TODO(e.toString()) // typeError
