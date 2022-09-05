@@ -68,7 +68,7 @@ private class Translator {
                 )
 
             is io.littlelanguages.alml.static.ast.LetValue -> {
-                val type = when (val inferResult = inferValueType(map(expression.type) { typeToType(it) }, expression.expression, environment)) {
+                val type = when (val inferResult = inferValueType(nullMap(expression.type) { typeToType(it) }, expression.expression, environment)) {
                     is Left -> {
                         errors.addAll(inferResult.left)
 
@@ -152,5 +152,5 @@ private class Translator {
         Identifier(identifier.position, identifier.name)
 }
 
-fun <S, T> map(value: S?, f: (S) -> T): T? =
+fun <S, T> nullMap(value: S?, f: (S) -> T): T? =
     if (value == null) null else f(value)
