@@ -12,9 +12,9 @@ private typealias Unifier =
         Pair<Substitution, Constraints>
 
 
-fun unifies(varPump: VarPump, constraints: Constraints, environment: Environment): Either<List<Errors>, Substitution> {
+fun unifies(constraints: Constraints): Either<List<Errors>, Substitution> {
     val context =
-        SolverContext(varPump, constraints.leftVar().merge(), environment)
+        SolverContext(constraints.leftVar().merge())
 
     val subst =
         context.solve()
@@ -26,7 +26,7 @@ fun unifies(varPump: VarPump, constraints: Constraints, environment: Environment
 }
 
 
-private class SolverContext(private var varPump: VarPump, private var constraints: Constraints, private val environment: Environment) {
+private class SolverContext(private var constraints: Constraints) {
     val errors =
         mutableListOf<Errors>()
 

@@ -684,11 +684,14 @@
                               type: S32
                     - assign:
                         symbol:
-                          toplevel-value: c
+                          toplevel-value:
+                            name: c
+                            type: S32
                         es:
                           - toplevel-value:
                               name: b
                               type: S32
+                        type: S32
 - scenario:
     name: Exceptions
     tests:

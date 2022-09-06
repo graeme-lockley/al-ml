@@ -66,7 +66,7 @@ fun inferValueType(type: Type?, e: Expression, environment: Environment = Enviro
 
     inferType.addConstraint(type, resultType)
 
-    return unifies(inferType.pump, inferType.constraints, environment) map { resultType.apply(it) }
+    return unifies(inferType.constraints) map { resultType.apply(it) }
 }
 
 class InferType(
@@ -74,7 +74,6 @@ class InferType(
     private val optimiseConstraints: Boolean = true
 ) {
     var constraints = Constraints()
-    val pump = VarPump()
 
     fun expressions(es: List<Expression>): Type {
         val ts = es.map { expression(it) }
