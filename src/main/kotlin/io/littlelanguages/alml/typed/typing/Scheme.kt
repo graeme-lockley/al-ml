@@ -4,10 +4,8 @@ data class Scheme(val parameters: List<Var>, val type: Type) {
     fun apply(s: Substitution): Scheme =
         Scheme(parameters, type.apply(s - parameters))
 
-
     override fun toString(): String =
         "<${parameters.joinToString(", ") { it.toString() }}> $type"
-
 
     fun instantiate(varPump: VarPump): Type {
         val asP =
@@ -75,4 +73,5 @@ fun generalise(type: Type, substitution: Substitution = nullSubstitution): Schem
     return Scheme(type1.ftv().toList(), type1)
 }
 
-
+fun typeToScheme(type: Type): Scheme =
+    Scheme(type.ftv().toList(), type)

@@ -1,5 +1,6 @@
 package io.littlelanguages.alml.typed.st
 
+import io.littlelanguages.alml.typed.typing.Scheme
 import io.littlelanguages.alml.typed.typing.Type
 import io.littlelanguages.data.Tuple2
 import io.littlelanguages.data.Yamlable
@@ -105,21 +106,18 @@ data class LetFunction(
     override val position: Location,
     val identifier: Identifier,
     val parameters: List<TypedIdentifier>,
-    val returnType: Type?,
+    val scheme: Scheme,
     val expression: Expression
 ) : Expression(position) {
-    override fun yaml(): Any {
-        val value = mapOf(
-            Pair("identifier", identifier.yaml()),
-            Pair("parameters", parameters.map { it.yaml() }),
-            Pair("expression", expression.yaml())
+    override fun yaml(): Any =
+        singletonMap(
+            "ConstProcedure", mapOf(
+                Pair("identifier", identifier.yaml()),
+                Pair("parameters", parameters.map { it.yaml() }),
+                Pair("expression", expression.yaml()),
+                Pair("scheme", scheme)
+            )
         )
-
-        return singletonMap(
-            "ConstProcedure",
-            if (returnType == null) value else value + Pair("return-type", returnType.yaml())
-        )
-    }
 }
 
 data class IfExpression(

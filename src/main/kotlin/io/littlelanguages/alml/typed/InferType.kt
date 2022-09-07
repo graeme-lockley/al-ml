@@ -5,6 +5,8 @@ import io.littlelanguages.alml.static.ast.*
 import io.littlelanguages.alml.typed.typing.*
 import io.littlelanguages.alml.typed.typing.Type
 import io.littlelanguages.data.Either
+import io.littlelanguages.data.Left
+import io.littlelanguages.data.Right
 
 /*
  Type inference rules:
@@ -69,6 +71,36 @@ fun inferValueType(type: Type?, e: Expression, environment: Environment = Enviro
     return unifies(inferType.constraints) map { resultType.apply(it) }
 }
 
+fun inferProcedureType(
+    name: String,
+    parameterName: List<String>,
+    e: Expression,
+    pump: VarPump,
+    environment: Environment
+): Either<List<Errors>, Type> {
+    val parameterTypes = parameterName.map { Pair(it, pump.fresh()) }
+    val returnType: Type = pump.fresh()
+    val procedureType = parameterTypes.foldRight(returnType) { t, acc -> TArr(t.second, acc) }
+
+    environment.openScope()
+    environment.add(name, procedureType)
+    parameterTypes.forEach { environment.add(it.first, it.second) }
+
+    val inferType = InferType(environment)
+    val inferredReturnType = inferType.expression(e)
+
+    inferType.addConstraint(returnType, inferredReturnType)
+    val unificationResult = unifies(inferType.constraints)
+    environment.closeScope()
+
+    return when (unificationResult) {
+        is Left -> Left(unificationResult.left)
+        is Right -> {
+            Right(procedureType.apply(unificationResult.right))
+        }
+    }
+}
+
 class InferType(
     private val environment: Environment,
     private val optimiseConstraints: Boolean = true
@@ -95,12 +127,31 @@ class InferType(
             is LiteralUnit ->
                 typeUnit.withPosition(e.position)
 
+            is BinaryOpExpression -> {
+                val leftType = expression(e.left)
+                val rightType = expression(e.right)
+
+                when (e.op.operator) {
+                    Operators.Plus, Operators.Minus, Operators.Multiply, Operators.Divide -> {
+                        addConstraint(leftType, typeS32)
+                        addConstraint(rightType, typeS32)
+
+                        typeS32.withPosition(e.position)
+                    }
+
+                    Operators.Equals, Operators.NotEquals, Operators.LessThan, Operators.LessEquals, Operators.GreaterThan, Operators.GreaterEquals -> {
+                        addConstraint(leftType, rightType)
+                        typeBool.withPosition(e.position)
+                    }
+                }
+            }
+
             else ->
                 typeError // TODO(e.toString()) // typeError
         }
 
     fun addConstraint(t1: Type?, t2: Type?) {
-        if (t1 != null && t2 != null)
+        if (t1 != null && t1 != typeError && t2 != null && t2 != typeError)
             if (optimiseConstraints && t1 != t2 || !optimiseConstraints)
                 constraints += Constraint(t1, t2)
     }

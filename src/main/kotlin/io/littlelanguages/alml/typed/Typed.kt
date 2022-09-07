@@ -14,6 +14,7 @@ fun translate(p: io.littlelanguages.alml.static.ast.Program): Either<List<Errors
 private class Translator {
     val errors = mutableListOf<Errors>()
     var environment = initialEnvironment()
+    var pump = VarPump()
 
     fun apply(p: io.littlelanguages.alml.static.ast.Program): Either<List<Errors>, Program> {
         val program = Program(expressionsToST(p.expressions))
@@ -58,14 +59,33 @@ private class Translator {
                     expressionToST(expression.expression)
                 )
 
-            is io.littlelanguages.alml.static.ast.LetFunction ->
+            is io.littlelanguages.alml.static.ast.LetFunction -> {
+                val type = when (val inferResult = inferProcedureType(
+                    expression.identifier.name,
+                    expression.parameters.map { it.id.name },
+                    expression.expression,
+                    pump,
+                    environment
+                )) {
+                    is Left -> {
+                        errors.addAll(inferResult.left)
+
+                        typeError
+                    }
+
+                    is Right -> inferResult.right
+                }
+
+                environment.add(expression.identifier.name, type)
+
                 LetFunction(
                     expression.position,
                     identifierToST(expression.identifier),
                     expression.parameters.map { typedIdentifierToST(it) },
-                    if (expression.returnType == null) null else typeToType(expression.returnType),
+                    typeToScheme(type),
                     expressionToST(expression.expression)
                 )
+            }
 
             is io.littlelanguages.alml.static.ast.LetValue -> {
                 val type = when (val inferResult = inferValueType(nullMap(expression.type) { typeToType(it) }, expression.expression, environment)) {

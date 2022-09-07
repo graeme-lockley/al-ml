@@ -40,6 +40,16 @@
             location: 17:1:18-29:1:30
 - name: Top-level let procedure declaration without free variables or type declarations
   input: |
+    let identity a = a
+  output:
+    - ConstProcedure:
+        identifier: identity
+        parameters:
+          - a
+        expression: a
+        scheme: "<0> '0 -> '0"
+- name: Top-level let procedure declaration without free variables or type declarationss
+  input: |
     let add a b = a + b
   output:
     - ConstProcedure:
@@ -52,3 +62,4 @@
             left: a
             op: Plus
             right: b
+        scheme: "<> S32 -> S32 -> S32"

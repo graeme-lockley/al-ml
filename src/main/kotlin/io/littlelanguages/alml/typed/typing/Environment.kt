@@ -11,6 +11,12 @@ data class Environment(
     fun add(name: String, type: Type) {
         typeBindings.add(name, type)
     }
+
+    fun openScope() =
+        typeBindings.open()
+
+    fun closeScope() =
+        typeBindings.close()
 }
 
 fun initialEnvironment(): Environment {
