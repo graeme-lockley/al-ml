@@ -38,7 +38,7 @@
             name: String
             arguments: [ ]
             location: 17:1:18-29:1:30
-- name: Top-level let procedure declaration without free variables or type declarations
+- name: Top-level let procedure declaration with free variables and no type declarations
   input: |
     let identity a = a
   output:
@@ -48,6 +48,28 @@
           - a
         expression: a
         scheme: "<0> '0 -> '0"
+- name: Top-level let procedure declaration with type declaration on parameter
+  input: |
+    let identity (a: String) = a
+  output:
+    - ConstProcedure:
+        identifier: identity
+        parameters:
+          - TypedIdentifier:
+              identifier: a
+              type: String
+        expression: a
+        scheme: "<> String -> String"
+- name: Top-level let procedure declaration with type declaration on result
+  input: |
+    let identity a : String = a
+  output:
+    - ConstProcedure:
+        identifier: identity
+        parameters:
+          - a
+        expression: a
+        scheme: "<> String -> String"
 - name: Top-level let procedure declaration without free variables or type declarationss
   input: |
     let add a b = a + b

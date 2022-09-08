@@ -4,9 +4,7 @@ import io.littlelanguages.alml.Errors
 import io.littlelanguages.alml.static.ast.*
 import io.littlelanguages.alml.typed.typing.*
 import io.littlelanguages.alml.typed.typing.Type
-import io.littlelanguages.data.Either
-import io.littlelanguages.data.Left
-import io.littlelanguages.data.Right
+import io.littlelanguages.data.*
 
 /*
  Type inference rules:
@@ -62,8 +60,8 @@ import io.littlelanguages.data.Right
         Try i1 i2: T
  */
 
-fun inferValueType(type: Type?, e: Expression, environment: Environment = Environment()): Either<List<Errors>, Type> {
-    val inferType = InferType(environment)
+fun inferValueType(type: Type?, e: Expression, pump: VarPump, environment: Environment = Environment()): Either<List<Errors>, Type> {
+    val inferType = InferType(pump, environment)
     val resultType = inferType.expression(e)
 
     inferType.addConstraint(type, resultType)
@@ -73,20 +71,21 @@ fun inferValueType(type: Type?, e: Expression, environment: Environment = Enviro
 
 fun inferProcedureType(
     name: String,
-    parameterName: List<String>,
+    parameters: List<Tuple2<String, Type?>>,
+    definedReturnType: Type?,
     e: Expression,
     pump: VarPump,
     environment: Environment
 ): Either<List<Errors>, Type> {
-    val parameterTypes = parameterName.map { Pair(it, pump.fresh()) }
-    val returnType: Type = pump.fresh()
+    val parameterTypes = parameters.map { Pair(it.a, it.b ?: pump.fresh()) }
+    val returnType: Type = definedReturnType ?: pump.fresh()
     val procedureType = parameterTypes.foldRight(returnType) { t, acc -> TArr(t.second, acc) }
 
     environment.openScope()
     environment.add(name, procedureType)
     parameterTypes.forEach { environment.add(it.first, it.second) }
 
-    val inferType = InferType(environment)
+    val inferType = InferType(pump, environment)
     val inferredReturnType = inferType.expression(e)
 
     inferType.addConstraint(returnType, inferredReturnType)
@@ -102,6 +101,7 @@ fun inferProcedureType(
 }
 
 class InferType(
+    private val pump: VarPump,
     private val environment: Environment,
     private val optimiseConstraints: Boolean = true
 ) {
@@ -116,7 +116,11 @@ class InferType(
     fun expression(e: Expression): Type =
         when (e) {
             is Identifier ->
-                environment.type(e.name) ?: typeError
+                when (val result = environment.type(e.name)) {
+                    is Union2a -> result.a()
+                    is Union2b -> result.b().instantiate(pump)
+                    else -> typeError
+                }
 
             is LiteralS32 ->
                 typeS32.withPosition(e.position)

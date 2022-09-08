@@ -62,7 +62,8 @@ private class Translator {
             is io.littlelanguages.alml.static.ast.LetFunction -> {
                 val type = when (val inferResult = inferProcedureType(
                     expression.identifier.name,
-                    expression.parameters.map { it.id.name },
+                    expression.parameters.map { Tuple2(it.id.name, nullTypeToType(it.type)) },
+                    nullTypeToType(expression.returnType),
                     expression.expression,
                     pump,
                     environment
@@ -88,17 +89,18 @@ private class Translator {
             }
 
             is io.littlelanguages.alml.static.ast.LetValue -> {
-                val type = when (val inferResult = inferValueType(nullMap(expression.type) { typeToType(it) }, expression.expression, environment)) {
-                    is Left -> {
-                        errors.addAll(inferResult.left)
+                val type =
+                    when (val inferResult = inferValueType(nullMap(expression.type) { typeToType(it) }, expression.expression, pump, environment)) {
+                        is Left -> {
+                            errors.addAll(inferResult.left)
 
-                        typeError
+                            typeError
+                        }
+
+                        is Right -> inferResult.right
                     }
 
-                    is Right -> inferResult.right
-                }
-
-                environment.add(expression.identifier.name, type)
+                environment.add(expression.identifier.name, typeToScheme(type))
 
                 LetValue(
                     expression.position,
@@ -150,6 +152,9 @@ private class Translator {
             identifierToST(typedIdentifier.id),
             if (typedIdentifier.type == null) null else typeToType(typedIdentifier.type)
         )
+
+    private fun nullTypeToType(type: io.littlelanguages.alml.static.ast.Type?): Type? =
+        nullMap(type) { typeToType(it) }
 
     private fun typeToType(type: io.littlelanguages.alml.static.ast.Type): Type =
         when (type) {
