@@ -55,7 +55,7 @@ private class Translator {
                 LambdaExpression(
                     expression.position,
                     expression.parameters.map { typedIdentifierToST(it) },
-                    if (expression.returnType == null) null else typeToType(expression.returnType),
+                    nullTypeToType(expression.returnType),
                     expressionToST(expression.expression)
                 )
 
@@ -90,7 +90,7 @@ private class Translator {
 
             is io.littlelanguages.alml.static.ast.LetValue -> {
                 val type =
-                    when (val inferResult = inferValueType(nullMap(expression.type) { typeToType(it) }, expression.expression, pump, environment)) {
+                    when (val inferResult = inferValueType(nullTypeToType(expression.type), expression.expression, pump, environment)) {
                         is Left -> {
                             errors.addAll(inferResult.left)
 
@@ -150,7 +150,7 @@ private class Translator {
         TypedIdentifier(
             typedIdentifier.position,
             identifierToST(typedIdentifier.id),
-            if (typedIdentifier.type == null) null else typeToType(typedIdentifier.type)
+            nullTypeToType(typedIdentifier.type)
         )
 
     private fun nullTypeToType(type: io.littlelanguages.alml.static.ast.Type?): Type? =
