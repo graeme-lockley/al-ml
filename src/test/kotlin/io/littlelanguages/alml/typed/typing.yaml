@@ -94,3 +94,40 @@
                         op: Plus
                         right: b
                     scheme: "<> S32 -> S32 -> S32"
+- scenario:
+    name: Expression Forms
+    tests:
+      - scenario:
+          name: Literal
+          tests:
+            - name: S32
+              input: |
+                let x = 123
+              output:
+                - ConstValue:
+                    identifier: x
+                    type: S32
+                    expression:
+                      LiteralInt: 123
+            - name: String
+              input: |
+                let x = "Hello world"
+              output:
+                - ConstValue:
+                    identifier: x
+                    type: String
+                    expression:
+                      LiteralString: '"Hello world"'
+            - name: Bool
+              input: |
+                let x = True;
+                let y = False
+              output:
+                - ConstValue:
+                    identifier: x
+                    type: Bool
+                    expression: "True"
+                - ConstValue:
+                    identifier: y
+                    type: Bool
+                    expression: "False"
