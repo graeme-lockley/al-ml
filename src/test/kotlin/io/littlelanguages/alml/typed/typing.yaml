@@ -1,87 +1,96 @@
-- name: Top-level let value literal assignment
-  input: |
-    let anS32 = 123;
-    let aString = "Hello World";
-    let aUnit = ();
-    let aBool = True
-  output:
-    - ConstValue:
-        identifier: anS32
-        type: S32
-        expression:
-          LiteralInt: 123
-    - ConstValue:
-        identifier: aString
-        type: String
-        expression:
-          LiteralString: '"Hello World"'
-    - ConstValue:
-        identifier: aUnit
-        type: Unit
-        expression: LiteralUnit
-    - ConstValue:
-        identifier: aBool
-        type: Bool
-        expression: "True"
-- name: Top-level let value assignment with type error
-  input: |
-    let anS32: S32 = "Hello World"
-  output:
-    - UnificationFailError:
-        t1:
-          TCon:
-            name: S32
-            arguments: [ ]
-            location: 11:1:12-13:1:14
-        t2:
-          TCon:
-            name: String
-            arguments: [ ]
-            location: 17:1:18-29:1:30
-- name: Top-level let procedure declaration with free variables and no type declarations
-  input: |
-    let identity a = a
-  output:
-    - ConstProcedure:
-        identifier: identity
-        parameters:
-          - a
-        expression: a
-        scheme: "<0> '0 -> '0"
-- name: Top-level let procedure declaration with type declaration on parameter
-  input: |
-    let identity (a: String) = a
-  output:
-    - ConstProcedure:
-        identifier: identity
-        parameters:
-          - TypedIdentifier:
-              identifier: a
-              type: String
-        expression: a
-        scheme: "<> String -> String"
-- name: Top-level let procedure declaration with type declaration on result
-  input: |
-    let identity a : String = a
-  output:
-    - ConstProcedure:
-        identifier: identity
-        parameters:
-          - a
-        expression: a
-        scheme: "<> String -> String"
-- name: Top-level let procedure declaration without free variables or type declarationss
-  input: |
-    let add a b = a + b
-  output:
-    - ConstProcedure:
-        identifier: add
-        parameters:
-          - a
-          - b
-        expression:
-          BinaryOpExpression:
-            left: a
-            op: Plus
-            right: b
-        scheme: "<> S32 -> S32 -> S32"
+- scenario:
+    name: Top-level declaration
+    tests:
+      - scenario:
+          name: Value
+          tests:
+            - name: Literal assignments
+              input: |
+                let anS32 = 123;
+                let aString = "Hello World";
+                let aUnit = ();
+                let aBool = True
+              output:
+                - ConstValue:
+                    identifier: anS32
+                    type: S32
+                    expression:
+                      LiteralInt: 123
+                - ConstValue:
+                    identifier: aString
+                    type: String
+                    expression:
+                      LiteralString: '"Hello World"'
+                - ConstValue:
+                    identifier: aUnit
+                    type: Unit
+                    expression: LiteralUnit
+                - ConstValue:
+                    identifier: aBool
+                    type: Bool
+                    expression: "True"
+            - name: Assignment with type error
+              input: |
+                let anS32: S32 = "Hello World"
+              output:
+                - UnificationFailError:
+                    t1:
+                      TCon:
+                        name: S32
+                        arguments: [ ]
+                        location: 11:1:12-13:1:14
+                    t2:
+                      TCon:
+                        name: String
+                        arguments: [ ]
+                        location: 17:1:18-29:1:30
+      - scenario:
+          name: Procedure
+          tests:
+            - name: Free variables and no type declarations
+              input: |
+                let identity a = a
+              output:
+                - ConstProcedure:
+                    identifier: identity
+                    parameters:
+                      - a
+                    expression: a
+                    scheme: "<0> '0 -> '0"
+            - name: Type declaration on parameter
+              input: |
+                let identity (a: String) = a
+              output:
+                - ConstProcedure:
+                    identifier: identity
+                    parameters:
+                      - TypedIdentifier:
+                          identifier: a
+                          type: String
+                    expression: a
+                    scheme: "<> String -> String"
+            - name: Type declaration on result
+              input: |
+                let identity a : String = a
+              output:
+                - ConstProcedure:
+                    identifier: identity
+                    parameters:
+                      - a
+                    expression: a
+                    scheme: "<> String -> String"
+            - name: Without free variables or type declarations
+              input: |
+                let add a b = a + b
+              output:
+                - ConstProcedure:
+                    identifier: add
+                    parameters:
+                      - a
+                      - b
+                    expression:
+                      BinaryOpExpression:
+                        left: a
+                        op: Plus
+                        right: b
+                    scheme: "<> S32 -> S32 -> S32"
