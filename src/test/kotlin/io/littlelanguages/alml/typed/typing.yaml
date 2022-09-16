@@ -131,3 +131,33 @@
                     identifier: y
                     type: Bool
                     expression: "False"
+      - scenario:
+          name: Signal
+          tests:
+            - name: String expression
+              input: |
+                let x = signal "Hello"
+              output:
+                - ConstValue:
+                    identifier: x
+                    type: Unit
+                    expression:
+                      Signal:
+                        expression:
+                          LiteralString: '"Hello"'
+            - name: Invalid expression
+              input: |
+                let x = signal 123
+              output:
+                - UnificationFailError:
+                    t1:
+                      TCon:
+                        name: S32
+                        arguments: [ ]
+                        location: 15:1:16-17:1:18
+                    t2:
+                      TCon:
+                        name: String
+                        arguments: [ ]
+                        location: none
+

@@ -13,6 +13,26 @@ import io.littlelanguages.data.*
         ---
         L |- Program i1...in d1..dm: Unit
 
+    Apply e a1 ... an:
+        L, e: T1 -> ... -> Tn -> Tr |- a1: T1 ... an: Tn
+        ---
+        L |- Apply e a1 ... an: Tr
+
+    BinaryOp el ('+', '-', '*', '/') er:
+        L |- el: S32  L |- er: S32
+        ---
+        L |- el ('+', '-', '*', '/') er: S32
+
+    BinaryOp el ('==', '!=') er:
+        L |- el: T  L |- er: T
+        ---
+        L |- el ('==', '!=') er: Bool
+
+    BinaryOp el ('<', '<=', '>', '>=) er:
+        L |- el: T  L |- er: T  T in {S32, String, Bool}
+        ---
+        L |- el ('<', '<=', '>', '>=) er: Bool
+
     Block e1; ...; en (n = 0):
         ---
         L |- e1; ...; en: Unit
@@ -21,11 +41,6 @@ import io.littlelanguages.data.*
         L |- e1: T1  ... L |- en: Tn
         ---
         L |- Block e1; ...; en (n > 0): Tn
-
-    CallProcedure e a1 ... an:
-        L, e: T1 -> ... -> Tn -> Tr |- a1: T1 ... an: Tn
-        ---
-        L |- CallProcedure e a1 ... an: Tr
 
     If e1 e2:
         L |- e1: Bool  L |- e2: S
@@ -115,22 +130,6 @@ class InferType(
 
     fun expression(e: Expression): Type =
         when (e) {
-            is Identifier ->
-                when (val result = environment.type(e.name)) {
-                    is Union2a -> result.a()
-                    is Union2b -> result.b().instantiate(pump)
-                    else -> typeError
-                }
-
-            is LiteralS32 ->
-                typeS32.withPosition(e.position)
-
-            is LiteralString ->
-                typeString.withPosition(e.position)
-
-            is LiteralUnit ->
-                typeUnit.withPosition(e.position)
-
             is BinaryOpExpression -> {
                 val leftType = expression(e.left)
                 val rightType = expression(e.right)
@@ -148,6 +147,29 @@ class InferType(
                         typeBool.withPosition(e.position)
                     }
                 }
+            }
+
+            is Identifier ->
+                when (val result = environment.type(e.name)) {
+                    is Union2a -> result.a()
+                    is Union2b -> result.b().instantiate(pump)
+                    else -> typeError
+                }
+
+            is LiteralS32 ->
+                typeS32.withPosition(e.position)
+
+            is LiteralString ->
+                typeString.withPosition(e.position)
+
+            is LiteralUnit ->
+                typeUnit.withPosition(e.position)
+
+            is SignalExpression -> {
+                val eType = expression(e.expression)
+                addConstraint(eType, typeString)
+
+                typeUnit
             }
 
             else ->
