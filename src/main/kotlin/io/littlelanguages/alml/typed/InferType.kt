@@ -81,16 +81,15 @@ import io.littlelanguages.data.*
  */
 
 fun inferAndBindValueType(letValue: LetValue, errors: MutableList<Errors>, pump: VarPump, environment: Environment): Type {
-    val type =
-        when (val inferResult = inferValueType(nullTypeToType(letValue.type), letValue.expression, pump, environment)) {
-            is Left -> {
-                errors.addAll(inferResult.left)
+    val type = when (val inferResult = inferValueType(nullTypeToType(letValue.type), letValue.expression, pump, environment)) {
+        is Left -> {
+            errors.addAll(inferResult.left)
 
-                typeError
-            }
-
-            is Right -> inferResult.right
+            typeError
         }
+
+        is Right -> inferResult.right
+    }
 
     environment.add(letValue.identifier.name, typeToScheme(type))
 
@@ -101,16 +100,23 @@ fun inferValueType(type: Type?, e: Expression, pump: VarPump, environment: Envir
     val inferType = InferType(pump, environment)
     val resultType = inferType.expression(e)
 
-    inferType.addConstraint(type, resultType)
+    return if (inferType.errors.isEmpty()) {
+        inferType.addConstraint(type, resultType)
 
-    return unifies(inferType.constraints) map { resultType.apply(it) }
+        unifies(inferType.constraints) map { resultType.apply(it) }
+    } else {
+        Left(inferType.errors)
+    }
 }
 
 fun inferAndBindProcedureType(letFunction: LetFunction, errors: MutableList<Errors>, pump: VarPump, environment: Environment): Scheme {
     val valueType = when (val unificationResult = inferProcedureType(
         letFunction.identifier.name,
         letFunction.parameters.map { Tuple2(it.id.name, nullTypeToType(it.type)) },
-        nullTypeToType(letFunction.returnType), letFunction.expression, pump, environment
+        nullTypeToType(letFunction.returnType),
+        letFunction.expression,
+        pump,
+        environment
     )) {
         is Left -> {
             errors.addAll(unificationResult.left)
@@ -142,15 +148,19 @@ private fun inferProcedureType(
     val inferType = InferType(pump, environment)
     val inferredReturnType = inferType.expression(e)
 
-    inferType.addConstraint(returnType, inferredReturnType)
-    val unificationResult = unifies(inferType.constraints)
-    environment.closeScope()
+    return if (inferType.errors.isEmpty()) {
+        inferType.addConstraint(returnType, inferredReturnType)
+        val unificationResult = unifies(inferType.constraints)
+        environment.closeScope()
 
-    return when (unificationResult) {
-        is Left -> Left(unificationResult.left)
-        is Right -> {
-            Right(procedureType.apply(unificationResult.right))
+        when (unificationResult) {
+            is Left -> Left(unificationResult.left)
+            is Right -> {
+                Right(procedureType.apply(unificationResult.right))
+            }
         }
+    } else {
+        Left(inferType.errors)
     }
 }
 
@@ -211,35 +221,35 @@ class InferType(
             else -> typeError
         }
 
-        is IfExpression ->
-            if (e.elseExpression == null) {
-                e.ifThenExpressions.forEach {
-                    val guardType = expression(it.a)
-                    expression(it.b)
-                    addConstraint(typeBool.withPosition(it.a.position), guardType)
-                }
-
-                typeUnit
-            } else {
-                val ifThenTypes = e.ifThenExpressions.map { Tuple2(expression(it.a), expression(it.b)) }
-                val elseType = expression(e.elseExpression)
-
-                ifThenTypes.forEach {
-                    addConstraint(it.a, typeBool)
-                    addConstraint(it.b, elseType)
-                }
-
-                elseType.withPosition(e.position)
+        is IfExpression -> if (e.elseExpression == null) {
+            e.ifThenExpressions.forEach {
+                val guardType = expression(it.a)
+                expression(it.b)
+                addConstraint(typeBool.withPosition(it.a.position), guardType)
             }
 
-        is LambdaExpression -> {
-            val unificationResult = inferProcedureType(
+            typeUnit
+        } else {
+            val ifThenTypes = e.ifThenExpressions.map { Tuple2(expression(it.a), expression(it.b)) }
+            val elseType = expression(e.elseExpression)
+
+            ifThenTypes.forEach {
+                addConstraint(it.a, typeBool)
+                addConstraint(it.b, elseType)
+            }
+
+            elseType.withPosition(e.position)
+        }
+
+        is LambdaExpression ->
+            when (val unificationResult = inferProcedureType(
                 null,
                 e.parameters.map { Tuple2(it.id.name, nullTypeToType(it.type)) },
-                nullTypeToType(e.returnType), e.expression, pump, environment
-            )
-
-            when (unificationResult) {
+                nullTypeToType(e.returnType),
+                e.expression,
+                pump,
+                environment
+            )) {
                 is Left -> {
                     errors.addAll(unificationResult.left)
                     typeError
@@ -247,7 +257,6 @@ class InferType(
 
                 is Right -> unificationResult.right
             }
-        }
 
         is LetFunction -> inferAndBindProcedureType(e, errors, pump, environment).instantiate(pump)
 
@@ -280,15 +289,13 @@ class InferType(
 
     fun addConstraint(t1: Type?, t2: Type?) {
         if (t1 != null && !t1.isError() && t2 != null && !t2.isError()) if (optimiseConstraints && t1 != t2 || !optimiseConstraints) constraints += Constraint(
-            t1,
-            t2
+            t1, t2
         )
     }
 }
 
-private fun Type.isError(): Boolean =
-    when (this) {
-        is TArr -> this.domain.isError() || this.range.isError()
-        is TCon -> this.name == typeError.name && this.arguments.isEmpty() || this.arguments.any { it.isError() }
-        is TVar -> false
-    }
+private fun Type.isError(): Boolean = when (this) {
+    is TArr -> this.domain.isError() || this.range.isError()
+    is TCon -> this.name == typeError.name && this.arguments.isEmpty() || this.arguments.any { it.isError() }
+    is TVar -> false
+}
