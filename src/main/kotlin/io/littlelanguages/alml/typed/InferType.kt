@@ -128,6 +128,19 @@ class InferType(
     }
 
     fun expression(e: Expression): Type = when (e) {
+        is ApplyExpression -> {
+            val esTypes = e.expressions.map { expression(it) }
+
+            val fType = esTypes[0]
+            val argTypes = esTypes.drop(1)
+
+            val resultType: Type = pump.fresh()
+
+            addConstraint(fType, argTypes.foldRight(resultType) { type, acc -> TArr(type, acc) })
+
+            resultType
+        }
+
         is BinaryOpExpression -> {
             val leftType = expression(e.left)
             val rightType = expression(e.right)
@@ -148,7 +161,7 @@ class InferType(
         }
 
         is BlockExpression -> {
-            val types = e.expressions.map{expression(it)}
+            val types = e.expressions.map { expression(it) }
 
             if (types.isEmpty()) typeUnit else types.last()
         }

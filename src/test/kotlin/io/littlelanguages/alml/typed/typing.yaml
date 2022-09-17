@@ -98,6 +98,35 @@
     name: Expression Forms
     tests:
       - scenario:
+          name: Apply
+          tests:
+            - name: Simple
+              input: |
+                let constant a = a;
+                let value1 = constant 10;
+                let value2 = constant "Hello"
+              output:
+                - ConstProcedure:
+                    identifier: constant
+                    parameters:
+                      - a
+                    expression: a
+                    scheme: "<0> '0 -> '0"
+                - ConstValue:
+                    identifier: value1
+                    type: S32
+                    expression:
+                      ApplyExpression:
+                        - constant
+                        - LiteralInt: 10
+                - ConstValue:
+                    identifier: value2
+                    type: String
+                    expression:
+                      ApplyExpression:
+                        - constant
+                        - LiteralString: '"Hello"'
+      - scenario:
           name: Block
           tests:
             - name: Single
