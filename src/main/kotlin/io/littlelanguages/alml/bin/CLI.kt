@@ -142,10 +142,10 @@ fun formatError(error: Errors): String =
             "Unknown Symbol: ${formatLocation(error.location)}: Reference to unknown symbol \"${error.name}\""
 
         is UnificationFail ->
-            TODO()
+            "Unification Error: $error"
 
         is UnificationMismatch ->
-            TODO()
+            "Unification Mismatch: $error"
     }
 
 fun compile(input: File, triple: String, output: File) {

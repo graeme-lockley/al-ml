@@ -281,9 +281,16 @@ class InferType(
     }
 
     fun addConstraint(t1: Type?, t2: Type?) {
-        if (t1 != null && t1 != typeError && t2 != null && t2 != typeError) if (optimiseConstraints && t1 != t2 || !optimiseConstraints) constraints += Constraint(
+        if (t1 != null && !t1.isError() && t2 != null && !t2.isError()) if (optimiseConstraints && t1 != t2 || !optimiseConstraints) constraints += Constraint(
             t1,
             t2
         )
     }
 }
+
+private fun Type.isError(): Boolean =
+    when (this) {
+        is TArr -> this.domain.isError() || this.range.isError()
+        is TCon -> this.name == typeError.name && this.arguments.isEmpty() || this.arguments.any { it.isError() }
+        is TVar -> false
+    }
