@@ -60,30 +60,13 @@ private class Translator {
                 )
 
             is io.littlelanguages.alml.static.ast.LetFunction -> {
-                val type = when (val inferResult = inferProcedureType(
-                    expression.identifier.name,
-                    expression.parameters.map { Tuple2(it.id.name, nullTypeToType(it.type)) },
-                    nullTypeToType(expression.returnType),
-                    expression.expression,
-                    pump,
-                    environment
-                )) {
-                    is Left -> {
-                        errors.addAll(inferResult.left)
-
-                        typeError
-                    }
-
-                    is Right -> inferResult.right
-                }
-
-                environment.add(expression.identifier.name, type)
+                val scheme = inferAndBindProcedureType(expression, errors, pump, environment)
 
                 LetFunction(
                     expression.position,
                     identifierToST(expression.identifier),
                     expression.parameters.map { typedIdentifierToST(it) },
-                    typeToScheme(type),
+                    scheme,
                     expressionToST(expression.expression)
                 )
             }

@@ -352,6 +352,61 @@
                     type: Bool
                     expression: "False"
       - scenario:
+          name: LetFunction
+          tests:
+            - name: nested
+              input: |
+                let x = {
+                  let double a = a + a;
+                  double 10
+                }
+              output:
+                - ConstValue:
+                    identifier: x
+                    type: S32
+                    expression:
+                      Block:
+                        expressions:
+                          - ConstProcedure:
+                              identifier: double
+                              parameters:
+                                - a
+                              expression:
+                                BinaryOpExpression:
+                                  left: a
+                                  op: Plus
+                                  right: a
+                              scheme: "<> S32 -> S32"
+                          - ApplyExpression:
+                              - double
+                              - LiteralInt: 10
+      - scenario:
+          name: LetValue
+          tests:
+            - name: nested
+              input: |
+                let x = {
+                  let y = 10;
+                  y * 2
+                }
+              output:
+                - ConstValue:
+                    identifier: x
+                    type: S32
+                    expression:
+                      Block:
+                        expressions:
+                          - ConstValue:
+                              identifier: y
+                              type: S32
+                              expression:
+                                LiteralInt: 10
+                          - BinaryOpExpression:
+                              left: y
+                              op: Multiply
+                              right:
+                                LiteralInt: 2
+      - scenario:
           name: Signal
           tests:
             - name: String expression

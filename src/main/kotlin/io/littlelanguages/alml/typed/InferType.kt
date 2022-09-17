@@ -89,7 +89,27 @@ fun inferValueType(type: Type?, e: Expression, pump: VarPump, environment: Envir
     return unifies(inferType.constraints) map { resultType.apply(it) }
 }
 
-fun inferProcedureType(
+fun inferAndBindProcedureType(e: LetFunction, errors: MutableList<Errors>, pump: VarPump, environment: Environment): Scheme {
+    val valueType = when (val unificationResult = inferProcedureType(
+        e.identifier.name,
+        e.parameters.map { Tuple2(it.id.name, nullTypeToType(it.type)) },
+        nullTypeToType(e.returnType), e.expression, pump, environment
+    )) {
+        is Left -> {
+            errors.addAll(unificationResult.left)
+            typeError
+        }
+
+        is Right -> unificationResult.right
+    }
+    val scheme = typeToScheme(valueType)
+
+    environment.add(e.identifier.name, scheme)
+
+    return scheme
+}
+
+private fun inferProcedureType(
     name: String, parameters: List<Tuple2<String, Type?>>, definedReturnType: Type?, e: Expression, pump: VarPump, environment: Environment
 ): Either<List<Errors>, Type> {
     val parameterTypes = parameters.map { Pair(it.a, it.b ?: pump.fresh()) }
@@ -218,6 +238,23 @@ class InferType(
             }
         }
 
+        is LetFunction -> inferAndBindProcedureType(e, errors, pump, environment).instantiate(pump)
+
+        is LetValue -> {
+            val valueType = when (val unificationResult = inferValueType(nullTypeToType(e.type), e.expression, pump, environment)) {
+                is Left -> {
+                    errors.addAll(unificationResult.left)
+                    typeError
+                }
+
+                is Right -> unificationResult.right
+            }
+
+            environment.add(e.identifier.name, valueType)
+
+            valueType
+        }
+
         is LiteralS32 -> typeS32.withPosition(e.position)
 
         is LiteralString -> typeString.withPosition(e.position)
@@ -240,7 +277,7 @@ class InferType(
             bodyT
         }
 
-        else -> typeError // TODO(e.toString()) // typeError
+        is TypedExpression -> TODO()
     }
 
     fun addConstraint(t1: Type?, t2: Type?) {
