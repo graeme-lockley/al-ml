@@ -547,7 +547,9 @@
                         type: S32
                     - assign:
                         symbol:
-                          toplevel-value: f
+                          toplevel-value:
+                            name: f
+                            type: S32
                         es:
                           - assign:
                               symbol:
@@ -592,6 +594,7 @@
                                     offset: 2
                               line-number: 7
                               type: S32
+                        type: S32
       - name: Top-level declaration with embedded declaration
         input: |
           let a = { let b = 1
@@ -610,7 +613,9 @@
                   es:
                     - assign:
                         symbol:
-                          toplevel-value: a
+                          toplevel-value:
+                            name: a
+                            type: S32
                         es:
                           - assign:
                               symbol:
@@ -631,6 +636,7 @@
                                 - 1
                               line-number: 2
                               type: S32
+                        type: S32
       - name: Top-level declaration with embedded replacement declaration
         input: |
           let b = 1;
@@ -661,7 +667,9 @@
                         type: S32
                     - assign:
                         symbol:
-                          toplevel-value: a
+                          toplevel-value:
+                            name: a
+                            type: S32
                         es:
                           - assign:
                               symbol:
@@ -682,6 +690,7 @@
                                 - 1
                               line-number: 3
                               type: S32
+                        type: S32
                     - assign:
                         symbol:
                           toplevel-value:

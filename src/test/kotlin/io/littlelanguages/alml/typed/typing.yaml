@@ -98,6 +98,31 @@
     name: Expression Forms
     tests:
       - scenario:
+          name: Block
+          tests:
+            - name: Single
+              input: |
+                let x = { 1 }
+              output:
+                - ConstValue:
+                    identifier: x
+                    type: S32
+                    expression:
+                      LiteralInt: 1
+            - name: Multiple
+              input: |
+                let x = { 1; 2; 3 }
+              output:
+                - ConstValue:
+                    identifier: x
+                    type: S32
+                    expression:
+                      Block:
+                        expressions:
+                          - LiteralInt: 1
+                          - LiteralInt: 2
+                          - LiteralInt: 3
+      - scenario:
           name: Lambda
           tests:
             - name: Untyped
@@ -214,4 +239,49 @@
                         name: String
                         arguments: [ ]
                         location: none
-
+      - scenario:
+          name: Try
+          tests:
+            - name: Catch exception
+              input:
+                let value = 
+                  try
+                    (10 / 0)
+                    (\e -> 0)
+              output:
+                - ConstValue:
+                    identifier: value
+                    type: S32
+                    expression:
+                      Try:
+                        body:
+                          BinaryOpExpression:
+                            left:
+                              LiteralInt: 10
+                            op: Divide
+                            right:
+                              LiteralInt: 0
+                        catch:
+                          proc:
+                            parameters:
+                              - e
+                            expression:
+                              LiteralInt: 0
+            - name: Catch exception error
+              input:
+                let value = 
+                  try
+                    (10 / 0)
+                    (\e -> "oops")
+              output:
+                - UnificationFailError:
+                    t1:
+                      TCon:
+                        name: S32
+                        arguments: []
+                        location: 17:1:18-22:1:23
+                    t2:
+                      TCon:
+                        name: String
+                        arguments: []
+                        location: 32:1:33-37:1:38

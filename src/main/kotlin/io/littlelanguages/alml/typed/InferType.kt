@@ -75,7 +75,7 @@ import io.littlelanguages.data.*
         L |- Signal e: Unit
 
     Try i1 i2:
-        L, i1: T, i2: String -> T |-
+        L |- i1: T  L |- i2: String -> T
         ---
         Try i1 i2: T
  */
@@ -147,6 +147,12 @@ class InferType(
             }
         }
 
+        is BlockExpression -> {
+            val types = e.expressions.map{expression(it)}
+
+            if (types.isEmpty()) typeUnit else types.last()
+        }
+
         is Identifier -> when (val result = environment.type(e.name)) {
             is Union2a -> result.a()
             is Union2b -> result.b().instantiate(pump)
@@ -189,6 +195,15 @@ class InferType(
             addConstraint(eType, typeString)
 
             typeUnit
+        }
+
+        is TryExpression -> {
+            val bodyT = expression(e.body)
+            val catchT = expression(e.catch)
+
+            addConstraint(TArr(typeString, bodyT), catchT)
+
+            bodyT
         }
 
         else -> typeError // TODO(e.toString()) // typeError
