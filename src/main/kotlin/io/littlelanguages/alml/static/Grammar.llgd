@@ -24,7 +24,7 @@ IfExpression
   ;
 
 LambdaExpression
-  : "\" TypedIdentifier {TypedIdentifier} [":" Type]"->" Expression
+  : "\" TypedIdentifier {TypedIdentifier} [":" Type] "->" Expression
   | RelationalExpression
   ;
 
