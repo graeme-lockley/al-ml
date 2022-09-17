@@ -72,18 +72,7 @@ private class Translator {
             }
 
             is io.littlelanguages.alml.static.ast.LetValue -> {
-                val type =
-                    when (val inferResult = inferValueType(nullTypeToType(expression.type), expression.expression, pump, environment)) {
-                        is Left -> {
-                            errors.addAll(inferResult.left)
-
-                            typeError
-                        }
-
-                        is Right -> inferResult.right
-                    }
-
-                environment.add(expression.identifier.name, typeToScheme(type))
+                val type = inferAndBindValueType(expression, errors, pump, environment)
 
                 LetValue(
                     expression.position,

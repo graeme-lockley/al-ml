@@ -80,6 +80,23 @@ import io.littlelanguages.data.*
         Try i1 i2: T
  */
 
+fun inferAndBindValueType(letValue: LetValue, errors: MutableList<Errors>, pump: VarPump, environment: Environment): Type {
+    val type =
+        when (val inferResult = inferValueType(nullTypeToType(letValue.type), letValue.expression, pump, environment)) {
+            is Left -> {
+                errors.addAll(inferResult.left)
+
+                typeError
+            }
+
+            is Right -> inferResult.right
+        }
+
+    environment.add(letValue.identifier.name, typeToScheme(type))
+
+    return type
+}
+
 fun inferValueType(type: Type?, e: Expression, pump: VarPump, environment: Environment = Environment()): Either<List<Errors>, Type> {
     val inferType = InferType(pump, environment)
     val resultType = inferType.expression(e)
@@ -89,11 +106,11 @@ fun inferValueType(type: Type?, e: Expression, pump: VarPump, environment: Envir
     return unifies(inferType.constraints) map { resultType.apply(it) }
 }
 
-fun inferAndBindProcedureType(e: LetFunction, errors: MutableList<Errors>, pump: VarPump, environment: Environment): Scheme {
+fun inferAndBindProcedureType(letFunction: LetFunction, errors: MutableList<Errors>, pump: VarPump, environment: Environment): Scheme {
     val valueType = when (val unificationResult = inferProcedureType(
-        e.identifier.name,
-        e.parameters.map { Tuple2(it.id.name, nullTypeToType(it.type)) },
-        nullTypeToType(e.returnType), e.expression, pump, environment
+        letFunction.identifier.name,
+        letFunction.parameters.map { Tuple2(it.id.name, nullTypeToType(it.type)) },
+        nullTypeToType(letFunction.returnType), letFunction.expression, pump, environment
     )) {
         is Left -> {
             errors.addAll(unificationResult.left)
@@ -104,7 +121,7 @@ fun inferAndBindProcedureType(e: LetFunction, errors: MutableList<Errors>, pump:
     }
     val scheme = typeToScheme(valueType)
 
-    environment.add(e.identifier.name, scheme)
+    environment.add(letFunction.identifier.name, scheme)
 
     return scheme
 }
@@ -240,20 +257,7 @@ class InferType(
 
         is LetFunction -> inferAndBindProcedureType(e, errors, pump, environment).instantiate(pump)
 
-        is LetValue -> {
-            val valueType = when (val unificationResult = inferValueType(nullTypeToType(e.type), e.expression, pump, environment)) {
-                is Left -> {
-                    errors.addAll(unificationResult.left)
-                    typeError
-                }
-
-                is Right -> unificationResult.right
-            }
-
-            environment.add(e.identifier.name, valueType)
-
-            valueType
-        }
+        is LetValue -> inferAndBindValueType(e, errors, pump, environment)
 
         is LiteralS32 -> typeS32.withPosition(e.position)
 
