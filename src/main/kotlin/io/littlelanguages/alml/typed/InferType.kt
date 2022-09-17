@@ -52,6 +52,11 @@ import io.littlelanguages.data.*
         ---
         L |- If e1 e2 e3: S
 
+    Lambda p1 ... pn -> e:
+        L, p1: T1, ..., pn: Tn |- e: T
+        ---
+        L |- Lambda p1 ... pn -> e: T1 -> ... -> Tn -> T
+
     LiteralS32:
         ---
         L |- n: S32
@@ -85,12 +90,7 @@ fun inferValueType(type: Type?, e: Expression, pump: VarPump, environment: Envir
 }
 
 fun inferProcedureType(
-    name: String,
-    parameters: List<Tuple2<String, Type?>>,
-    definedReturnType: Type?,
-    e: Expression,
-    pump: VarPump,
-    environment: Environment
+    name: String, parameters: List<Tuple2<String, Type?>>, definedReturnType: Type?, e: Expression, pump: VarPump, environment: Environment
 ): Either<List<Errors>, Type> {
     val parameterTypes = parameters.map { Pair(it.a, it.b ?: pump.fresh()) }
     val returnType: Type = definedReturnType ?: pump.fresh()
@@ -116,10 +116,9 @@ fun inferProcedureType(
 }
 
 class InferType(
-    private val pump: VarPump,
-    private val environment: Environment,
-    private val optimiseConstraints: Boolean = true
+    private val pump: VarPump, private val environment: Environment, private val optimiseConstraints: Boolean = true
 ) {
+    val errors = mutableListOf<Errors>()
     var constraints = Constraints()
 
     fun expressions(es: List<Expression>): Type {
@@ -128,57 +127,77 @@ class InferType(
         return if (ts.isEmpty()) typeUnit else ts.last()
     }
 
-    fun expression(e: Expression): Type =
-        when (e) {
-            is BinaryOpExpression -> {
-                val leftType = expression(e.left)
-                val rightType = expression(e.right)
+    fun expression(e: Expression): Type = when (e) {
+        is BinaryOpExpression -> {
+            val leftType = expression(e.left)
+            val rightType = expression(e.right)
 
-                when (e.op.operator) {
-                    Operators.Plus, Operators.Minus, Operators.Multiply, Operators.Divide -> {
-                        addConstraint(leftType, typeS32)
-                        addConstraint(rightType, typeS32)
+            when (e.op.operator) {
+                Operators.Plus, Operators.Minus, Operators.Multiply, Operators.Divide -> {
+                    addConstraint(leftType, typeS32)
+                    addConstraint(rightType, typeS32)
 
-                        typeS32.withPosition(e.position)
-                    }
-
-                    Operators.Equals, Operators.NotEquals, Operators.LessThan, Operators.LessEquals, Operators.GreaterThan, Operators.GreaterEquals -> {
-                        addConstraint(leftType, rightType)
-                        typeBool.withPosition(e.position)
-                    }
-                }
-            }
-
-            is Identifier ->
-                when (val result = environment.type(e.name)) {
-                    is Union2a -> result.a()
-                    is Union2b -> result.b().instantiate(pump)
-                    else -> typeError
+                    typeS32.withPosition(e.position)
                 }
 
-            is LiteralS32 ->
-                typeS32.withPosition(e.position)
-
-            is LiteralString ->
-                typeString.withPosition(e.position)
-
-            is LiteralUnit ->
-                typeUnit.withPosition(e.position)
-
-            is SignalExpression -> {
-                val eType = expression(e.expression)
-                addConstraint(eType, typeString)
-
-                typeUnit
+                Operators.Equals, Operators.NotEquals, Operators.LessThan, Operators.LessEquals, Operators.GreaterThan, Operators.GreaterEquals -> {
+                    addConstraint(leftType, rightType)
+                    typeBool.withPosition(e.position)
+                }
             }
-
-            else ->
-                typeError // TODO(e.toString()) // typeError
         }
 
+        is Identifier -> when (val result = environment.type(e.name)) {
+            is Union2a -> result.a()
+            is Union2b -> result.b().instantiate(pump)
+            else -> typeError
+        }
+
+        is LambdaExpression -> {
+            val parameterTypes = e.parameters.map { Pair(it.id.name, nullTypeToType(it.type) ?: pump.fresh()) }
+            val returnType: Type = nullTypeToType(e.returnType) ?: pump.fresh()
+            val procedureType = parameterTypes.foldRight(returnType) { t, acc -> TArr(t.second, acc) }
+
+            environment.openScope()
+            parameterTypes.forEach { environment.add(it.first, it.second) }
+
+            val inferType = InferType(pump, environment)
+            val inferredReturnType = inferType.expression(e.expression)
+
+            inferType.addConstraint(returnType, inferredReturnType)
+            val unificationResult = unifies(inferType.constraints)
+            environment.closeScope()
+
+            when (unificationResult) {
+                is Left -> {
+                    errors.addAll(unificationResult.left)
+                    typeError
+                }
+
+                is Right -> procedureType.apply(unificationResult.right)
+            }
+        }
+
+        is LiteralS32 -> typeS32.withPosition(e.position)
+
+        is LiteralString -> typeString.withPosition(e.position)
+
+        is LiteralUnit -> typeUnit.withPosition(e.position)
+
+        is SignalExpression -> {
+            val eType = expression(e.expression)
+            addConstraint(eType, typeString)
+
+            typeUnit
+        }
+
+        else -> typeError // TODO(e.toString()) // typeError
+    }
+
     fun addConstraint(t1: Type?, t2: Type?) {
-        if (t1 != null && t1 != typeError && t2 != null && t2 != typeError)
-            if (optimiseConstraints && t1 != t2 || !optimiseConstraints)
-                constraints += Constraint(t1, t2)
+        if (t1 != null && t1 != typeError && t2 != null && t2 != typeError) if (optimiseConstraints && t1 != t2 || !optimiseConstraints) constraints += Constraint(
+            t1,
+            t2
+        )
     }
 }

@@ -98,6 +98,60 @@
     name: Expression Forms
     tests:
       - scenario:
+          name: Lambda
+          tests:
+            - name: Untyped
+              input: |
+                let second = \a b -> b
+              output:
+                - ConstValue:
+                    identifier: second
+                    type: "'0 -> '1 -> '1"
+                    expression:
+                      proc:
+                        parameters:
+                          - a
+                          - b
+                        expression:
+                          b
+            - name: Typed
+              input: |
+                let second = \(a: S32) (b: S32) -> b
+              output:
+                - ConstValue:
+                    identifier: second
+                    type: "S32 -> S32 -> S32"
+                    expression:
+                      proc:
+                        parameters:
+                          - TypedIdentifier:
+                              identifier: a
+                              type: S32
+                          - TypedIdentifier:
+                              identifier: b
+                              type: S32
+                        expression:
+                          b
+            - name: Reference enclosing scope
+              input: |
+                let something = 10;
+                let second = \a -> something
+              output:
+                - ConstValue:
+                    identifier: something
+                    type: S32
+                    expression:
+                      LiteralInt: 10
+                - ConstValue:
+                    identifier: second
+                    type: "'0 -> S32"
+                    expression:
+                      proc:
+                        parameters:
+                          - a
+                        expression:
+                          something
+      - scenario:
           name: Literal
           tests:
             - name: S32

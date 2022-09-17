@@ -153,29 +153,29 @@ private class Translator {
             nullTypeToType(typedIdentifier.type)
         )
 
-    private fun nullTypeToType(type: io.littlelanguages.alml.static.ast.Type?): Type? =
-        nullMap(type) { typeToType(it) }
-
-    private fun typeToType(type: io.littlelanguages.alml.static.ast.Type): Type =
-        when (type) {
-            is io.littlelanguages.alml.static.ast.AbstractDataType -> TCon(
-                type.position,
-                type.identifier.name,
-                type.arguments.map { typeToType(it) })
-
-            is io.littlelanguages.alml.static.ast.FunctionType -> {
-                val types = type.signature.map { typeToType(it) }
-
-                if (types.isEmpty()) typeUnit else types.dropLast(1).foldRight(types.last()) { a, b -> TArr(a, b) }
-            }
-
-            is io.littlelanguages.alml.static.ast.VariableType ->
-                TODO("typeToST: $type")
-        }
-
     private fun identifierToST(identifier: io.littlelanguages.alml.static.ast.Identifier): Identifier =
         Identifier(identifier.position, identifier.name)
 }
+
+fun nullTypeToType(type: io.littlelanguages.alml.static.ast.Type?): Type? =
+    nullMap(type) { typeToType(it) }
+
+private fun typeToType(type: io.littlelanguages.alml.static.ast.Type): Type =
+    when (type) {
+        is io.littlelanguages.alml.static.ast.AbstractDataType -> TCon(
+            type.position,
+            type.identifier.name,
+            type.arguments.map { typeToType(it) })
+
+        is io.littlelanguages.alml.static.ast.FunctionType -> {
+            val types = type.signature.map { typeToType(it) }
+
+            if (types.isEmpty()) typeUnit else types.dropLast(1).foldRight(types.last()) { a, b -> TArr(a, b) }
+        }
+
+        is io.littlelanguages.alml.static.ast.VariableType ->
+            TODO("typeToST: $type")
+    }
 
 fun <S, T> nullMap(value: S?, f: (S) -> T): T? =
     if (value == null) null else f(value)
