@@ -72,7 +72,7 @@ import io.littlelanguages.data.*
     Signal e:
         L |- e: String
         ---
-        L |- Signal e: Unit
+        L |- Signal e: T
 
     Try i1 i2:
         L |- i1: T  L |- i2: String -> T
@@ -172,6 +172,27 @@ class InferType(
             else -> typeError
         }
 
+        is IfExpression ->
+            if (e.elseExpression == null) {
+                e.ifThenExpressions.forEach {
+                    val guardType = expression(it.a)
+                    expression(it.b)
+                    addConstraint(typeBool.withPosition(it.a.position), guardType)
+                }
+
+                typeUnit
+            } else {
+                val ifThenTypes = e.ifThenExpressions.map { Tuple2(expression(it.a), expression(it.b)) }
+                val elseType = expression(e.elseExpression)
+
+                ifThenTypes.forEach {
+                    addConstraint(it.a, typeBool)
+                    addConstraint(it.b, elseType)
+                }
+
+                elseType.withPosition(e.position)
+            }
+
         is LambdaExpression -> {
             val parameterTypes = e.parameters.map { Pair(it.id.name, nullTypeToType(it.type) ?: pump.fresh()) }
             val returnType: Type = nullTypeToType(e.returnType) ?: pump.fresh()
@@ -207,7 +228,7 @@ class InferType(
             val eType = expression(e.expression)
             addConstraint(eType, typeString)
 
-            typeUnit
+            pump.fresh(e.position)
         }
 
         is TryExpression -> {

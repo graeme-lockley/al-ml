@@ -126,9 +126,7 @@ data class IfExpression(
     val elseExpression: Expression?
 ) : Expression(position) {
     override fun yaml(): Any {
-        val value = mapOf(
-            Pair("if-expressions", ifThenExpressions.map { Pair(it.a.yaml(), it.b.yaml()) })
-        )
+        val value = mapOf(Pair("if-expressions", ifThenExpressions.map { mapOf(Pair("guard", it.a.yaml()), Pair("body", it.b.yaml())) }))
 
         return singletonMap(
             "If",

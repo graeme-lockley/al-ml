@@ -152,6 +152,118 @@
                           - LiteralInt: 2
                           - LiteralInt: 3
       - scenario:
+          name: If
+          tests:
+            - name: With else
+              input: |
+                let a = 10;
+                let b =
+                  if a == 0 -> 1
+                   | a == 1 -> 5
+                  else 10
+              output:
+                - ConstValue:
+                    identifier: a
+                    type: S32
+                    expression:
+                      LiteralInt: 10
+                - ConstValue:
+                    identifier: b
+                    type: S32
+                    expression:
+                      If:
+                        if-expressions:
+                          - guard:
+                              BinaryOpExpression:
+                                left: a
+                                op: Equals
+                                right:
+                                  LiteralInt: 0
+                            body:
+                              LiteralInt: 1
+                          - guard:
+                              BinaryOpExpression:
+                                left: a
+                                op: Equals
+                                right:
+                                  LiteralInt: 1
+                            body:
+                              LiteralInt: 5
+                        else-expression:
+                          LiteralInt: 10
+            - name: Without else
+              input:
+                let a = 10;
+                let b =
+                  if a == 0 -> 1
+                   | a == 1 -> 5
+              output:
+                - ConstValue:
+                    identifier: a
+                    type: S32
+                    expression:
+                      LiteralInt: 10
+                - ConstValue:
+                    identifier: b
+                    type: Unit
+                    expression:
+                      If:
+                        if-expressions:
+                          - guard:
+                              BinaryOpExpression:
+                                left: a
+                                op: Equals
+                                right:
+                                  LiteralInt: 0
+                            body:
+                              LiteralInt: 1
+                          - guard:
+                              BinaryOpExpression:
+                                left: a
+                                op: Equals
+                                right:
+                                  LiteralInt: 1
+                            body:
+                              LiteralInt: 5
+            - name: Illegal guard
+              input: |
+                let a = 10;
+                let b =
+                  if a == 0 -> 1
+                   | "Hello" -> 5
+                  else 10
+              output:
+                - UnificationFailError:
+                    t1:
+                      TCon:
+                        name: String
+                        arguments: []
+                        location: 42:4:6-48:4:12
+                    t2:
+                      TCon:
+                        name: Bool
+                        arguments: []
+                        location: none
+            - name: Actions do not unify
+              input: |
+                let a = 10;
+                let b =
+                  if a == 0 -> "Hello"
+                   | a == 1 -> 5
+                  else 10
+              output:
+                - UnificationFailError:
+                    t1:
+                      TCon:
+                        name: String
+                        arguments: []
+                        location: 35:3:16-41:3:22
+                    t2:
+                      TCon:
+                        name: S32
+                        arguments: []
+                        location: 67:5:8-68:5:9
+      - scenario:
           name: Lambda
           tests:
             - name: Untyped
@@ -248,7 +360,7 @@
               output:
                 - ConstValue:
                     identifier: x
-                    type: Unit
+                    type: "'0"
                     expression:
                       Signal:
                         expression:
