@@ -127,14 +127,16 @@ fun inferAndBindProcedureType(letFunction: LetFunction, errors: MutableList<Erro
 }
 
 private fun inferProcedureType(
-    name: String, parameters: List<Tuple2<String, Type?>>, definedReturnType: Type?, e: Expression, pump: VarPump, environment: Environment
+    name: String?, parameters: List<Tuple2<String, Type?>>, definedReturnType: Type?, e: Expression, pump: VarPump, environment: Environment
 ): Either<List<Errors>, Type> {
     val parameterTypes = parameters.map { Pair(it.a, it.b ?: pump.fresh()) }
     val returnType: Type = definedReturnType ?: pump.fresh()
     val procedureType = parameterTypes.foldRight(returnType) { t, acc -> TArr(t.second, acc) }
 
     environment.openScope()
-    environment.add(name, procedureType)
+    if (name != null) {
+        environment.add(name, procedureType)
+    }
     parameterTypes.forEach { environment.add(it.first, it.second) }
 
     val inferType = InferType(pump, environment)
@@ -231,19 +233,11 @@ class InferType(
             }
 
         is LambdaExpression -> {
-            val parameterTypes = e.parameters.map { Pair(it.id.name, nullTypeToType(it.type) ?: pump.fresh()) }
-            val returnType: Type = nullTypeToType(e.returnType) ?: pump.fresh()
-            val procedureType = parameterTypes.foldRight(returnType) { t, acc -> TArr(t.second, acc) }
-
-            environment.openScope()
-            parameterTypes.forEach { environment.add(it.first, it.second) }
-
-            val inferType = InferType(pump, environment)
-            val inferredReturnType = inferType.expression(e.expression)
-
-            inferType.addConstraint(returnType, inferredReturnType)
-            val unificationResult = unifies(inferType.constraints)
-            environment.closeScope()
+            val unificationResult = inferProcedureType(
+                null,
+                e.parameters.map { Tuple2(it.id.name, nullTypeToType(it.type)) },
+                nullTypeToType(e.returnType), e.expression, pump, environment
+            )
 
             when (unificationResult) {
                 is Left -> {
@@ -251,7 +245,7 @@ class InferType(
                     typeError
                 }
 
-                is Right -> procedureType.apply(unificationResult.right)
+                is Right -> unificationResult.right
             }
         }
 
