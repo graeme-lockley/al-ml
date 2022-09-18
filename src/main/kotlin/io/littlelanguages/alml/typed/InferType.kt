@@ -209,11 +209,7 @@ class InferType(
             }
         }
 
-        is BlockExpression -> {
-            val types = e.expressions.map { expression(it) }
-
-            if (types.isEmpty()) typeUnit else types.last()
-        }
+        is BlockExpression -> expressions(e.expressions)
 
         is Identifier -> when (val result = environment.type(e.name)) {
             is Union2a -> result.a()
@@ -221,24 +217,23 @@ class InferType(
             else -> typeError
         }
 
-        is IfExpression -> if (e.elseExpression == null) {
-            e.ifThenExpressions.forEach {
-                val guardType = expression(it.a)
-                expression(it.b)
-                addConstraint(typeBool.withPosition(it.a.position), guardType)
-            }
-
-            typeUnit
-        } else {
+        is IfExpression -> {
             val ifThenTypes = e.ifThenExpressions.map { Tuple2(expression(it.a), expression(it.b)) }
-            val elseType = expression(e.elseExpression)
-
             ifThenTypes.forEach {
                 addConstraint(it.a, typeBool)
-                addConstraint(it.b, elseType)
             }
 
-            elseType.withPosition(e.position)
+            if (e.elseExpression == null) {
+                typeUnit
+            } else {
+                val elseType = expression(e.elseExpression)
+
+                ifThenTypes.forEach {
+                    addConstraint(it.b, elseType)
+                }
+
+                elseType
+            }.withPosition(e.position)
         }
 
         is LambdaExpression ->
