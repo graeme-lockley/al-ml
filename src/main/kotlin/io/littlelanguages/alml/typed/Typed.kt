@@ -132,7 +132,7 @@ private class Translator {
 fun nullTypeToType(type: io.littlelanguages.alml.static.ast.Type?): Type? =
     nullMap(type) { typeToType(it) }
 
-private fun typeToType(type: io.littlelanguages.alml.static.ast.Type): Type =
+fun typeToType(type: io.littlelanguages.alml.static.ast.Type): Type =
     when (type) {
         is io.littlelanguages.alml.static.ast.AbstractDataType -> TCon(
             type.position,

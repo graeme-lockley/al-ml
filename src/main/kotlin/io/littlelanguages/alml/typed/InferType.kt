@@ -212,8 +212,8 @@ class InferType(
         is BlockExpression -> expressions(e.expressions)
 
         is Identifier -> when (val result = environment.type(e.name)) {
-            is Union2a -> result.a()
-            is Union2b -> result.b().instantiate(pump)
+            is Union2a -> result.a().withPosition(e.position)
+            is Union2b -> result.b().instantiate(pump).withPosition(e.position)
             else -> typeError
         }
 
@@ -279,7 +279,13 @@ class InferType(
             bodyT
         }
 
-        is TypedExpression -> TODO()
+        is TypedExpression -> {
+            val type = expression(e.expression)
+
+            addConstraint(type, typeToType(e.type))
+
+            type
+        }
     }
 
     fun addConstraint(t1: Type?, t2: Type?) {

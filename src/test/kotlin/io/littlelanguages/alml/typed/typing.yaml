@@ -481,3 +481,35 @@
                         name: String
                         arguments: []
                         location: 32:1:33-37:1:38
+      - scenario:
+          name: Typed Expression
+          tests:
+            - name: Simple
+              input: |
+                let identity x = (x: String)
+              output:
+                - ConstProcedure:
+                    identifier: identity
+                    parameters:
+                      - x
+                    expression:
+                      Typed:
+                        expression: x
+                        type: String
+                    scheme: "<> String -> String"
+            - name: Error
+              input: |
+                let value = 10;
+                let other = value : String
+              output:
+                - UnificationFailError:
+                    t1:
+                      TCon:
+                        name: S32
+                        arguments: []
+                        location: 28:2:13-32:2:17
+                    t2:
+                      TCon:
+                        name: String
+                        arguments: []
+                        location: 36:2:21-41:2:26
