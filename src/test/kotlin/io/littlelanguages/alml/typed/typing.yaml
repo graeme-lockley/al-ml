@@ -380,6 +380,41 @@
                           - ApplyExpression:
                               - double
                               - LiteralInt: 10
+            - name: nested scope
+              input: |
+                let f a b = {
+                  let sum = a + b;
+                  sum + sum
+                };
+                let value = f 1 2
+              output:
+                - ConstProcedure:
+                    identifier: f
+                    parameters: [a, b]
+                    expression:
+                      Block:
+                        expressions:
+                          - ConstValue:
+                              identifier: sum
+                              type: S32
+                              expression:
+                                BinaryOpExpression:
+                                  left: a
+                                  op: Plus
+                                  right: b
+                          - BinaryOpExpression:
+                              left: sum
+                              op: Plus
+                              right: sum
+                    scheme: "<0, 1> '0 -> '1 -> S32"
+                - ConstValue:
+                    identifier: value
+                    type: S32
+                    expression:
+                      ApplyExpression:
+                        - f
+                        - LiteralInt: 1
+                        - LiteralInt: 2
       - scenario:
           name: LetValue
           tests:

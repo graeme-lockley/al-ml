@@ -214,7 +214,10 @@ class InferType(
         is Identifier -> when (val result = environment.type(e.name)) {
             is Union2a -> result.a().withPosition(e.position)
             is Union2b -> result.b().instantiate(pump).withPosition(e.position)
-            else -> typeError
+            else -> {
+//                errors.add(UnknownSymbolError(e.name, e.position))
+                typeError
+            }
         }
 
         is IfExpression -> {
