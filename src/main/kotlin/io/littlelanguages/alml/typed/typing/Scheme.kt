@@ -7,15 +7,8 @@ data class Scheme(val parameters: Set<Var>, val type: Type) {
     override fun toString(): String =
         "<${parameters.joinToString(", ") { it.toString() }}> $type"
 
-    fun instantiate(varPump: VarPump): Type {
-        val asP =
-            parameters.map { varPump.fresh(type.position) }
-
-        val substitution =
-            Substitution(parameters.zip(asP).toMap())
-
-        return type.apply(substitution)
-    }
+    fun instantiate(varPump: VarPump): Type =
+        type.apply(Substitution(parameters.toList().associateWith { varPump.fresh(type.position) }))
 }
 
 fun generalise(type: Type, substitution: Substitution = nullSubstitution): Scheme {
