@@ -5,27 +5,27 @@ import io.kotest.matchers.shouldBe
 
 class SchemeTests : StringSpec({
     "given S32 should generalist to <> S32" {
-        generalise(typeS32).shouldBe(Scheme(listOf(), typeS32))
+        generalise(typeS32).shouldBe(Scheme(setOf(), typeS32))
     }
 
     "given S32 -> S32 should generalist to <> S32 -> S32" {
-        generalise(TArr(typeS32, typeS32)).shouldBe(Scheme(listOf(), TArr(typeS32, typeS32)))
+        generalise(TArr(typeS32, typeS32)).shouldBe(Scheme(setOf(), TArr(typeS32, typeS32)))
     }
 
     "given '1 should generalist to <1> '1" {
-        generalise(TVar(1)).shouldBe(Scheme(listOf(1), TVar(1)))
+        generalise(TVar(1)).shouldBe(Scheme(setOf(1), TVar(1)))
     }
 
     "given S32 -> '1 should generalist to <1> S32 -> '1" {
-        generalise(TArr(typeS32, TVar(1))).shouldBe(Scheme(listOf(1), TArr(typeS32, TVar(1))))
+        generalise(TArr(typeS32, TVar(1))).shouldBe(Scheme(setOf(1), TArr(typeS32, TVar(1))))
     }
 
     "given '1 and {'1 -> S32} should generalist to <> S32" {
-        generalise(TVar(1), Substitution(mapOf(Pair(1, typeS32)))).shouldBe(Scheme(listOf(), typeS32))
+        generalise(TVar(1), Substitution(mapOf(Pair(1, typeS32)))).shouldBe(Scheme(setOf(), typeS32))
     }
 
     "given <1> '1 -> '1 should instantiate to '0 -> '0" {
-        Scheme(listOf(1), TArr(TVar(1), TVar(1))).instantiate(VarPump())
+        Scheme(setOf(1), TArr(TVar(1), TVar(1))).instantiate(VarPump())
             .shouldBe(TArr(TVar(0), TVar(0)))
     }
 })

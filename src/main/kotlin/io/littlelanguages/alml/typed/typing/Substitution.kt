@@ -9,7 +9,7 @@ data class Substitution(val state: Map<Var, Type> = emptyMap()) {
     operator fun get(key: Var): Type? =
         state[key]
 
-    operator fun minus(keys: List<Var>): Substitution =
+    operator fun minus(keys: Set<Var>): Substitution =
         Substitution(state - keys.toSet())
 
     override fun toString(): String =

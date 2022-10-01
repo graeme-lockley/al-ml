@@ -1,6 +1,6 @@
 package io.littlelanguages.alml.typed.typing
 
-data class Scheme(val parameters: List<Var>, val type: Type) {
+data class Scheme(val parameters: Set<Var>, val type: Type) {
     fun apply(s: Substitution): Scheme =
         Scheme(parameters, type.apply(s - parameters))
 
@@ -30,8 +30,8 @@ fun generalise(type: Type, substitution: Substitution = nullSubstitution): Schem
 
     val type1 = type.apply(typeSubstitution)
 
-    return Scheme(type1.ftv().toList(), type1)
+    return Scheme(type1.ftv(), type1)
 }
 
 fun typeToScheme(type: Type): Scheme =
-    Scheme(type.ftv().toList(), type)
+    Scheme(type.ftv(), type)
