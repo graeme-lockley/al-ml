@@ -300,6 +300,6 @@ class InferType(
 
 private fun Type.isError(): Boolean = when (this) {
     is TArr -> this.domain.isError() || this.range.isError()
-    is TCon -> this.name == typeError.name && this.arguments.isEmpty() || this.arguments.any { it.isError() }
+    is TCon -> this.name == typeError.name
     is TVar -> false
 }

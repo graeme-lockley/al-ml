@@ -37,12 +37,10 @@
                     t1:
                       TCon:
                         name: S32
-                        arguments: [ ]
                         location: 11:1:12-13:1:14
                     t2:
                       TCon:
                         name: String
-                        arguments: [ ]
                         location: 17:1:18-29:1:30
       - scenario:
           name: Procedure
@@ -237,12 +235,10 @@
                     t1:
                       TCon:
                         name: String
-                        arguments: []
                         location: 42:4:6-48:4:12
                     t2:
                       TCon:
                         name: Bool
-                        arguments: []
                         location: none
             - name: Actions do not unify
               input: |
@@ -256,12 +252,10 @@
                     t1:
                       TCon:
                         name: String
-                        arguments: []
                         location: 35:3:16-41:3:22
                     t2:
                       TCon:
                         name: S32
-                        arguments: []
                         location: 67:5:8-68:5:9
       - scenario:
           name: Lambda
@@ -463,12 +457,10 @@
                     t1:
                       TCon:
                         name: S32
-                        arguments: [ ]
                         location: 15:1:16-17:1:18
                     t2:
                       TCon:
                         name: String
-                        arguments: [ ]
                         location: none
       - scenario:
           name: Try
@@ -509,12 +501,10 @@
                     t1:
                       TCon:
                         name: S32
-                        arguments: []
                         location: 17:1:18-22:1:23
                     t2:
                       TCon:
                         name: String
-                        arguments: []
                         location: 32:1:33-37:1:38
       - scenario:
           name: Typed Expression
@@ -541,10 +531,8 @@
                     t1:
                       TCon:
                         name: S32
-                        arguments: []
                         location: 28:2:13-32:2:17
                     t2:
                       TCon:
                         name: String
-                        arguments: []
                         location: 36:2:21-41:2:26

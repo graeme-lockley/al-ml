@@ -59,8 +59,11 @@ private class SolverContext(private var constraints: Constraints) {
             t1 == t2 ->
                 Pair(nullSubstitution, noConstraints)
 
-            t1 is TCon && t2 is TCon && t1.name == t2.name && t1.arguments.size == t2.arguments.size ->
-                unifyMany(t1.arguments, t2.arguments)
+            t1 is TCon && t2 is TCon && t1.name == t2.name ->
+                Pair(nullSubstitution, noConstraints)
+
+            t1 is TVar && t2 is TVar && t1.variable == t2.variable ->
+                Pair(nullSubstitution, noConstraints)
 
             t1 is TVar ->
                 Pair(Substitution(t1.variable, t2), noConstraints)

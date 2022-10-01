@@ -119,17 +119,11 @@ data class Constraints(val state: List<Constraint> = emptyList()) {
             t1 is TArr && t2 is TArr ->
                 createSubstitution(t1.domain, t2.domain) + createSubstitution(t1.range, t2.range)
 
-            t1 is TVar && t2 is TVar ->
-                Substitution(t2.variable, t1)
+            t1 is TCon && t2 is TCon && t1.name == t2.name ->
+                nullSubstitution
 
-            t1 is TCon && t2 is TCon && t1.name == t2.name && t1.arguments.size == t2.arguments.size -> {
-                val initial: Substitution =
-                    nullSubstitution
-
-                t1.arguments.zip(t2.arguments).fold(initial) { a, b ->
-                    a + createSubstitution(b.first, b.second)
-                }
-            }
+            t1 is TVar && t2 is TVar && t1.variable == t2.variable ->
+                nullSubstitution
 
             t1 is TVar ->
                 Substitution(t1.variable, t2)

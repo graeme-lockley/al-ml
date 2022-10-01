@@ -136,8 +136,8 @@ fun typeToType(type: io.littlelanguages.alml.static.ast.Type): Type =
     when (type) {
         is io.littlelanguages.alml.static.ast.AbstractDataType -> TCon(
             type.position,
-            type.identifier.name,
-            type.arguments.map { typeToType(it) })
+            type.identifier.name
+        )
 
         is io.littlelanguages.alml.static.ast.FunctionType -> {
             val types = type.signature.map { typeToType(it) }
