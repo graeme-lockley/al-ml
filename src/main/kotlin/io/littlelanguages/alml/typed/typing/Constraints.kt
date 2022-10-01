@@ -97,7 +97,7 @@ data class Constraints(val state: List<Constraint> = emptyList()) {
             t1 == null || t2 == null ->
                 null
 
-            similar(t1, t2) ->
+            t1 similar t2 ->
                 Pair(nullSubstitution, t1)
 
             else -> {

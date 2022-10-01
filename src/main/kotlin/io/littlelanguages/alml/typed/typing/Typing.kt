@@ -17,16 +17,20 @@ sealed class Type(
     abstract fun fullYaml(): Any
 
     abstract fun withPosition(position: Location): Type
+
+    abstract infix fun similar(other: Type): Boolean
 }
 
 data class TArr(
-    override val position: Location?, val domain: Type, val range: Type
+    override val position: Location?,
+    val domain: Type,
+    val range: Type
 ) : Type(position) {
     constructor(domain: Type, range: Type) : this(combine(domain.position, range.position), domain, range)
 
     override fun apply(s: Substitution) = TArr(position, domain.apply(s), range.apply(s))
 
-    override fun ftv() = domain.ftv().plus(range.ftv())
+    override fun ftv() = domain.ftv() + range.ftv()
 
     override fun fullYaml(): Any = singletonMap(
         "TArr", mapOf(
@@ -41,10 +45,14 @@ data class TArr(
     }
 
     override fun withPosition(position: Location): Type = TArr(position, domain, range)
+
+    override fun similar(other: Type): Boolean =
+        other is TArr && this.domain similar other.domain && this.range similar other.range
 }
 
 data class TCon(
-    override val position: Location?, val name: String
+    override val position: Location?,
+    val name: String
 ) : Type(position) {
     constructor(name: String) : this(null, name)
 
@@ -61,10 +69,14 @@ data class TCon(
     override fun toString(): String = name
 
     override fun withPosition(position: Location): Type = TCon(position, name)
+
+    override fun similar(other: Type): Boolean =
+        other is TCon && name == other.name
 }
 
 data class TVar(
-    override val position: Location?, val variable: Var
+    override val position: Location?,
+    val variable: Var
 ) : Type(position) {
     constructor(variable: Var) : this(null, variable)
 
@@ -81,6 +93,9 @@ data class TVar(
     override fun toString(): String = "'$variable"
 
     override fun withPosition(position: Location): Type = TVar(position, variable)
+
+    override fun similar(other: Type): Boolean =
+        other is TVar && variable == other.variable
 }
 
 private fun combine(a: Location?, b: Location?): Location? = when {
@@ -88,17 +103,6 @@ private fun combine(a: Location?, b: Location?): Location? = when {
     b == null -> a
     else -> a + b
 }
-
-fun similar(t1: Type, t2: Type): Boolean = when {
-    t1 is TCon && t2 is TCon -> t1.name == t2.name
-
-    t1 is TVar && t2 is TVar -> t1.variable == t2.variable
-
-    t1 is TArr && t2 is TArr -> similar(t1.domain, t2.domain) && similar(t1.range, t2.range)
-
-    else -> false
-}
-
 
 val nullSubstitution = Substitution()
 
