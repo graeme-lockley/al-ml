@@ -1,26 +1,18 @@
 package io.littlelanguages.alml.typed
 
-import io.littlelanguages.alml.Error
+import io.littlelanguages.alml.Errors
 import io.littlelanguages.alml.typed.st.*
 import io.littlelanguages.alml.typed.typing.*
-import io.littlelanguages.data.Either
-import io.littlelanguages.data.Left
-import io.littlelanguages.data.Right
 import io.littlelanguages.data.Tuple2
 
-fun translate(p: io.littlelanguages.alml.static.ast.Program): Either<List<Error>, Program> =
-    Translator().apply(p)
+fun translate(p: io.littlelanguages.alml.static.ast.Program, errors: Errors): Program =
+    Translator(errors).apply(p)
 
-private class Translator {
-    val errors = mutableListOf<Error>()
+private class Translator(private val errors: Errors) {
     var environment = initialEnvironment()
     var pump = VarPump()
 
-    fun apply(p: io.littlelanguages.alml.static.ast.Program): Either<List<Error>, Program> {
-        val program = Program(expressionsToST(p.expressions))
-
-        return if (errors.isEmpty()) Right(program) else Left(errors)
-    }
+    fun apply(p: io.littlelanguages.alml.static.ast.Program): Program = Program(expressionsToST(p.expressions))
 
     private fun expressionsToST(expressions: List<io.littlelanguages.alml.static.ast.Expression>): List<Expression> =
         expressions.map { expressionToST(it) }

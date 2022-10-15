@@ -37,12 +37,11 @@ class CompilerTests : FunSpec({
 })
 
 fun compile(builtinBindings: List<Binding<CompileState, LLVMValueRef>>, context: Context, input: String): Either<List<Error>, Module> =
-    parse(Scanner(StringReader(input))) mapLeft { listOf(it) } andThen { io.littlelanguages.alml.typed.translate(it) } andThen {
+    parse(Scanner(StringReader(input))) mapLeft { listOf(it) } andThen {
         val errors = Errors()
-        val r = io.littlelanguages.alml.dynamic.translate(
-            builtinBindings,
-            it, errors
-        )
+        val st = io.littlelanguages.alml.typed.translate(it, errors)
+        val r = io.littlelanguages.alml.dynamic.translate(builtinBindings, st, errors)
+
         if (errors.reported()) Left(errors.items()) else Right(r)
     } map {
         compile(

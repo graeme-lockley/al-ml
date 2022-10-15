@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.scopes.FunSpecContainerContext
 import io.kotest.matchers.shouldBe
 import io.littlelanguages.alml.Error
+import io.littlelanguages.alml.Errors
 import io.littlelanguages.alml.static.Scanner
 import io.littlelanguages.alml.static.parse
 import io.littlelanguages.alml.typed.st.Program
@@ -29,7 +30,12 @@ class TypedTests : FunSpec({
 })
 
 fun translate(input: String): Either<List<Error>, Program> =
-    parse(Scanner(StringReader(input))) mapLeft { listOf(it) } andThen { translate(it) }
+    parse(Scanner(StringReader(input))) mapLeft { listOf(it) } andThen {
+        val errors = Errors()
+        val r = translate(it, errors)
+
+        if (errors.reported()) Left(errors.items()) else Right(r)
+    }
 
 suspend fun parserConformanceTest(ctx: FunSpecContainerContext, scenarios: List<*>) {
     scenarios.forEach { scenario ->

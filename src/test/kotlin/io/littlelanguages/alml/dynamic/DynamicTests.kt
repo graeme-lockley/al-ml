@@ -63,12 +63,11 @@ private class DummyExternalValueBinding<S, T>(
 
 
 fun translate(builtinBindings: List<Binding<S, T>>, input: String): Either<List<Error>, Program<S, T>> =
-    parse(Scanner(StringReader(input))) mapLeft { listOf(it) } andThen { io.littlelanguages.alml.typed.translate(it) } andThen {
+    parse(Scanner(StringReader(input))) mapLeft { listOf(it) } andThen {
         val errors = Errors()
-        val r = translate(
-            builtinBindings,
-            it, errors
-        )
+        val st = io.littlelanguages.alml.typed.translate(it, errors)
+        val r = translate(builtinBindings, st, errors)
+
         if (errors.reported()) Left(errors.items()) else Right(r)
     }
 

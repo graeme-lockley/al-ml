@@ -1,10 +1,12 @@
 package io.littlelanguages.alml.typed
 
-import io.littlelanguages.alml.Error
+import io.littlelanguages.alml.Errors
 import io.littlelanguages.alml.static.ast.*
 import io.littlelanguages.alml.typed.typing.*
 import io.littlelanguages.alml.typed.typing.Type
-import io.littlelanguages.data.*
+import io.littlelanguages.data.Tuple2
+import io.littlelanguages.data.Union2a
+import io.littlelanguages.data.Union2b
 
 /*
  Type inference rules:
@@ -80,51 +82,36 @@ import io.littlelanguages.data.*
         Try i1 i2: T
  */
 
-fun inferAndBindValueType(letValue: LetValue, errors: MutableList<Error>, pump: VarPump, environment: Environment): Type {
-    val type = when (val inferResult = inferValueType(nullTypeToType(letValue.type), letValue.expression, pump, environment)) {
-        is Left -> {
-            errors.addAll(inferResult.left)
-
-            typeError
-        }
-
-        is Right -> inferResult.right
-    }
+fun inferAndBindValueType(letValue: LetValue, errors: Errors, pump: VarPump, environment: Environment): Type {
+    val type = inferValueType(nullTypeToType(letValue.type), letValue.expression, pump, environment, errors)
 
     environment.add(letValue.identifier.name, typeToScheme(type))
 
     return type
 }
 
-fun inferValueType(type: Type?, e: Expression, pump: VarPump, environment: Environment = Environment()): Either<List<Error>, Type> {
-    val inferType = InferType(pump, environment)
+fun inferValueType(type: Type?, e: Expression, pump: VarPump, environment: Environment = Environment(), errors: Errors): Type {
+    val inferType = InferType(pump, environment, errors)
     val resultType = inferType.expression(e)
 
-    return if (inferType.errors.isEmpty()) {
-        inferType.addConstraint(type, resultType)
+    inferType.addConstraint(type, resultType)
 
-        unifies(inferType.constraints) map { resultType.apply(it) }
-    } else {
-        Left(inferType.errors)
-    }
+    val subst = unifies(inferType.constraints, errors)
+
+    return resultType.apply(subst)
 }
 
-fun inferAndBindProcedureType(letFunction: LetFunction, errors: MutableList<Error>, pump: VarPump, environment: Environment): Scheme {
-    val valueType = when (val unificationResult = inferProcedureType(
+fun inferAndBindProcedureType(letFunction: LetFunction, errors: Errors, pump: VarPump, environment: Environment): Scheme {
+    val valueType = inferProcedureType(
         letFunction.identifier.name,
         letFunction.parameters.map { Tuple2(it.id.name, nullTypeToType(it.type)) },
         nullTypeToType(letFunction.returnType),
         letFunction.expression,
         pump,
-        environment
-    )) {
-        is Left -> {
-            errors.addAll(unificationResult.left)
-            typeError
-        }
+        environment,
+        errors
+    )
 
-        is Right -> unificationResult.right
-    }
     val scheme = typeToScheme(valueType)
 
     environment.add(letFunction.identifier.name, scheme)
@@ -133,8 +120,14 @@ fun inferAndBindProcedureType(letFunction: LetFunction, errors: MutableList<Erro
 }
 
 private fun inferProcedureType(
-    name: String?, parameters: List<Tuple2<String, Type?>>, definedReturnType: Type?, e: Expression, pump: VarPump, environment: Environment
-): Either<List<Error>, Type> {
+    name: String?,
+    parameters: List<Tuple2<String, Type?>>,
+    definedReturnType: Type?,
+    e: Expression,
+    pump: VarPump,
+    environment: Environment,
+    errors: Errors
+): Type {
     val parameterTypes = parameters.map { Pair(it.a, it.b ?: pump.fresh()) }
     val returnType: Type = definedReturnType ?: pump.fresh()
     val procedureType = parameterTypes.foldRight(returnType) { t, acc -> TArr(t.second, acc) }
@@ -145,29 +138,19 @@ private fun inferProcedureType(
     }
     parameterTypes.forEach { environment.add(it.first, it.second) }
 
-    val inferType = InferType(pump, environment)
+    val inferType = InferType(pump, environment, errors)
     val inferredReturnType = inferType.expression(e)
 
-    return if (inferType.errors.isEmpty()) {
-        inferType.addConstraint(returnType, inferredReturnType)
-        val unificationResult = unifies(inferType.constraints)
-        environment.closeScope()
+    inferType.addConstraint(returnType, inferredReturnType)
+    val unificationResult = unifies(inferType.constraints, errors)
+    environment.closeScope()
 
-        when (unificationResult) {
-            is Left -> Left(unificationResult.left)
-            is Right -> {
-                Right(procedureType.apply(unificationResult.right))
-            }
-        }
-    } else {
-        Left(inferType.errors)
-    }
+    return procedureType.apply(unificationResult)
 }
 
 class InferType(
-    private val pump: VarPump, private val environment: Environment, private val optimiseConstraints: Boolean = true
+    private val pump: VarPump, private val environment: Environment, private val errors: Errors
 ) {
-    val errors = mutableListOf<Error>()
     var constraints = Constraints()
 
     fun expressions(es: List<Expression>): Type {
@@ -240,21 +223,15 @@ class InferType(
         }
 
         is LambdaExpression ->
-            when (val unificationResult = inferProcedureType(
+            inferProcedureType(
                 null,
                 e.parameters.map { Tuple2(it.id.name, nullTypeToType(it.type)) },
                 nullTypeToType(e.returnType),
                 e.expression,
                 pump,
-                environment
-            )) {
-                is Left -> {
-                    errors.addAll(unificationResult.left)
-                    typeError
-                }
-
-                is Right -> unificationResult.right
-            }
+                environment,
+                errors
+            ).withPosition(e.position)
 
         is LetFunction -> inferAndBindProcedureType(e, errors, pump, environment).instantiate(pump)
 
@@ -292,7 +269,7 @@ class InferType(
     }
 
     fun addConstraint(t1: Type?, t2: Type?) {
-        if (t1 != null && !t1.isError() && t2 != null && !t2.isError()) if (optimiseConstraints && t1 != t2 || !optimiseConstraints) constraints += Constraint(
+        if (t1 != null && !t1.isError() && t2 != null && !t2.isError()) if (t1 != t2) constraints += Constraint(
             t1, t2
         )
     }

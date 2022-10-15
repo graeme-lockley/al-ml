@@ -1,36 +1,24 @@
 package io.littlelanguages.alml.typed
 
 import io.littlelanguages.alml.Error
+import io.littlelanguages.alml.Errors
 import io.littlelanguages.alml.UnificationFail
 import io.littlelanguages.alml.UnificationMismatch
 import io.littlelanguages.alml.typed.typing.*
-import io.littlelanguages.data.Either
-import io.littlelanguages.data.Left
-import io.littlelanguages.data.Right
 
 private typealias Unifier =
         Pair<Substitution, Constraints>
 
 
-fun unifies(constraints: Constraints): Either<List<Error>, Substitution> {
+fun unifies(constraints: Constraints, errors: Errors): Substitution {
     val context =
-        SolverContext(constraints.leftVar().merge())
+        SolverContext(constraints.leftVar().merge(), errors)
 
-    val subst =
-        context.solve()
-
-    return if (context.errors.isEmpty())
-        Right(subst)
-    else
-        Left(context.errors)
+    return context.solve()
 }
 
 
-private class SolverContext(private var constraints: Constraints) {
-    val errors =
-        mutableListOf<Error>()
-
-
+private class SolverContext(private var constraints: Constraints, private val errors: Errors) {
     private fun List<Type>.subst(substitution: Substitution): List<Type> =
         this.map { it.apply(substitution) }
 
@@ -75,7 +63,7 @@ private class SolverContext(private var constraints: Constraints) {
                 unifyMany(listOf(t1.domain, t1.range), listOf(t2.domain, t2.range))
 
             else -> {
-                errors.add(UnificationFail(t1, t2))
+                errors.report(UnificationFail(t1, t2))
 
                 Pair(nullSubstitution, noConstraints)
             }
@@ -105,7 +93,7 @@ private class SolverContext(private var constraints: Constraints) {
             }
 
             else -> {
-                errors.add(UnificationMismatch(t1s, t2s))
+                errors.report(UnificationMismatch(t1s, t2s))
 
                 Pair(nullSubstitution, noConstraints)
             }

@@ -29,19 +29,14 @@ import kotlin.system.exitProcess
 fun compile(builtinBindings: List<Binding<CompileState, LLVMValueRef>>, context: Context, input: File): Either<List<Error>, Module> {
     val reader = FileReader(input)
 
-    val result = parse(Scanner(reader)) mapLeft { listOf(it) } andThen { io.littlelanguages.alml.typed.translate(it) } andThen {
+    val result = parse(Scanner(reader)) mapLeft { listOf(it) } andThen {
         val errors = Errors()
-        val r = io.littlelanguages.alml.dynamic.translate(
-            builtinBindings,
-            it,
-            errors
-        )
+        val st = io.littlelanguages.alml.typed.translate(it, errors)
+        val r = io.littlelanguages.alml.dynamic.translate(builtinBindings, st, errors)
         if (errors.reported()) Left(errors.items()) else Right(r)
     } map {
         io.littlelanguages.alml.compiler.compile(
-            context,
-            input.name,
-            it
+            context, input.name, it
         )
     }
     reader.close()
@@ -59,97 +54,78 @@ fun reportErrors(errors: List<Error>) {
     errors.forEach { println(formatError(it)) }
 }
 
-fun formatTToken(token: TToken): String =
-    when (token) {
-        TToken.TBangEqual -> "'!='"
-        TToken.TBackslash -> "'\\'"
-        TToken.TBar -> "'|'"
-        TToken.TColon -> "':'"
-        TToken.TDash -> "'-'"
-        TToken.TDashGreaterThan -> "'->'"
-        TToken.TElse -> "'else'"
-        TToken.TEqual -> "'='"
-        TToken.TEqualEqual -> "'=='"
-        TToken.TGreaterThan -> "'>'"
-        TToken.TGreaterThanEqual -> "'>='"
-        TToken.TIf -> "'if'"
-        TToken.TLCurly -> "'{'"
-        TToken.TLessThan -> "'<'"
-        TToken.TLessThanEqual -> "'<='"
-        TToken.TLet -> "'let'"
-        TToken.TLiteralInt -> "Literal Int"
-        TToken.TLiteralString -> "Literal String"
-        TToken.TLowerID -> "LowerID"
-        TToken.TLParen -> "'('"
-        TToken.TPlus -> "'+'"
-        TToken.TRCurly -> "'}'"
-        TToken.TRParen -> "')'"
-        TToken.TSemicolon -> "';'"
-        TToken.TSignal -> "'signal'"
-        TToken.TSlash -> "'/'"
-        TToken.TStar -> "'*'"
-        TToken.TTry -> "'try'"
-        TToken.TUpperID -> "UpperID"
-        TToken.TEOS -> "End Of Stream"
-        TToken.TERROR -> "<Error Token>"
+fun formatTToken(token: TToken): String = when (token) {
+    TToken.TBangEqual -> "'!='"
+    TToken.TBackslash -> "'\\'"
+    TToken.TBar -> "'|'"
+    TToken.TColon -> "':'"
+    TToken.TDash -> "'-'"
+    TToken.TDashGreaterThan -> "'->'"
+    TToken.TElse -> "'else'"
+    TToken.TEqual -> "'='"
+    TToken.TEqualEqual -> "'=='"
+    TToken.TGreaterThan -> "'>'"
+    TToken.TGreaterThanEqual -> "'>='"
+    TToken.TIf -> "'if'"
+    TToken.TLCurly -> "'{'"
+    TToken.TLessThan -> "'<'"
+    TToken.TLessThanEqual -> "'<='"
+    TToken.TLet -> "'let'"
+    TToken.TLiteralInt -> "Literal Int"
+    TToken.TLiteralString -> "Literal String"
+    TToken.TLowerID -> "LowerID"
+    TToken.TLParen -> "'('"
+    TToken.TPlus -> "'+'"
+    TToken.TRCurly -> "'}'"
+    TToken.TRParen -> "')'"
+    TToken.TSemicolon -> "';'"
+    TToken.TSignal -> "'signal'"
+    TToken.TSlash -> "'/'"
+    TToken.TStar -> "'*'"
+    TToken.TTry -> "'try'"
+    TToken.TUpperID -> "UpperID"
+    TToken.TEOS -> "End Of Stream"
+    TToken.TERROR -> "<Error Token>"
+}
+
+fun formatToken(token: Token): String = when (token.tToken) {
+    TToken.TLiteralInt, TToken.TLiteralString, TToken.TLowerID, TToken.TUpperID -> "${formatTToken(token.tToken)} (${token.lexeme})"
+
+    else -> formatTToken(token.tToken)
+}
+
+fun formatLocation(location: Location): String = when (location) {
+    is LocationCoordinate -> "(${location.line}, ${location.column})"
+
+    is LocationRange -> if (location.start.line == location.end.line) "(${location.start.line}, ${location.start.column}-${location.end.column})"
+    else "(${location.start.line}, ${location.start.column})-(${location.end.line}, ${location.end.column})"
+}
+
+fun formatError(error: Error): String = when (error) {
+    is ArgumentMismatchError -> "Argument Mismatch: ${formatLocation(error.location)}: Procedure \"${error.name}\" expects ${error.expected} ${if (error.expected == 1) "argument" else "arguments"} but was passed ${error.actual}"
+
+    is CompilationError -> "Compilation Error: ${error.message}"
+
+    is DuplicateNameError -> "Duplicate Name: ${formatLocation(error.location)}: Attempt to redefine \"${error.name}\""
+
+    is DuplicateParameterNameError -> "Duplicate Parameter Name: ${formatLocation(error.location)}: Attempt to redefine \"${error.name}\""
+
+    is ExpressionNotProcedureError -> "Expected Procedure Expression: ${formatLocation(error.location)}: try catch expression needs to be a procedure"
+
+    is ParseError -> {
+        val oneOfPhrase = if (error.expected.size == 1) "" else "one of "
+        val expectedTokens = error.expected.joinToString { formatTToken(it) }
+        val actualToken = formatToken(error.found)
+
+        "Parse Error: ${formatLocation(error.found.location)}: Expected $oneOfPhrase$expectedTokens but found $actualToken"
     }
 
-fun formatToken(token: Token): String =
-    when (token.tToken) {
-        TToken.TLiteralInt,
-        TToken.TLiteralString,
-        TToken.TLowerID,
-        TToken.TUpperID -> "${formatTToken(token.tToken)} (${token.lexeme})"
+    is UnknownSymbolError -> "Unknown Symbol: ${formatLocation(error.location)}: Reference to unknown symbol \"${error.name}\""
 
-        else -> formatTToken(token.tToken)
-    }
+    is UnificationFail -> "Unification Error: $error"
 
-fun formatLocation(location: Location): String =
-    when (location) {
-        is LocationCoordinate ->
-            "(${location.line}, ${location.column})"
-
-        is LocationRange ->
-            if (location.start.line == location.end.line)
-                "(${location.start.line}, ${location.start.column}-${location.end.column})"
-            else
-                "(${location.start.line}, ${location.start.column})-(${location.end.line}, ${location.end.column})"
-    }
-
-fun formatError(error: Error): String =
-    when (error) {
-        is ArgumentMismatchError ->
-            "Argument Mismatch: ${formatLocation(error.location)}: Procedure \"${error.name}\" expects ${error.expected} ${if (error.expected == 1) "argument" else "arguments"} but was passed ${error.actual}"
-
-        is CompilationError ->
-            "Compilation Error: ${error.message}"
-
-        is DuplicateNameError ->
-            "Duplicate Name: ${formatLocation(error.location)}: Attempt to redefine \"${error.name}\""
-
-        is DuplicateParameterNameError ->
-            "Duplicate Parameter Name: ${formatLocation(error.location)}: Attempt to redefine \"${error.name}\""
-
-        is ExpressionNotProcedureError ->
-            "Expected Procedure Expression: ${formatLocation(error.location)}: try catch expression needs to be a procedure"
-
-        is ParseError -> {
-            val oneOfPhrase = if (error.expected.size == 1) "" else "one of "
-            val expectedTokens = error.expected.joinToString { formatTToken(it) }
-            val actualToken = formatToken(error.found)
-
-            "Parse Error: ${formatLocation(error.found.location)}: Expected $oneOfPhrase$expectedTokens but found $actualToken"
-        }
-
-        is UnknownSymbolError ->
-            "Unknown Symbol: ${formatLocation(error.location)}: Reference to unknown symbol \"${error.name}\""
-
-        is UnificationFail ->
-            "Unification Error: $error"
-
-        is UnificationMismatch ->
-            "Unification Mismatch: $error"
-    }
+    is UnificationMismatch -> "Unification Mismatch: $error"
+}
 
 fun compile(input: File, triple: String, output: File) {
     val context = Context(triple)
@@ -160,8 +136,7 @@ fun compile(input: File, triple: String, output: File) {
             exitProcess(1)
         }
 
-        is Right ->
-            compiledResult.right.writeBitcodeToFile(output.absolutePath)
+        is Right -> compiledResult.right.writeBitcodeToFile(output.absolutePath)
     }
     context.dispose()
 }
@@ -181,10 +156,8 @@ class CLI : Callable<Int> {
 
     override fun call(): Int {
         // Take file and compile with defaults to a .bc file.  File must have a .mlsp extension and the extension is changed to a .o
-        if (!file.canRead())
-            failOnError("Invalid input file: $file is not readable")
-        if (file.extension != "mlsp")
-            failOnError("Invalid input file: $file requires a .mlsp extension")
+        if (!file.canRead()) failOnError("Invalid input file: $file is not readable")
+        if (file.extension != "mlsp") failOnError("Invalid input file: $file requires a .mlsp extension")
 
         compile(file, triple, changeExtension(file, ".bc"))
 
