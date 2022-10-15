@@ -11,6 +11,15 @@ import java.lang.Integer.max
 fun <S, T> translate(builtinBindings: List<Binding<S, T>>, p: io.littlelanguages.alml.typed.st.Program, errors: Errors): Program<S, T> =
     Translator(builtinBindings, p, errors).apply()
 
+fun <S, T> translate(builtinBindings: List<Binding<S, T>>, input: String, errors: Errors): Program<S, T> {
+    val st = io.littlelanguages.alml.typed.translate(input, errors)
+
+    return if (errors.reported())
+        Program(listOf(), listOf())
+    else translate(builtinBindings, st, errors)
+}
+
+
 private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io.littlelanguages.alml.typed.st.Program, private val errors: Errors) {
     var nameGenerator = 0
 

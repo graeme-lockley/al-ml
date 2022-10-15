@@ -5,14 +5,10 @@ import io.kotest.core.spec.style.scopes.FunSpecContainerContext
 import io.kotest.matchers.shouldBe
 import io.littlelanguages.alml.Errors
 import io.littlelanguages.alml.dynamic.tst.Expressionss
-import io.littlelanguages.alml.dynamic.tst.Program
-import io.littlelanguages.alml.static.Scanner
-import io.littlelanguages.alml.static.parse
 import io.littlelanguages.alml.typed.typing.Type
 import io.littlelanguages.alml.typed.typing.typeBool
 import org.yaml.snakeyaml.Yaml
 import java.io.File
-import java.io.StringReader
 
 private val yaml = Yaml()
 
@@ -57,12 +53,6 @@ private class DummyExternalValueBinding<S, T>(
     override fun compile(state: S, lineNumber: Int): T? = null
 }
 
-
-fun translate(builtinBindings: List<Binding<S, T>>, input: String, errors: Errors): Program<S, T> {
-    val ast = parse(Scanner(StringReader(input)), errors)
-    val st = io.littlelanguages.alml.typed.translate(ast, errors)
-    return translate(builtinBindings, st, errors)
-}
 
 suspend fun parserConformanceTest(builtinBindings: List<Binding<S, T>>, ctx: FunSpecContainerContext, scenarios: List<*>) {
     scenarios.forEach { scenario ->
