@@ -34,7 +34,7 @@ fun compile(builtinBindings: List<Binding<CompileState, LLVMValueRef>>, context:
             builtinBindings,
             it
         )
-    } andThen {
+    } map {
         io.littlelanguages.alml.compiler.compile(
             context,
             input.name,

@@ -41,7 +41,7 @@ fun compile(builtinBindings: List<Binding<CompileState, LLVMValueRef>>, context:
             builtinBindings,
             it
         )
-    } andThen {
+    } map {
         compile(
             context,
             "./test.mlsp",

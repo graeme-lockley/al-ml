@@ -1,7 +1,6 @@
 package io.littlelanguages.alml.compiler
 
 import io.littlelanguages.alml.CompilationError
-import io.littlelanguages.alml.Error
 import io.littlelanguages.alml.compiler.llvm.Context
 import io.littlelanguages.alml.compiler.llvm.FunctionBuilder
 import io.littlelanguages.alml.compiler.llvm.Module
@@ -9,15 +8,13 @@ import io.littlelanguages.alml.compiler.llvm.VerifyError
 import io.littlelanguages.alml.dynamic.*
 import io.littlelanguages.alml.dynamic.tst.*
 import io.littlelanguages.alml.typed.st.Operators.*
-import io.littlelanguages.data.Either
-import io.littlelanguages.data.Right
 import org.bytedeco.javacpp.PointerPointer
 import org.bytedeco.llvm.LLVM.LLVMValueRef
 import org.bytedeco.llvm.global.LLVM
 
 data class CompileState(val compiler: Compiler, val functionBuilder: FunctionBuilder, val depth: Int)
 
-fun compile(context: Context, moduleID: String, program: Program<CompileState, LLVMValueRef>): Either<List<Error>, Module> {
+fun compile(context: Context, moduleID: String, program: Program<CompileState, LLVMValueRef>): Module {
     val module = context.module(moduleID)
 
     Compiler(module).compile(program)
@@ -28,7 +25,7 @@ fun compile(context: Context, moduleID: String, program: Program<CompileState, L
     LLVM.LLVMAddCFGSimplificationPass(pm)
     LLVM.LLVMRunPassManager(pm, module.module)
 
-    return Right(module)
+    return module
 }
 
 class Compiler(private val module: Module) {
