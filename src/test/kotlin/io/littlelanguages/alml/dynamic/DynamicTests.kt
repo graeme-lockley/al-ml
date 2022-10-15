@@ -66,7 +66,7 @@ suspend fun parserConformanceTest(builtinBindings: List<Binding<S, T>>, ctx: Fun
 
             ctx.test(name) {
                 val errors = Errors()
-                val program = translate(builtinBindings, input, errors)
+                val program = translate(builtinBindings, input.reader(), errors)
 
                 if (output != null) {
                     val rhs =

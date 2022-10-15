@@ -35,7 +35,7 @@ suspend fun parserConformanceTest(ctx: FunSpecContainerContext, scenarios: List<
             ctx.test(name) {
                 val errors = Errors()
 
-                val lhs = parse(input, errors)
+                val lhs = parse(input.reader(), errors)
                 val rhs = output.toString()
 
                 if (errors.reported())

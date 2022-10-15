@@ -5,12 +5,13 @@ import io.littlelanguages.alml.static.parse
 import io.littlelanguages.alml.typed.st.*
 import io.littlelanguages.alml.typed.typing.*
 import io.littlelanguages.data.Tuple2
+import java.io.Reader
 
 fun translate(p: io.littlelanguages.alml.static.ast.Program, errors: Errors): Program =
     Translator(errors).apply(p)
 
-fun translate(input: String, errors: Errors): Program {
-    val ast = parse(input, errors)
+fun translate(reader: Reader, errors: Errors): Program {
+    val ast = parse(reader, errors)
 
     return if (errors.reported())
         Program(listOf())

@@ -8,7 +8,7 @@ import io.littlelanguages.data.Tuple4
 import io.littlelanguages.data.Union2
 import io.littlelanguages.scanpiler.Location
 import io.littlelanguages.scanpiler.Locationable
-import java.io.StringReader
+import java.io.Reader
 
 fun parse(scanner: Scanner, errors: Errors): Program = try {
     Parser(scanner, ParseVisitor()).program()
@@ -17,8 +17,8 @@ fun parse(scanner: Scanner, errors: Errors): Program = try {
     Program(listOf())
 }
 
-fun parse(input: String, errors: Errors): Program =
-    parse(Scanner(StringReader(input)), errors)
+fun parse(reader: Reader, errors: Errors): Program =
+    parse(Scanner(reader), errors)
 
 class ParseVisitor :
     Visitor<

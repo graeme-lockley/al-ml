@@ -1,6 +1,7 @@
 package io.littlelanguages.alml.compiler
 
 import io.littlelanguages.alml.CompilationError
+import io.littlelanguages.alml.Errors
 import io.littlelanguages.alml.compiler.llvm.Context
 import io.littlelanguages.alml.compiler.llvm.FunctionBuilder
 import io.littlelanguages.alml.compiler.llvm.Module
@@ -11,6 +12,7 @@ import io.littlelanguages.alml.typed.st.Operators.*
 import org.bytedeco.javacpp.PointerPointer
 import org.bytedeco.llvm.LLVM.LLVMValueRef
 import org.bytedeco.llvm.global.LLVM
+import java.io.Reader
 
 data class CompileState(val compiler: Compiler, val functionBuilder: FunctionBuilder, val depth: Int)
 
@@ -26,6 +28,15 @@ fun compile(context: Context, moduleID: String, program: Program<CompileState, L
     LLVM.LLVMRunPassManager(pm, module.module)
 
     return module
+}
+
+fun compile(builtinBindings: List<Binding<CompileState, LLVMValueRef>>, context: Context, reader: Reader, moduleID: String, errors: Errors): Module {
+    val r = translate(builtinBindings, reader, errors)
+
+    return if (errors.reported())
+        Module(moduleID, context)
+    else
+        compile(context, moduleID, r)
 }
 
 class Compiler(private val module: Module) {

@@ -5,11 +5,8 @@ import io.kotest.core.spec.style.scopes.FunSpecContainerContext
 import io.kotest.matchers.shouldBe
 import io.littlelanguages.alml.Errors
 import io.littlelanguages.alml.compiler.llvm.Context
-import io.littlelanguages.alml.compiler.llvm.Module
 import io.littlelanguages.alml.compiler.llvm.targetTriple
 import io.littlelanguages.alml.dynamic.Binding
-import io.littlelanguages.alml.static.Scanner
-import io.littlelanguages.alml.static.parse
 import org.bytedeco.llvm.LLVM.LLVMValueRef
 import org.yaml.snakeyaml.Yaml
 import java.io.*
@@ -32,14 +29,6 @@ class CompilerTests : FunSpec({
     }
 })
 
-fun compile(builtinBindings: List<Binding<CompileState, LLVMValueRef>>, context: Context, input: String, errors: Errors): Module {
-    val ast = parse(Scanner(StringReader(input)), errors)
-    val st = io.littlelanguages.alml.typed.translate(ast, errors)
-    val r = io.littlelanguages.alml.dynamic.translate(builtinBindings, st, errors)
-
-    return compile(context, "./test.mlsp", r)
-}
-
 suspend fun parserConformanceTest(
     builtinBindings: List<Binding<CompileState, LLVMValueRef>>,
     context: Context,
@@ -57,7 +46,7 @@ suspend fun parserConformanceTest(
 
             ctx.test(name) {
                 val errors = Errors()
-                val module = compile(builtinBindings, context, input, errors)
+                val module = compile(builtinBindings, context, input.reader(), "./test.mlsp", errors)
 
                 if (errors.reported())
                     errors.items().map { it.yaml() }.toString() shouldBe output.toString()
