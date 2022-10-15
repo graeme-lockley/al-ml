@@ -26,7 +26,7 @@ import java.io.FileReader
 import java.util.concurrent.Callable
 import kotlin.system.exitProcess
 
-fun compile(builtinBindings: List<Binding<CompileState, LLVMValueRef>>, context: Context, input: File): Either<List<Errors>, Module> {
+fun compile(builtinBindings: List<Binding<CompileState, LLVMValueRef>>, context: Context, input: File): Either<List<Error>, Module> {
     val reader = FileReader(input)
 
     val result = parse(Scanner(reader)) mapLeft { listOf(it) } andThen { io.littlelanguages.alml.typed.translate(it) } andThen {
@@ -52,7 +52,7 @@ fun changeExtension(f: File, newExtension: String): File {
     return File(f.parent, name + newExtension)
 }
 
-fun reportErrors(errors: List<Errors>) {
+fun reportErrors(errors: List<Error>) {
     errors.forEach { println(formatError(it)) }
 }
 
@@ -113,7 +113,7 @@ fun formatLocation(location: Location): String =
                 "(${location.start.line}, ${location.start.column})-(${location.end.line}, ${location.end.column})"
     }
 
-fun formatError(error: Errors): String =
+fun formatError(error: Error): String =
     when (error) {
         is ArgumentMismatchError ->
             "Argument Mismatch: ${formatLocation(error.location)}: Procedure \"${error.name}\" expects ${error.expected} ${if (error.expected == 1) "argument" else "arguments"} but was passed ${error.actual}"

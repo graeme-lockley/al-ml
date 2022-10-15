@@ -1,6 +1,6 @@
 package io.littlelanguages.alml.typed
 
-import io.littlelanguages.alml.Errors
+import io.littlelanguages.alml.Error
 import io.littlelanguages.alml.UnificationFail
 import io.littlelanguages.alml.UnificationMismatch
 import io.littlelanguages.alml.typed.typing.*
@@ -12,7 +12,7 @@ private typealias Unifier =
         Pair<Substitution, Constraints>
 
 
-fun unifies(constraints: Constraints): Either<List<Errors>, Substitution> {
+fun unifies(constraints: Constraints): Either<List<Error>, Substitution> {
     val context =
         SolverContext(constraints.leftVar().merge())
 
@@ -28,7 +28,7 @@ fun unifies(constraints: Constraints): Either<List<Errors>, Substitution> {
 
 private class SolverContext(private var constraints: Constraints) {
     val errors =
-        mutableListOf<Errors>()
+        mutableListOf<Error>()
 
 
     private fun List<Type>.subst(substitution: Substitution): List<Type> =

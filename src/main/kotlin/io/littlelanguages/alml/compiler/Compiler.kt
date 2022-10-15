@@ -1,7 +1,7 @@
 package io.littlelanguages.alml.compiler
 
 import io.littlelanguages.alml.CompilationError
-import io.littlelanguages.alml.Errors
+import io.littlelanguages.alml.Error
 import io.littlelanguages.alml.compiler.llvm.Context
 import io.littlelanguages.alml.compiler.llvm.FunctionBuilder
 import io.littlelanguages.alml.compiler.llvm.Module
@@ -17,7 +17,7 @@ import org.bytedeco.llvm.global.LLVM
 
 data class CompileState(val compiler: Compiler, val functionBuilder: FunctionBuilder, val depth: Int)
 
-fun compile(context: Context, moduleID: String, program: Program<CompileState, LLVMValueRef>): Either<List<Errors>, Module> {
+fun compile(context: Context, moduleID: String, program: Program<CompileState, LLVMValueRef>): Either<List<Error>, Module> {
     val module = context.module(moduleID)
 
     Compiler(module).compile(program)

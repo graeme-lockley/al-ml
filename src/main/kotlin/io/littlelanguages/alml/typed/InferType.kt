@@ -1,6 +1,6 @@
 package io.littlelanguages.alml.typed
 
-import io.littlelanguages.alml.Errors
+import io.littlelanguages.alml.Error
 import io.littlelanguages.alml.static.ast.*
 import io.littlelanguages.alml.typed.typing.*
 import io.littlelanguages.alml.typed.typing.Type
@@ -80,7 +80,7 @@ import io.littlelanguages.data.*
         Try i1 i2: T
  */
 
-fun inferAndBindValueType(letValue: LetValue, errors: MutableList<Errors>, pump: VarPump, environment: Environment): Type {
+fun inferAndBindValueType(letValue: LetValue, errors: MutableList<Error>, pump: VarPump, environment: Environment): Type {
     val type = when (val inferResult = inferValueType(nullTypeToType(letValue.type), letValue.expression, pump, environment)) {
         is Left -> {
             errors.addAll(inferResult.left)
@@ -96,7 +96,7 @@ fun inferAndBindValueType(letValue: LetValue, errors: MutableList<Errors>, pump:
     return type
 }
 
-fun inferValueType(type: Type?, e: Expression, pump: VarPump, environment: Environment = Environment()): Either<List<Errors>, Type> {
+fun inferValueType(type: Type?, e: Expression, pump: VarPump, environment: Environment = Environment()): Either<List<Error>, Type> {
     val inferType = InferType(pump, environment)
     val resultType = inferType.expression(e)
 
@@ -109,7 +109,7 @@ fun inferValueType(type: Type?, e: Expression, pump: VarPump, environment: Envir
     }
 }
 
-fun inferAndBindProcedureType(letFunction: LetFunction, errors: MutableList<Errors>, pump: VarPump, environment: Environment): Scheme {
+fun inferAndBindProcedureType(letFunction: LetFunction, errors: MutableList<Error>, pump: VarPump, environment: Environment): Scheme {
     val valueType = when (val unificationResult = inferProcedureType(
         letFunction.identifier.name,
         letFunction.parameters.map { Tuple2(it.id.name, nullTypeToType(it.type)) },
@@ -134,7 +134,7 @@ fun inferAndBindProcedureType(letFunction: LetFunction, errors: MutableList<Erro
 
 private fun inferProcedureType(
     name: String?, parameters: List<Tuple2<String, Type?>>, definedReturnType: Type?, e: Expression, pump: VarPump, environment: Environment
-): Either<List<Errors>, Type> {
+): Either<List<Error>, Type> {
     val parameterTypes = parameters.map { Pair(it.a, it.b ?: pump.fresh()) }
     val returnType: Type = definedReturnType ?: pump.fresh()
     val procedureType = parameterTypes.foldRight(returnType) { t, acc -> TArr(t.second, acc) }
@@ -167,7 +167,7 @@ private fun inferProcedureType(
 class InferType(
     private val pump: VarPump, private val environment: Environment, private val optimiseConstraints: Boolean = true
 ) {
-    val errors = mutableListOf<Errors>()
+    val errors = mutableListOf<Error>()
     var constraints = Constraints()
 
     fun expressions(es: List<Expression>): Type {

@@ -3,7 +3,7 @@ package io.littlelanguages.alml.compiler
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.scopes.FunSpecContainerContext
 import io.kotest.matchers.shouldBe
-import io.littlelanguages.alml.Errors
+import io.littlelanguages.alml.Error
 import io.littlelanguages.alml.compiler.llvm.Context
 import io.littlelanguages.alml.compiler.llvm.Module
 import io.littlelanguages.alml.compiler.llvm.targetTriple
@@ -35,7 +35,7 @@ class CompilerTests : FunSpec({
     }
 })
 
-fun compile(builtinBindings: List<Binding<CompileState, LLVMValueRef>>, context: Context, input: String): Either<List<Errors>, Module> =
+fun compile(builtinBindings: List<Binding<CompileState, LLVMValueRef>>, context: Context, input: String): Either<List<Error>, Module> =
     parse(Scanner(StringReader(input))) mapLeft { listOf(it) } andThen { io.littlelanguages.alml.typed.translate(it) } andThen {
         io.littlelanguages.alml.dynamic.translate(
             builtinBindings,

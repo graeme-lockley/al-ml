@@ -11,11 +11,11 @@ import io.littlelanguages.scanpiler.LocationCoordinate
 import io.littlelanguages.scanpiler.LocationRange
 import java.lang.Integer.max
 
-fun <S, T> translate(builtinBindings: List<Binding<S, T>>, p: io.littlelanguages.alml.typed.st.Program): Either<List<Errors>, Program<S, T>> =
+fun <S, T> translate(builtinBindings: List<Binding<S, T>>, p: io.littlelanguages.alml.typed.st.Program): Either<List<Error>, Program<S, T>> =
     Translator(builtinBindings, p).apply()
 
 private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io.littlelanguages.alml.typed.st.Program) {
-    val errors = mutableListOf<Errors>()
+    val errors = mutableListOf<Error>()
 
     var nameGenerator = 0
 
@@ -28,7 +28,7 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
         builtinBindings.forEach { bindings.add(it.name, it) }
     }
 
-    fun apply(): Either<List<Errors>, Program<S, T>> {
+    fun apply(): Either<List<Error>, Program<S, T>> {
         val r = program(ast.expressions)
 
         return if (errors.isEmpty()) Right(r) else Left(errors)
@@ -207,7 +207,7 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
         listOf(IfExpression(ifThen.a, ifThen.b, if (remainder.isEmpty() && elseExpression == null) null else ifToTST(remainder, elseExpression)))
     }
 
-    private fun reportError(error: Errors): List<Expression<S, T>> {
+    private fun reportError(error: Error): List<Expression<S, T>> {
         errors.add(error)
         return listOf()
     }

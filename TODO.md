@@ -24,10 +24,12 @@ Superficially this is straight forward however it is necessary to introduce type
 
 - [X] Enhance the grammar to include type info
 - [X] Extend the parser to parse the type detail and augment the AST
+- [ ] Change the propagation of errors so that we do not need to use `Result` everywhere 
 - [ ] Type every TST expression
 
 ## Extend the small dialect of Al-ML to include the full Al-ML language
 
+- [ ] Typologically sort declarations so that they do not overlap
 - [ ] Add support for custom infix operators
 - [ ] Add support for `|>` and `<|`
 - [ ] Add support for `(..)` for all infix operators

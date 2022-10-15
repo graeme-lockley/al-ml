@@ -1,7 +1,7 @@
 package io.littlelanguages.alml.dynamic
 
 import io.littlelanguages.alml.ArgumentMismatchError
-import io.littlelanguages.alml.Errors
+import io.littlelanguages.alml.Error
 import io.littlelanguages.alml.dynamic.tst.Expressionss
 import io.littlelanguages.alml.dynamic.tst.mapOfType
 import io.littlelanguages.alml.typed.st.ApplyExpression
@@ -68,7 +68,7 @@ abstract class ExternalProcedureBinding<S, T>(
     override fun yaml(): Any =
         singletonMap("external-procedure", mapOfNameType(name, typeOf()))
 
-    fun validateArguments(e: ApplyExpression, name: String, arguments: Expressionss<S, T>): Errors? =
+    fun validateArguments(e: ApplyExpression, name: String, arguments: Expressionss<S, T>): Error? =
         when (arity) {
             null -> null
             arguments.size -> null

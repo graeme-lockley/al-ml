@@ -6,11 +6,11 @@ import io.littlelanguages.alml.typed.typing.Type
 import io.littlelanguages.data.Yamlable
 import io.littlelanguages.scanpiler.Location
 
-sealed interface Errors : Yamlable
+sealed interface Error : Yamlable
 
 data class ParseError(
     val found: Token, val expected: Set<TToken>
-) : Errors {
+) : Error {
     override fun yaml(): Any = singletonMap(
         "ParseError", mapOf(
             Pair("found", found), Pair("expected", expected)
@@ -18,11 +18,11 @@ data class ParseError(
     )
 }
 
-data class CompilationError(override val message: String) : Exception(message), Errors {
+data class CompilationError(override val message: String) : Exception(message), Error {
     override fun yaml(): Any = singletonMap("CompilationError", message)
 }
 
-data class ArgumentMismatchError(val name: String, val expected: Int, val actual: Int, val location: Location) : Errors {
+data class ArgumentMismatchError(val name: String, val expected: Int, val actual: Int, val location: Location) : Error {
     override fun yaml(): Any = singletonMap(
         "ArgumentMismatchError", mapOf(
             Pair("name", name), Pair("expected", expected), Pair("actual", actual), Pair("location", location)
@@ -30,7 +30,7 @@ data class ArgumentMismatchError(val name: String, val expected: Int, val actual
     )
 }
 
-data class DuplicateParameterNameError(val name: String, val location: Location) : Errors {
+data class DuplicateParameterNameError(val name: String, val location: Location) : Error {
     override fun yaml(): Any = singletonMap(
         "DuplicateParameterNameError", mapOf(
             Pair("name", name), Pair("location", location)
@@ -38,7 +38,7 @@ data class DuplicateParameterNameError(val name: String, val location: Location)
     )
 }
 
-data class DuplicateNameError(val name: String, val location: Location) : Errors {
+data class DuplicateNameError(val name: String, val location: Location) : Error {
     override fun yaml(): Any = singletonMap(
         "DuplicateNameError", mapOf(
             Pair("name", name), Pair("location", location)
@@ -46,24 +46,24 @@ data class DuplicateNameError(val name: String, val location: Location) : Errors
     )
 }
 
-data class ExpressionNotProcedureError(val location: Location) : Errors {
+data class ExpressionNotProcedureError(val location: Location) : Error {
     override fun yaml(): Any = singletonMap("ExpressionNotProcedureError", location.yaml())
 }
 
 data class UnificationFail(
     val t1: Type, val t2: Type
-) : Errors {
+) : Error {
     override fun yaml(): Any = singletonMap("UnificationFailError", mapOf(Pair("t1", t1.fullYaml()), Pair("t2", t2.fullYaml())))
 }
 
 data class UnificationMismatch(
     val t1s: Collection<Type>, val t2s: Collection<Type>
-) : Errors {
+) : Error {
     override fun yaml(): Any = singletonMap("UnificationMismatchError", t1s.map { it.yaml() })
 }
 
 
-data class UnknownSymbolError(val name: String, val location: Location) : Errors {
+data class UnknownSymbolError(val name: String, val location: Location) : Error {
     override fun yaml(): Any = singletonMap(
         "UnknownSymbolError", mapOf(
             Pair("name", name), Pair("location", location)

@@ -5,7 +5,7 @@ import io.kotest.core.spec.style.scopes.FunSpecContainerContext
 import io.kotest.matchers.shouldBe
 import io.littlelanguages.data.Either
 import io.littlelanguages.data.Right
-import io.littlelanguages.alml.Errors
+import io.littlelanguages.alml.Error
 import io.littlelanguages.alml.static.ast.Program
 import org.yaml.snakeyaml.Yaml
 import java.io.File
@@ -27,7 +27,7 @@ class ParserTests : FunSpec({
 })
 
 
-fun parse(input: String): Either<Errors, Program> =
+fun parse(input: String): Either<Error, Program> =
     parse(Scanner(StringReader(input)))
 
 
@@ -46,7 +46,7 @@ suspend fun parserConformanceTest(ctx: FunSpecContainerContext, scenarios: List<
                     parse(input).map { it.yaml() }.toString()
 
                 val rhs =
-                    Right<Errors, Any>(output as Any).toString()
+                    Right<Error, Any>(output as Any).toString()
 
                 lhs shouldBe rhs
             }
