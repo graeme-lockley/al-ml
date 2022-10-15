@@ -4,10 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.scopes.FunSpecContainerContext
 import io.kotest.matchers.shouldBe
 import io.littlelanguages.alml.Errors
-import io.littlelanguages.alml.static.ast.Program
 import org.yaml.snakeyaml.Yaml
 import java.io.File
-import java.io.StringReader
 
 private val yaml = Yaml()
 
@@ -23,11 +21,6 @@ class ParserTests : FunSpec({
         }
     }
 })
-
-
-fun parse(input: String, errors: Errors): Program =
-    parse(Scanner(StringReader(input)), errors)
-
 
 suspend fun parserConformanceTest(ctx: FunSpecContainerContext, scenarios: List<*>) {
     scenarios.forEach { scenario ->
