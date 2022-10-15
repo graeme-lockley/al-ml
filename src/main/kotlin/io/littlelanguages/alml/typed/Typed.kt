@@ -1,12 +1,22 @@
 package io.littlelanguages.alml.typed
 
 import io.littlelanguages.alml.Errors
+import io.littlelanguages.alml.static.parse
 import io.littlelanguages.alml.typed.st.*
 import io.littlelanguages.alml.typed.typing.*
 import io.littlelanguages.data.Tuple2
 
 fun translate(p: io.littlelanguages.alml.static.ast.Program, errors: Errors): Program =
     Translator(errors).apply(p)
+
+fun translate(input: String, errors: Errors): Program {
+    val ast = parse(input, errors)
+
+    return if (errors.reported())
+        Program(listOf())
+    else
+        Translator(errors).apply(ast)
+}
 
 private class Translator(private val errors: Errors) {
     var environment = initialEnvironment()

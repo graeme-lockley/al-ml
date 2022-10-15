@@ -4,12 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.scopes.FunSpecContainerContext
 import io.kotest.matchers.shouldBe
 import io.littlelanguages.alml.Errors
-import io.littlelanguages.alml.static.Scanner
-import io.littlelanguages.alml.static.parse
-import io.littlelanguages.alml.typed.st.Program
 import org.yaml.snakeyaml.Yaml
 import java.io.File
-import java.io.StringReader
 
 private val yaml = Yaml()
 
@@ -24,11 +20,6 @@ class TypedTests : FunSpec({
         }
     }
 })
-
-fun translate(input: String, errors: Errors): Program {
-    val ast = parse(Scanner(StringReader(input)), errors)
-    return translate(ast, errors)
-}
 
 suspend fun parserConformanceTest(ctx: FunSpecContainerContext, scenarios: List<*>) {
     scenarios.forEach { scenario ->
