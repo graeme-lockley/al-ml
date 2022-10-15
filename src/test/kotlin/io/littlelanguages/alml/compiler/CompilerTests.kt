@@ -3,7 +3,6 @@ package io.littlelanguages.alml.compiler
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.scopes.FunSpecContainerContext
 import io.kotest.matchers.shouldBe
-import io.littlelanguages.alml.Error
 import io.littlelanguages.alml.Errors
 import io.littlelanguages.alml.compiler.llvm.Context
 import io.littlelanguages.alml.compiler.llvm.Module
@@ -11,9 +10,6 @@ import io.littlelanguages.alml.compiler.llvm.targetTriple
 import io.littlelanguages.alml.dynamic.Binding
 import io.littlelanguages.alml.static.Scanner
 import io.littlelanguages.alml.static.parse
-import io.littlelanguages.data.Either
-import io.littlelanguages.data.Left
-import io.littlelanguages.data.Right
 import org.bytedeco.llvm.LLVM.LLVMValueRef
 import org.yaml.snakeyaml.Yaml
 import java.io.*
@@ -36,20 +32,13 @@ class CompilerTests : FunSpec({
     }
 })
 
-fun compile(builtinBindings: List<Binding<CompileState, LLVMValueRef>>, context: Context, input: String): Either<List<Error>, Module> =
-    parse(Scanner(StringReader(input))) mapLeft { listOf(it) } andThen {
-        val errors = Errors()
-        val st = io.littlelanguages.alml.typed.translate(it, errors)
-        val r = io.littlelanguages.alml.dynamic.translate(builtinBindings, st, errors)
+fun compile(builtinBindings: List<Binding<CompileState, LLVMValueRef>>, context: Context, input: String, errors: Errors): Module {
+    val ast = parse(Scanner(StringReader(input)), errors)
+    val st = io.littlelanguages.alml.typed.translate(ast, errors)
+    val r = io.littlelanguages.alml.dynamic.translate(builtinBindings, st, errors)
 
-        if (errors.reported()) Left(errors.items()) else Right(r)
-    } map {
-        compile(
-            context,
-            "./test.mlsp",
-            it
-        )
-    }
+    return compile(context, "./test.mlsp", r)
+}
 
 suspend fun parserConformanceTest(
     builtinBindings: List<Binding<CompileState, LLVMValueRef>>,
@@ -67,24 +56,22 @@ suspend fun parserConformanceTest(
             val output = s["output"]
 
             ctx.test(name) {
-                when (val llvmState = compile(builtinBindings, context, input)) {
-                    is Left -> {
-                        llvmState.left.map { it.yaml() }.toString() shouldBe output.toString()
-                    }
+                val errors = Errors()
+                val module = compile(builtinBindings, context, input, errors)
 
-                    is Right -> {
-                        val module = llvmState.right
+                if (errors.reported())
+                    errors.items().map { it.yaml() }.toString() shouldBe output.toString()
+                else {
 
 //                        LLVM.LLVMDumpModule(module)
 //                        System.err.println(LLVM.LLVMPrintModuleToString(module).string)
-                        module.writeBitcodeToFile("test.bc")
-                        runCommand(arrayOf("clang", "test.bc", "src/main/c/lib.o", "./src/main/c/main.o", "./build/bdwgc/libgc.a", "-o", "test.bin"))
-                        val commandOutput = runCommand(arrayOf("./test.bin"))
+                    module.writeBitcodeToFile("test.bc")
+                    runCommand(arrayOf("clang", "test.bc", "src/main/c/lib.o", "./src/main/c/main.o", "./build/bdwgc/libgc.a", "-o", "test.bin"))
+                    val commandOutput = runCommand(arrayOf("./test.bin"))
 
-                        module.dispose()
+                    module.dispose()
 
-                        commandOutput shouldBe (output as Any).toString().trim()
-                    }
+                    commandOutput shouldBe (output as Any).toString().trim()
                 }
             }
         } else {

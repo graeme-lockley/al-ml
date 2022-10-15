@@ -3,9 +3,7 @@ package io.littlelanguages.alml.static
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.scopes.FunSpecContainerContext
 import io.kotest.matchers.shouldBe
-import io.littlelanguages.data.Either
-import io.littlelanguages.data.Right
-import io.littlelanguages.alml.Error
+import io.littlelanguages.alml.Errors
 import io.littlelanguages.alml.static.ast.Program
 import org.yaml.snakeyaml.Yaml
 import java.io.File
@@ -27,8 +25,8 @@ class ParserTests : FunSpec({
 })
 
 
-fun parse(input: String): Either<Error, Program> =
-    parse(Scanner(StringReader(input)))
+fun parse(input: String, errors: Errors): Program =
+    parse(Scanner(StringReader(input)), errors)
 
 
 suspend fun parserConformanceTest(ctx: FunSpecContainerContext, scenarios: List<*>) {
@@ -42,13 +40,15 @@ suspend fun parserConformanceTest(ctx: FunSpecContainerContext, scenarios: List<
             val output = s["output"]
 
             ctx.test(name) {
-                val lhs =
-                    parse(input).map { it.yaml() }.toString()
+                val errors = Errors()
 
-                val rhs =
-                    Right<Error, Any>(output as Any).toString()
+                val lhs = parse(input, errors)
+                val rhs = output.toString()
 
-                lhs shouldBe rhs
+                if (errors.reported())
+                    errors.items().map { it.yaml() }.toString() shouldBe rhs
+                else
+                    lhs.yaml().toString() shouldBe rhs
             }
         } else {
             val name = nestedScenario["name"] as String

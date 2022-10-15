@@ -3,7 +3,6 @@ package io.littlelanguages.alml.dynamic
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.scopes.FunSpecContainerContext
 import io.kotest.matchers.shouldBe
-import io.littlelanguages.alml.Error
 import io.littlelanguages.alml.Errors
 import io.littlelanguages.alml.dynamic.tst.Expressionss
 import io.littlelanguages.alml.dynamic.tst.Program
@@ -11,9 +10,6 @@ import io.littlelanguages.alml.static.Scanner
 import io.littlelanguages.alml.static.parse
 import io.littlelanguages.alml.typed.typing.Type
 import io.littlelanguages.alml.typed.typing.typeBool
-import io.littlelanguages.data.Either
-import io.littlelanguages.data.Left
-import io.littlelanguages.data.Right
 import org.yaml.snakeyaml.Yaml
 import java.io.File
 import java.io.StringReader
@@ -62,14 +58,11 @@ private class DummyExternalValueBinding<S, T>(
 }
 
 
-fun translate(builtinBindings: List<Binding<S, T>>, input: String): Either<List<Error>, Program<S, T>> =
-    parse(Scanner(StringReader(input))) mapLeft { listOf(it) } andThen {
-        val errors = Errors()
-        val st = io.littlelanguages.alml.typed.translate(it, errors)
-        val r = translate(builtinBindings, st, errors)
-
-        if (errors.reported()) Left(errors.items()) else Right(r)
-    }
+fun translate(builtinBindings: List<Binding<S, T>>, input: String, errors: Errors): Program<S, T> {
+    val ast = parse(Scanner(StringReader(input)), errors)
+    val st = io.littlelanguages.alml.typed.translate(ast, errors)
+    return translate(builtinBindings, st, errors)
+}
 
 suspend fun parserConformanceTest(builtinBindings: List<Binding<S, T>>, ctx: FunSpecContainerContext, scenarios: List<*>) {
     scenarios.forEach { scenario ->
@@ -82,20 +75,17 @@ suspend fun parserConformanceTest(builtinBindings: List<Binding<S, T>>, ctx: Fun
             val output = s["output"]
 
             ctx.test(name) {
-                val lhs =
-                    translate(builtinBindings, input)
+                val errors = Errors()
+                val program = translate(builtinBindings, input, errors)
 
                 if (output != null) {
                     val rhs =
                         output.toString()
 
-                    when (lhs) {
-                        is Left ->
-                            lhs.left.map { it.yaml() }.toString() shouldBe rhs
-
-                        is Right ->
-                            lhs.right.yaml().toString() shouldBe rhs
-                    }
+                    if (errors.reported())
+                        errors.items().map { it.yaml() }.toString() shouldBe rhs
+                    else
+                        program.yaml().toString() shouldBe rhs
                 }
             }
         } else {

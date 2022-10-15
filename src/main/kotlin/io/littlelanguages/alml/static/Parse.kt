@@ -1,16 +1,19 @@
 package io.littlelanguages.alml.static
 
-import io.littlelanguages.alml.Error
+import io.littlelanguages.alml.Errors
 import io.littlelanguages.alml.ParseError
 import io.littlelanguages.alml.static.ast.*
-import io.littlelanguages.data.*
+import io.littlelanguages.data.Tuple2
+import io.littlelanguages.data.Tuple4
+import io.littlelanguages.data.Union2
 import io.littlelanguages.scanpiler.Location
 import io.littlelanguages.scanpiler.Locationable
 
-fun parse(scanner: Scanner): Either<Error, Program> = try {
-    Right(Parser(scanner, ParseVisitor()).program())
+fun parse(scanner: Scanner, errors: Errors): Program = try {
+    Parser(scanner, ParseVisitor()).program()
 } catch (e: ParsingException) {
-    Left(ParseError(e.found, e.expected))
+    errors.report(ParseError(e.found, e.expected))
+    Program(listOf())
 }
 
 class ParseVisitor :

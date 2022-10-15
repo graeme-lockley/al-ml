@@ -11,9 +11,6 @@ import io.littlelanguages.alml.static.Scanner
 import io.littlelanguages.alml.static.TToken
 import io.littlelanguages.alml.static.Token
 import io.littlelanguages.alml.static.parse
-import io.littlelanguages.data.Either
-import io.littlelanguages.data.Left
-import io.littlelanguages.data.Right
 import io.littlelanguages.scanpiler.Location
 import io.littlelanguages.scanpiler.LocationCoordinate
 import io.littlelanguages.scanpiler.LocationRange
@@ -26,19 +23,14 @@ import java.io.FileReader
 import java.util.concurrent.Callable
 import kotlin.system.exitProcess
 
-fun compile(builtinBindings: List<Binding<CompileState, LLVMValueRef>>, context: Context, input: File): Either<List<Error>, Module> {
+fun compile(builtinBindings: List<Binding<CompileState, LLVMValueRef>>, context: Context, input: File, errors: Errors): Module {
     val reader = FileReader(input)
 
-    val result = parse(Scanner(reader)) mapLeft { listOf(it) } andThen {
-        val errors = Errors()
-        val st = io.littlelanguages.alml.typed.translate(it, errors)
-        val r = io.littlelanguages.alml.dynamic.translate(builtinBindings, st, errors)
-        if (errors.reported()) Left(errors.items()) else Right(r)
-    } map {
-        io.littlelanguages.alml.compiler.compile(
-            context, input.name, it
-        )
-    }
+    val ast = parse(Scanner(reader), errors)
+    val st = io.littlelanguages.alml.typed.translate(ast, errors)
+    val p = io.littlelanguages.alml.dynamic.translate(builtinBindings, st, errors)
+    val result = io.littlelanguages.alml.compiler.compile(context, input.name, p)
+
     reader.close()
 
     return result
@@ -50,8 +42,8 @@ fun changeExtension(f: File, newExtension: String): File {
     return File(f.parent, name + newExtension)
 }
 
-fun reportErrors(errors: List<Error>) {
-    errors.forEach { println(formatError(it)) }
+fun reportErrors(errors: Errors) {
+    errors.items().forEach { println(formatError(it)) }
 }
 
 fun formatTToken(token: TToken): String = when (token) {
@@ -130,14 +122,17 @@ fun formatError(error: Error): String = when (error) {
 fun compile(input: File, triple: String, output: File) {
     val context = Context(triple)
 
-    when (val compiledResult = compile(builtinBindings, context, input)) {
-        is Left -> {
-            reportErrors(compiledResult.left)
-            exitProcess(1)
-        }
+    val errors = Errors()
 
-        is Right -> compiledResult.right.writeBitcodeToFile(output.absolutePath)
+    val compiledResult = compile(builtinBindings, context, input, errors)
+
+    if (errors.reported()) {
+        reportErrors(errors)
+        exitProcess(1)
     }
+
+    compiledResult.writeBitcodeToFile(output.absolutePath)
+
     context.dispose()
 }
 

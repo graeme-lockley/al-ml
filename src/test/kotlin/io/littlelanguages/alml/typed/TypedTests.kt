@@ -3,14 +3,10 @@ package io.littlelanguages.alml.typed
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.scopes.FunSpecContainerContext
 import io.kotest.matchers.shouldBe
-import io.littlelanguages.alml.Error
 import io.littlelanguages.alml.Errors
 import io.littlelanguages.alml.static.Scanner
 import io.littlelanguages.alml.static.parse
 import io.littlelanguages.alml.typed.st.Program
-import io.littlelanguages.data.Either
-import io.littlelanguages.data.Left
-import io.littlelanguages.data.Right
 import org.yaml.snakeyaml.Yaml
 import java.io.File
 import java.io.StringReader
@@ -29,13 +25,10 @@ class TypedTests : FunSpec({
     }
 })
 
-fun translate(input: String): Either<List<Error>, Program> =
-    parse(Scanner(StringReader(input))) mapLeft { listOf(it) } andThen {
-        val errors = Errors()
-        val r = translate(it, errors)
-
-        if (errors.reported()) Left(errors.items()) else Right(r)
-    }
+fun translate(input: String, errors: Errors): Program {
+    val ast = parse(Scanner(StringReader(input)), errors)
+    return translate(ast, errors)
+}
 
 suspend fun parserConformanceTest(ctx: FunSpecContainerContext, scenarios: List<*>) {
     scenarios.forEach { scenario ->
@@ -46,53 +39,20 @@ suspend fun parserConformanceTest(ctx: FunSpecContainerContext, scenarios: List<
             val name = s["name"] as String
             val input = s["input"] as String
             val output = s["output"]
-//            val constraints = s["constraints"]
-//            val environment = s["environment"]
 
             ctx.test(name) {
-                val lhs =
-                    translate(input)
+                val errors = Errors()
+                val lhs = translate(input, errors)
 
                 if (output != null) {
                     val rhs =
                         output.toString()
 
-                    when (lhs) {
-                        is Left ->
-                            lhs.left.map { it.yaml() }.toString() shouldBe rhs
-
-                        is Right ->
-                            lhs.right.yaml().toString() shouldBe rhs
-                    }
+                    if (errors.reported())
+                        errors.items().map { it.yaml() }.toString() shouldBe rhs
+                    else
+                        lhs.yaml().toString() shouldBe rhs
                 }
-
-//                if (constraints != null) {
-//                    val ait = AssignInferredType<S, T>(false)
-//
-//                    when (lhs) {
-//                        is Left -> lhs.left.map { it.yaml() }.toString() shouldBe ""
-//
-//                        is Right -> {
-//                            ait.program(lhs.right)
-//
-//                            ait.constraints.state.map { it.toString() } shouldBe constraints
-//                        }
-//                    }
-//                }
-
-//                if (environment != null) {
-//                    val ait = AssignInferredType<S, T>(false)
-//
-//                    when (lhs) {
-//                        is Left -> lhs.left.map { it.yaml() }.toString() shouldBe ""
-//
-//                        is Right -> {
-//                            ait.program(lhs.right)
-//
-//                            ait.environment.types().map { it.toString() } shouldBe environment
-//                        }
-//                    }
-//                }
             }
         } else {
             val name = nestedScenario["name"] as String
