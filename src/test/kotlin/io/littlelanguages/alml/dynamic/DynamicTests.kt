@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.scopes.FunSpecContainerContext
 import io.kotest.matchers.shouldBe
 import io.littlelanguages.alml.Error
+import io.littlelanguages.alml.Errors
 import io.littlelanguages.alml.dynamic.tst.Expressionss
 import io.littlelanguages.alml.dynamic.tst.Program
 import io.littlelanguages.alml.static.Scanner
@@ -63,10 +64,12 @@ private class DummyExternalValueBinding<S, T>(
 
 fun translate(builtinBindings: List<Binding<S, T>>, input: String): Either<List<Error>, Program<S, T>> =
     parse(Scanner(StringReader(input))) mapLeft { listOf(it) } andThen { io.littlelanguages.alml.typed.translate(it) } andThen {
-        translate(
+        val errors = Errors()
+        val r = translate(
             builtinBindings,
-            it
+            it, errors
         )
+        if (errors.reported()) Left(errors.items()) else Right(r)
     }
 
 suspend fun parserConformanceTest(builtinBindings: List<Binding<S, T>>, ctx: FunSpecContainerContext, scenarios: List<*>) {

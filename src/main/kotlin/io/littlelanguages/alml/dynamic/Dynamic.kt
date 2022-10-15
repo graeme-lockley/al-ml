@@ -2,21 +2,16 @@ package io.littlelanguages.alml.dynamic
 
 import io.littlelanguages.alml.*
 import io.littlelanguages.alml.dynamic.tst.*
-import io.littlelanguages.data.Either
-import io.littlelanguages.data.Left
-import io.littlelanguages.data.Right
 import io.littlelanguages.data.Tuple2
 import io.littlelanguages.scanpiler.Location
 import io.littlelanguages.scanpiler.LocationCoordinate
 import io.littlelanguages.scanpiler.LocationRange
 import java.lang.Integer.max
 
-fun <S, T> translate(builtinBindings: List<Binding<S, T>>, p: io.littlelanguages.alml.typed.st.Program): Either<List<Error>, Program<S, T>> =
-    Translator(builtinBindings, p).apply()
+fun <S, T> translate(builtinBindings: List<Binding<S, T>>, p: io.littlelanguages.alml.typed.st.Program, errors: Errors): Program<S, T> =
+    Translator(builtinBindings, p, errors).apply()
 
-private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io.littlelanguages.alml.typed.st.Program) {
-    val errors = mutableListOf<Error>()
-
+private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io.littlelanguages.alml.typed.st.Program, private val errors: Errors) {
     var nameGenerator = 0
 
     val bindings = Bindings<S, T>()
@@ -28,11 +23,7 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
         builtinBindings.forEach { bindings.add(it.name, it) }
     }
 
-    fun apply(): Either<List<Error>, Program<S, T>> {
-        val r = program(ast.expressions)
-
-        return if (errors.isEmpty()) Right(r) else Left(errors)
-    }
+    fun apply(): Program<S, T> = program(ast.expressions)
 
     private fun program(es: List<io.littlelanguages.alml.typed.st.Expression>): Program<S, T> {
         val declarations = mutableListOf<Procedure<S, T>>()
@@ -208,7 +199,7 @@ private class Translator<S, T>(builtinBindings: List<Binding<S, T>>, val ast: io
     }
 
     private fun reportError(error: Error): List<Expression<S, T>> {
-        errors.add(error)
+        errors.report(error)
         return listOf()
     }
 

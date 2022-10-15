@@ -30,10 +30,13 @@ fun compile(builtinBindings: List<Binding<CompileState, LLVMValueRef>>, context:
     val reader = FileReader(input)
 
     val result = parse(Scanner(reader)) mapLeft { listOf(it) } andThen { io.littlelanguages.alml.typed.translate(it) } andThen {
-        io.littlelanguages.alml.dynamic.translate(
+        val errors = Errors()
+        val r = io.littlelanguages.alml.dynamic.translate(
             builtinBindings,
-            it
+            it,
+            errors
         )
+        if (errors.reported()) Left(errors.items()) else Right(r)
     } map {
         io.littlelanguages.alml.compiler.compile(
             context,
