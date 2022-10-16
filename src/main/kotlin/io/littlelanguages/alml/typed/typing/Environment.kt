@@ -24,6 +24,9 @@ data class Environment(
 
     fun closeScope() =
         typeBindings.close()
+
+    fun generalise(type: Type): Scheme =
+        Scheme(type.ftv(), type)
 }
 
 fun initialEnvironment(): Environment {

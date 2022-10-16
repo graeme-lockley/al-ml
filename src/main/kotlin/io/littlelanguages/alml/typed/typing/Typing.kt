@@ -104,8 +104,6 @@ private fun combine(a: Location?, b: Location?): Location? = when {
     else -> a + b
 }
 
-val nullSubstitution = Substitution()
-
 val typeError = TCon("*error*")
 
 val typeUnit = TCon("Unit")

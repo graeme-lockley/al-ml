@@ -96,7 +96,7 @@ fun inferValueType(type: Type?, e: Expression, pump: VarPump, environment: Envir
 
     inferType.addConstraint(type, resultType)
 
-    val subst = unifies(inferType.constraints, errors)
+    val subst = inferType.constraints.solve(errors)
 
     return resultType.apply(subst)
 }
@@ -142,7 +142,7 @@ private fun inferProcedureType(
     val inferredReturnType = inferType.expression(e)
 
     inferType.addConstraint(returnType, inferredReturnType)
-    val unificationResult = unifies(inferType.constraints, errors)
+    val unificationResult = inferType.constraints.solve(errors)
     environment.closeScope()
 
     return procedureType.apply(unificationResult)
@@ -271,9 +271,8 @@ class InferType(
     }
 
     fun addConstraint(t1: Type?, t2: Type?) {
-        if (t1 != null && !t1.isError() && t2 != null && !t2.isError()) if (t1 != t2) constraints += Constraint(
-            t1, t2
-        )
+        if (t1 != null && !t1.isError() && t2 != null && !t2.isError() && t1 != t2)
+            constraints.add(t1, t2)
     }
 }
 

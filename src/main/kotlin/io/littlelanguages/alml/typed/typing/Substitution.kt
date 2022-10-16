@@ -1,17 +1,13 @@
 package io.littlelanguages.alml.typed.typing
 
-data class Substitution(val state: Map<Var, Type> = emptyMap()) {
-    constructor(key: Var, value: Type) : this(mapOf(Pair(key, value)))
+data class Substitution(private val items: Map<Var, Type>) {
+    infix fun compose(s: Substitution): Substitution =
+        Substitution(s.items.mapValues { it.value.apply(this) } + items)
 
-    operator fun plus(other: Substitution): Substitution =
-        Substitution(other.state.mapValues { it.value.apply(this) } + state)
+    operator fun get(v: Var): Type? = items[v]
 
-    operator fun get(key: Var): Type? =
-        state[key]
-
-    operator fun minus(keys: Set<Var>): Substitution =
-        Substitution(state - keys.toSet())
-
-    override fun toString(): String =
-        state.entries.map { "'${it.key} ${it.value}" }.sorted().joinToString(", ")
+    operator fun minus(names: Set<Var>): Substitution =
+        Substitution(items - names)
 }
+
+val nullSubst = Substitution(emptyMap())

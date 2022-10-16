@@ -25,6 +25,7 @@ Superficially this is straight forward however it is necessary to introduce type
 - [X] Enhance the grammar to include type info
 - [X] Extend the parser to parse the type detail and augment the AST
 - [X] Change the propagation of errors so that we do not need to use `Result` everywhere
+- [X] Make Constraints stateful
 - [ ] Type every TST expression
 
 ## Extend the small dialect of Al-ML to include the full Al-ML language
