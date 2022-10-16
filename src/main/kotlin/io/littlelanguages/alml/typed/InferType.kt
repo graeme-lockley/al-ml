@@ -149,7 +149,9 @@ private fun inferProcedureType(
 }
 
 class InferType(
-    private val pump: VarPump, private val environment: Environment, private val errors: Errors
+    private val pump: VarPump,
+    private val environment: Environment,
+    private val errors: Errors
 ) {
     var constraints = Constraints()
 
