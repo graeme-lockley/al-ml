@@ -15,7 +15,9 @@ data class Program(
     override fun yaml(): Any = expressions.map { it.yaml() }
 }
 
-sealed class Expression(open val position: Location) : Yamlable, Locationable {
+sealed class Expression(
+    open val position: Location
+) : Yamlable, Locationable {
     override fun position(): Location = position
 
     abstract fun apply(s: Substitution): Expression
@@ -72,7 +74,8 @@ data class BinaryOpExpression(
 }
 
 data class BlockExpression(
-    override val position: Location, val expressions: List<Expression>
+    override val position: Location,
+    val expressions: List<Expression>
 ) : Expression(position) {
     override fun apply(s: Substitution): Expression = BlockExpression(position, expressions.map { it.apply(s) })
 
@@ -84,7 +87,10 @@ data class BlockExpression(
 }
 
 data class LetValue(
-    override val position: Location, val identifier: Identifier, val type: Type, val expression: Expression
+    override val position: Location,
+    val identifier: Identifier,
+    val type: Type,
+    val expression: Expression
 ) : Expression(position) {
     override fun apply(s: Substitution): Expression = LetValue(position, identifier, type.apply(s), expression.apply(s))
 
@@ -98,7 +104,11 @@ data class LetValue(
 }
 
 data class LetFunction(
-    override val position: Location, val identifier: Identifier, val parameters: List<TypedIdentifier>, val scheme: Scheme, val expression: Expression
+    override val position: Location,
+    val identifier: Identifier,
+    val parameters: List<TypedIdentifier>,
+    val scheme: Scheme,
+    val expression: Expression
 ) : Expression(position) {
     override fun apply(s: Substitution): Expression =
         LetFunction(position, identifier, parameters.map { it.apply(s) }, scheme.apply(s), expression.apply(s))
@@ -114,7 +124,9 @@ data class LetFunction(
 }
 
 data class IfExpression(
-    override val position: Location, val ifThenExpressions: List<Tuple2<Expression, Expression>>, val elseExpression: Expression?
+    override val position: Location,
+    val ifThenExpressions: List<Tuple2<Expression, Expression>>,
+    val elseExpression: Expression?
 ) : Expression(position) {
     override fun apply(s: Substitution): Expression =
         IfExpression(position, ifThenExpressions.map { Tuple2(it.a.apply(s), it.b.apply(s)) }, elseExpression?.apply(s))
@@ -129,7 +141,10 @@ data class IfExpression(
 }
 
 data class LambdaExpression(
-    override val position: Location, val parameters: List<TypedIdentifier>, val returnType: Type?, val expression: Expression
+    override val position: Location,
+    val parameters: List<TypedIdentifier>,
+    val returnType: Type?,
+    val expression: Expression
 ) : Expression(position) {
     override fun apply(s: Substitution): Expression =
         LambdaExpression(position, parameters.map { it.apply(s) }, returnType?.apply(s), expression.apply(s))
@@ -146,7 +161,8 @@ data class LambdaExpression(
 }
 
 data class SignalExpression(
-    override val position: Location, val expression: Expression
+    override val position: Location,
+    val expression: Expression
 ) : Expression(position) {
     override fun apply(s: Substitution): Expression =
         SignalExpression(position, expression.apply(s))
@@ -159,7 +175,9 @@ data class SignalExpression(
 }
 
 data class TryExpression(
-    override val position: Location, val body: Expression, val catch: Expression
+    override val position: Location,
+    val body: Expression,
+    val catch: Expression
 ) : Expression(position) {
     override fun apply(s: Substitution): Expression =
         TryExpression(position, body.apply(s), catch.apply(s))
@@ -172,7 +190,9 @@ data class TryExpression(
 }
 
 data class TypedExpression(
-    override val position: Location, val expression: Expression, val type: Type
+    override val position: Location,
+    val expression: Expression,
+    val type: Type
 ) : Expression(position) {
     override fun apply(s: Substitution): Expression =
         TypedExpression(position, expression.apply(s), type.apply(s))
@@ -185,7 +205,8 @@ data class TypedExpression(
 }
 
 data class LiteralInt(
-    override val position: Location, val value: String
+    override val position: Location,
+    val value: String
 ) : Expression(position) {
     override fun apply(s: Substitution): Expression =
         this
@@ -194,7 +215,8 @@ data class LiteralInt(
 }
 
 data class LiteralString(
-    override val position: Location, val value: String
+    override val position: Location,
+    val value: String
 ) : Expression(position) {
     override fun apply(s: Substitution): Expression =
         this
@@ -211,7 +233,10 @@ data class LiteralUnit(
     override fun yaml(): Any = "LiteralUnit"
 }
 
-class BinaryOperator(private val position: Location, val operator: Operators) : Yamlable, Locationable {
+class BinaryOperator(
+    private val position: Location,
+    val operator: Operators
+) : Yamlable, Locationable {
     override fun position(): Location = position
 
     override fun yaml(): Any = operator.name
