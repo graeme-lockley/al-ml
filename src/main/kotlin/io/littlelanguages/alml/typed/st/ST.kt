@@ -12,6 +12,9 @@ import io.littlelanguages.scanpiler.Locationable
 data class Program(
     val expressions: List<Expression>
 ) : Yamlable {
+    fun apply(s: Substitution): Program =
+        Program(expressions.map { it.apply(s) })
+
     override fun yaml(): Any = expressions.map { it.yaml() }
 }
 

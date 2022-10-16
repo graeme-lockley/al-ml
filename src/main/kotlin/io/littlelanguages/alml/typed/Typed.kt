@@ -20,10 +20,21 @@ fun translate(reader: Reader, errors: Errors): Program {
 }
 
 private class Translator(private val errors: Errors) {
-    var environment = initialEnvironment()
-    var pump = VarPump()
+    val environment = initialEnvironment()
+    val pump = VarPump()
+    val constraints = Constraints()
 
-    fun apply(p: io.littlelanguages.alml.static.ast.Program): Program = Program(expressionsToST(p.expressions))
+    fun apply(program: io.littlelanguages.alml.static.ast.Program): Program {
+        val p = Program(expressionsToST(program.expressions))
+
+        return if (errors.reported()) {
+            p
+        } else {
+            val substitution = constraints.solve(errors)
+
+            p.apply(substitution)
+        }
+    }
 
     private fun expressionsToST(expressions: List<io.littlelanguages.alml.static.ast.Expression>): List<Expression> =
         expressions.map { expressionToST(it) }
