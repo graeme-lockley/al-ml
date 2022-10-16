@@ -5,13 +5,9 @@ import io.littlelanguages.alml.Errors
 import io.littlelanguages.alml.UnificationFail
 import io.littlelanguages.alml.UnificationMismatch
 
-data class Constraints(val state: MutableList<Constraint> = mutableListOf()) {
+data class Constraints(private val state: MutableList<Constraint> = mutableListOf()) {
     fun add(t1: Type, t2: Type) {
         state.add(Constraint(t1, t2))
-    }
-
-    fun add(constraint: Constraint) {
-        state.add(constraint)
     }
 
     fun solve(errors: Errors): Substitution =
