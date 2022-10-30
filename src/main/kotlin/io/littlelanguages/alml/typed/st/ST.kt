@@ -4,23 +4,20 @@ import io.littlelanguages.alml.typed.typing.Scheme
 import io.littlelanguages.alml.typed.typing.Substitution
 import io.littlelanguages.alml.typed.typing.Type
 import io.littlelanguages.data.Tuple2
-import io.littlelanguages.data.Yamlable
 import io.littlelanguages.scanpiler.Location
 import io.littlelanguages.scanpiler.Locationable
 
 
 data class Program(
     val expressions: List<Expression>
-) : Yamlable {
+) {
     fun apply(s: Substitution): Program =
         Program(expressions.map { it.apply(s) })
-
-    override fun yaml(): Any = expressions.map { it.yaml() }
 }
 
 sealed class Expression(
     open val position: Location
-) : Yamlable, Locationable {
+) : Locationable {
     override fun position(): Location = position
 
     abstract fun apply(s: Substitution): Expression
@@ -31,14 +28,8 @@ data class TypedIdentifier(
     val position: Location,
     val id: Identifier,
     val type: Type?
-) : Yamlable, Locationable {
+) : Locationable {
     fun apply(s: Substitution): TypedIdentifier = TypedIdentifier(position, id, type?.apply(s))
-
-    override fun yaml(): Any = if (type == null) id.yaml() else singletonMap(
-        "TypedIdentifier", mapOf(
-            Pair("identifier", id.yaml()), Pair("type", type.yaml())
-        )
-    )
 
     override fun position(): Location = position
 }
@@ -48,8 +39,6 @@ data class Identifier(
     val name: String
 ) : Expression(position) {
     override fun apply(s: Substitution): Expression = this
-
-    override fun yaml(): Any = name
 }
 
 data class ApplyExpression(
@@ -57,8 +46,6 @@ data class ApplyExpression(
     val expressions: List<Expression>
 ) : Expression(position) {
     override fun apply(s: Substitution): Expression = ApplyExpression(position, expressions.map { it.apply(s) })
-
-    override fun yaml(): Any = singletonMap("ApplyExpression", expressions.map { it.yaml() })
 }
 
 data class BinaryOpExpression(
@@ -68,12 +55,6 @@ data class BinaryOpExpression(
     val right: Expression
 ) : Expression(position) {
     override fun apply(s: Substitution): Expression = BinaryOpExpression(position, left.apply(s), op, right.apply(s))
-
-    override fun yaml(): Any = singletonMap(
-        "BinaryOpExpression", mapOf(
-            Pair("left", left.yaml()), Pair("op", op.yaml()), Pair("right", right.yaml())
-        )
-    )
 }
 
 data class BlockExpression(
@@ -81,12 +62,6 @@ data class BlockExpression(
     val expressions: List<Expression>
 ) : Expression(position) {
     override fun apply(s: Substitution): Expression = BlockExpression(position, expressions.map { it.apply(s) })
-
-    override fun yaml(): Any = singletonMap(
-        "Block", mapOf(
-            Pair("expressions", expressions.map { it.yaml() })
-        )
-    )
 }
 
 data class LetValue(
@@ -96,14 +71,6 @@ data class LetValue(
     val expression: Expression
 ) : Expression(position) {
     override fun apply(s: Substitution): Expression = LetValue(position, identifier, type.apply(s), expression.apply(s))
-
-    override fun yaml(): Any {
-        return singletonMap(
-            "ConstValue", mapOf(
-                Pair("identifier", identifier.yaml()), Pair("type", type.yaml()), Pair("expression", expression.yaml())
-            )
-        )
-    }
 }
 
 data class LetFunction(
@@ -115,15 +82,6 @@ data class LetFunction(
 ) : Expression(position) {
     override fun apply(s: Substitution): Expression =
         LetFunction(position, identifier, parameters.map { it.apply(s) }, scheme.apply(s), expression.apply(s))
-
-    override fun yaml(): Any = singletonMap(
-        "ConstProcedure", mapOf(
-            Pair("identifier", identifier.yaml()),
-            Pair("parameters", parameters.map { it.yaml() }),
-            Pair("expression", expression.yaml()),
-            Pair("scheme", scheme)
-        )
-    )
 }
 
 data class IfExpression(
@@ -133,14 +91,6 @@ data class IfExpression(
 ) : Expression(position) {
     override fun apply(s: Substitution): Expression =
         IfExpression(position, ifThenExpressions.map { Tuple2(it.a.apply(s), it.b.apply(s)) }, elseExpression?.apply(s))
-
-    override fun yaml(): Any {
-        val value = mapOf(Pair("if-expressions", ifThenExpressions.map { mapOf(Pair("guard", it.a.yaml()), Pair("body", it.b.yaml())) }))
-
-        return singletonMap(
-            "If", if (elseExpression == null) value else value + Pair("else-expression", elseExpression.yaml())
-        )
-    }
 }
 
 data class LambdaExpression(
@@ -151,16 +101,6 @@ data class LambdaExpression(
 ) : Expression(position) {
     override fun apply(s: Substitution): Expression =
         LambdaExpression(position, parameters.map { it.apply(s) }, returnType?.apply(s), expression.apply(s))
-
-    override fun yaml(): Any {
-        val value = mapOf(
-            Pair("parameters", parameters.map { it.yaml() }), Pair("expression", expression.yaml())
-        )
-
-        return singletonMap(
-            "proc", if (returnType == null) value else value + Pair("return-type", returnType.yaml())
-        )
-    }
 }
 
 data class SignalExpression(
@@ -169,12 +109,6 @@ data class SignalExpression(
 ) : Expression(position) {
     override fun apply(s: Substitution): Expression =
         SignalExpression(position, expression.apply(s))
-
-    override fun yaml(): Any = singletonMap(
-        "Signal", mapOf(
-            Pair("expression", expression.yaml())
-        )
-    )
 }
 
 data class TryExpression(
@@ -184,12 +118,6 @@ data class TryExpression(
 ) : Expression(position) {
     override fun apply(s: Substitution): Expression =
         TryExpression(position, body.apply(s), catch.apply(s))
-
-    override fun yaml(): Any = singletonMap(
-        "Try", mapOf(
-            Pair("body", body.yaml()), Pair("catch", catch.yaml())
-        )
-    )
 }
 
 data class TypedExpression(
@@ -199,12 +127,6 @@ data class TypedExpression(
 ) : Expression(position) {
     override fun apply(s: Substitution): Expression =
         TypedExpression(position, expression.apply(s), type.apply(s))
-
-    override fun yaml(): Any = singletonMap(
-        "Typed", mapOf(
-            Pair("expression", expression.yaml()), Pair("type", type.yaml())
-        )
-    )
 }
 
 data class LiteralInt(
@@ -213,8 +135,6 @@ data class LiteralInt(
 ) : Expression(position) {
     override fun apply(s: Substitution): Expression =
         this
-
-    override fun yaml(): Any = singletonMap("LiteralInt", value)
 }
 
 data class LiteralString(
@@ -223,8 +143,6 @@ data class LiteralString(
 ) : Expression(position) {
     override fun apply(s: Substitution): Expression =
         this
-
-    override fun yaml(): Any = singletonMap("LiteralString", value)
 }
 
 data class LiteralUnit(
@@ -232,17 +150,13 @@ data class LiteralUnit(
 ) : Expression(position) {
     override fun apply(s: Substitution): Expression =
         this
-
-    override fun yaml(): Any = "LiteralUnit"
 }
 
 class BinaryOperator(
     private val position: Location,
     val operator: Operators
-) : Yamlable, Locationable {
+) : Locationable {
     override fun position(): Location = position
-
-    override fun yaml(): Any = operator.name
 }
 
 enum class Operators {

@@ -145,10 +145,9 @@
                     type: S32
                     expression:
                       Block:
-                        expressions:
-                          - LiteralInt: 1
-                          - LiteralInt: 2
-                          - LiteralInt: 3
+                        - LiteralInt: 1
+                        - LiteralInt: 2
+                        - LiteralInt: 3
       - scenario:
           name: If
           tests:
@@ -360,20 +359,19 @@
                     type: S32
                     expression:
                       Block:
-                        expressions:
-                          - ConstProcedure:
-                              identifier: double
-                              parameters:
-                                - a
-                              expression:
-                                BinaryOpExpression:
-                                  left: a
-                                  op: Plus
-                                  right: a
-                              scheme: "<> S32 -> S32"
-                          - ApplyExpression:
-                              - double
-                              - LiteralInt: 10
+                        - ConstProcedure:
+                            identifier: double
+                            parameters:
+                              - a
+                            expression:
+                              BinaryOpExpression:
+                                left: a
+                                op: Plus
+                                right: a
+                            scheme: "<> S32 -> S32"
+                        - ApplyExpression:
+                            - double
+                            - LiteralInt: 10
             - name: nested scope
               input: |
                 let f a b = {
@@ -387,19 +385,18 @@
                     parameters: [a, b]
                     expression:
                       Block:
-                        expressions:
-                          - ConstValue:
-                              identifier: sum
-                              type: S32
-                              expression:
-                                BinaryOpExpression:
-                                  left: a
-                                  op: Plus
-                                  right: b
-                          - BinaryOpExpression:
-                              left: sum
-                              op: Plus
-                              right: sum
+                        - ConstValue:
+                            identifier: sum
+                            type: S32
+                            expression:
+                              BinaryOpExpression:
+                                left: a
+                                op: Plus
+                                right: b
+                        - BinaryOpExpression:
+                            left: sum
+                            op: Plus
+                            right: sum
                     scheme: "<0, 1> '0 -> '1 -> S32"
                 - ConstValue:
                     identifier: value
@@ -424,17 +421,16 @@
                     type: S32
                     expression:
                       Block:
-                        expressions:
-                          - ConstValue:
-                              identifier: y
-                              type: S32
-                              expression:
-                                LiteralInt: 10
-                          - BinaryOpExpression:
-                              left: y
-                              op: Multiply
-                              right:
-                                LiteralInt: 2
+                        - ConstValue:
+                            identifier: y
+                            type: S32
+                            expression:
+                              LiteralInt: 10
+                        - BinaryOpExpression:
+                            left: y
+                            op: Multiply
+                            right:
+                              LiteralInt: 2
       - scenario:
           name: Signal
           tests:

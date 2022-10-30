@@ -57,7 +57,7 @@ data class BinaryOpExpression<S, T>(
         "binary-op-expression", mapOfType(
             typeOf(),
             Pair("left", left.map { it.yaml() }),
-            Pair("op", op.yaml()),
+            Pair("op", op.operator.toString()),
             Pair("right", right.map { it.yaml() }),
             Pair("line-number", lineNumber)
         )

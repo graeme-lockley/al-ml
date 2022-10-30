@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.scopes.FunSpecContainerContext
 import io.kotest.matchers.shouldBe
 import io.littlelanguages.alml.Errors
+import io.littlelanguages.alml.typed.yaml.x
 import org.yaml.snakeyaml.Yaml
 import java.io.File
 
@@ -42,7 +43,7 @@ suspend fun parserConformanceTest(ctx: FunSpecContainerContext, scenarios: List<
                     if (errors.reported())
                         errors.items().map { it.yaml() }.toString() shouldBe rhs
                     else
-                        lhs.yaml().toString() shouldBe rhs
+                        x(lhs).toString() shouldBe rhs
                 }
             }
         } else {
